@@ -1,6 +1,7 @@
 // db.js - node-persist database utility for Lesson CRUD operations
 const storage = require('node-persist');
 const path = require('path');
+const bcrypt = require('bcrypt'); // Added for password hashing utility
 
 let initialized = false;
 
@@ -29,6 +30,12 @@ async function initDb() {
   const enrollments = await storage.getItem('enrollments');
   if (!enrollments) {
     await storage.setItem('enrollments', []);
+  }
+  
+  // Ensure users array exists
+  const users = await storage.getItem('users');
+  if (!users) {
+    await storage.setItem('users', []);
   }
   
   initialized = true;
@@ -255,6 +262,47 @@ async function listAllEnrollments() {
   return enrollments;
 }
 
+// ==================== USER CRUD FUNCTIONS ====================
+
+/**
+ * Finds a user record based on email address.
+ * @param {string} email - The user's email address.
+ * @returns {Promise<Object|undefined>} The user object or undefined if not found.
+ */
+async function findUserByEmail(email) {
+  await initDb();
+  
+  const users = await storage.getItem('users') || [];
+  return users.find(u => u.email === email);
+}
+
+/**
+ * Saves a new user record. Assigns a unique ID and a default role.
+ * @param {Object} user - User data including email and passwordHash.
+ * @returns {Promise<Object>} The newly created user object.
+ */
+async function saveUser(user) {
+  await initDb();
+  
+  const users = await storage.getItem('users') || [];
+  
+  // Check if user already exists
+  const existingUser = await findUserByEmail(user.email);
+  if (existingUser) {
+    throw new Error('User with this email already exists.');
+  }
+
+  const newUser = {
+    userId: Date.now().toString() + Math.random().toString(36).substring(2, 9), // Simple unique ID
+    role: user.role || 'student', // Default to student
+    ...user
+  };
+  
+  users.push(newUser);
+  await storage.setItem('users', users);
+  return newUser;
+}
+
 module.exports = {
   initDb,
   // Lesson CRUD
@@ -269,5 +317,8 @@ module.exports = {
   listEnrollmentsByLesson,
   listEnrollmentsByUser,
   updateEnrollment,
-  listAllEnrollments
+  listAllEnrollments,
+  // User CRUD
+  findUserByEmail,
+  saveUser
 };

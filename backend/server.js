@@ -7,6 +7,12 @@ const { initDb, listAllEnrollments } = require('./db');
 const lessonRouter = require('./src/routes/lessonRoutes');
 const enrollmentRouter = require('./src/routes/enrollmentRoutes');
 
+/**
+ * JWT Secret Key for signing and verifying tokens.
+ * NOTE: Using a simple hardcoded string for development. This must be an environment variable in production.
+ */
+const JWT_SECRET = 'orah-school1';
+
 const app = express();
 const PORT = process.env.PORT || 3001;
 
@@ -166,3 +172,8 @@ app.use((err, req, res, next) => {
 	}
 	res.status(err.status || 500).json({ ok: false, error: err.message || 'Server error' });
 });
+
+// Export JWT_SECRET so other modules can access it for token verification (e.g., authMiddleware)
+module.exports = {
+	JWT_SECRET
+};
