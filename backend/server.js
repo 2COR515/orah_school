@@ -60,6 +60,10 @@ const upload = multer({
 // Health check
 app.get('/health', (req, res) => res.json({ status: 'ok', service: 'Lesson API' }));
 
+// Mount Authentication API routes
+const authRoutes = require('./src/routes/authRoutes');
+app.use('/api/auth', authRoutes);
+
 // Mount Lesson API routes
 app.use('/api/lessons', lessonRouter);
 

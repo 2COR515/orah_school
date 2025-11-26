@@ -1,6 +1,7 @@
 // enrollmentController.js - Controller functions for Enrollment operations
 const {
   addEnrollment,
+  getEnrollment,
   getEnrollmentByLessonAndUser,
   listEnrollmentsByLesson,
   listEnrollmentsByUser,
@@ -29,6 +30,14 @@ const enrollUser = async (req, res) => {
       return res.status(400).json({
         ok: false,
         error: 'userId is required'
+      });
+    }
+    
+    // Self-authorization check: user can only enroll themselves
+    if (req.user && req.user.id !== userId) {
+      return res.status(403).json({
+        ok: false,
+        error: 'You can only enroll yourself'
       });
     }
     
@@ -77,6 +86,14 @@ const listUserEnrollments = async (req, res) => {
       });
     }
     
+    // Self-authorization check: user can only view their own enrollments
+    if (req.user && req.user.id !== userId) {
+      return res.status(403).json({
+        ok: false,
+        error: 'You can only view your own enrollments'
+      });
+    }
+    
     // Fetch enrollments for the user
     const enrollments = await listEnrollmentsByUser(userId);
     
@@ -115,6 +132,23 @@ const updateProgress = async (req, res) => {
       return res.status(400).json({
         ok: false,
         error: 'enrollmentId parameter is required'
+      });
+    }
+    
+    // Ownership check: verify the enrollment belongs to the authenticated user
+    const existingEnrollment = await getEnrollment(enrollmentId);
+    
+    if (!existingEnrollment) {
+      return res.status(404).json({
+        ok: false,
+        error: 'Enrollment not found'
+      });
+    }
+    
+    if (req.user && req.user.id !== existingEnrollment.userId) {
+      return res.status(403).json({
+        ok: false,
+        error: 'You can only update your own enrollments'
       });
     }
     
@@ -191,17 +225,6 @@ const listLessonEnrollments = async (req, res) => {
     // Extract lessonId from URL params
     const { lessonId } = req.params;
     
-    // Extract authorization check from query
-    const { isInstructor } = req.query;
-    
-    // Authorization check (temporary security)
-    if (isInstructor !== 'true') {
-      return res.status(403).json({
-        ok: false,
-        error: 'Forbidden: Instructor access required'
-      });
-    }
-    
     // Input validation for lessonId
     if (!lessonId) {
       return res.status(400).json({
@@ -209,6 +232,8 @@ const listLessonEnrollments = async (req, res) => {
         error: 'lessonId parameter is required'
       });
     }
+    
+    // Authorization is handled by middleware (authorizeRole('instructor'))
     
     // Fetch enrollments for the lesson
     const enrollments = await listEnrollmentsByLesson(lessonId);

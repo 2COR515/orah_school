@@ -185,6 +185,18 @@ async function addEnrollment(enrollmentData) {
 }
 
 /**
+ * Get a single enrollment by ID
+ * @param {string} id - Enrollment id
+ * @returns {Promise<Object|null>} The enrollment object or null if not found
+ */
+async function getEnrollment(id) {
+  await initDb();
+  
+  const enrollments = await storage.getItem('enrollments') || [];
+  return enrollments.find(e => e.id === id) || null;
+}
+
+/**
  * Get a single enrollment by lessonId and userId
  * @param {string} lessonId - Lesson id
  * @param {string} userId - User id
@@ -313,6 +325,7 @@ module.exports = {
   listLessons,
   // Enrollment CRUD
   addEnrollment,
+  getEnrollment,
   getEnrollmentByLessonAndUser,
   listEnrollmentsByLesson,
   listEnrollmentsByUser,

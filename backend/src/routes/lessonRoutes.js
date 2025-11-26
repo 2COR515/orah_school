@@ -9,6 +9,7 @@ const {
   updateLesson,
   deleteLesson
 } = require('../controllers/lessonController');
+const { authenticateToken, authorizeRole } = require('../middleware/authMiddleware');
 
 // Create router instance
 const router = express.Router();
@@ -54,19 +55,19 @@ const lessonUpload = multer({
   }
 }).array('lessonFiles', 5);
 
-// POST / - Create a new lesson with file uploads
-router.post('/', lessonUpload, createLesson);
+// POST / - Create a new lesson with file uploads (protected: instructor only)
+router.post('/', authenticateToken, authorizeRole('instructor'), lessonUpload, createLesson);
 
-// GET / - List all published lessons
+// GET / - List all published lessons (public access)
 router.get('/', listPublishedLessons);
 
-// GET /:id - Get a single lesson by ID
+// GET /:id - Get a single lesson by ID (public access)
 router.get('/:id', getLessonById);
 
-// PATCH /:id - Update a lesson by ID
-router.patch('/:id', updateLesson);
+// PATCH /:id - Update a lesson by ID (protected: instructor only)
+router.patch('/:id', authenticateToken, authorizeRole('instructor'), updateLesson);
 
-// DELETE /:id - Delete a lesson by ID
-router.delete('/:id', deleteLesson);
+// DELETE /:id - Delete a lesson by ID (protected: instructor only)
+router.delete('/:id', authenticateToken, authorizeRole('instructor'), deleteLesson);
 
 module.exports = router;
