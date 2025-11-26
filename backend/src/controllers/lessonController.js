@@ -63,7 +63,7 @@ const createLesson = async (req, res) => {
       topic: topic || '',
       durationMinutes: durationMinutes ? parseInt(durationMinutes) : null,
       files: uploadedFiles,
-      status: 'draft'
+      status: req.body.status || 'draft' // Allow status to be set, default to 'draft'
     };
     
     // Call addLesson to store the lesson

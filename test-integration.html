@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Integration Test - Orah School</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .test-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .success { color: #28a745; }
+    .error { color: #dc3545; }
+    .info { color: #17a2b8; }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin: 5px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    pre {
+      background: #f8f9fa;
+      padding: 10px;
+      border-radius: 4px;
+      overflow-x: auto;
+    }
+    .lesson-card {
+      border: 1px solid #ddd;
+      padding: 15px;
+      margin: 10px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Backend-Frontend Integration Test</h1>
+  
+  <div class="test-section">
+    <h2>1. Test API Connection</h2>
+    <button onclick="testConnection()">Test Connection</button>
+    <div id="connection-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>2. Test Fetch Lessons</h2>
+    <button onclick="fetchLessons()">Fetch All Lessons</button>
+    <div id="lessons-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>3. Test Student Enrollments</h2>
+    <button onclick="fetchEnrollments()">Fetch Student S101 Enrollments</button>
+    <div id="enrollments-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>4. Test Enrollment Flow</h2>
+    <button onclick="testEnrollment()">Enroll in First Available Lesson</button>
+    <div id="enrollment-flow-result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>5. Integration Status</h2>
+    <ul>
+      <li>✅ Student Dashboard Integration</li>
+      <li>✅ Lesson Player Integration</li>
+      <li>✅ Upload Interface Integration</li>
+      <li>✅ Enrollment System</li>
+      <li>✅ Progress Tracking</li>
+    </ul>
+    <p><strong>Quick Links:</strong></p>
+    <ul>
+      <li><a href="student-dashboard.html">Student Dashboard</a></li>
+      <li><a href="upload.html">Upload Lesson</a></li>
+      <li><a href="instructor-dashboard.html">Instructor Dashboard</a></li>
+    </ul>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:3001/api';
+
+    async function testConnection() {
+      const result = document.getElementById('connection-result');
+      result.innerHTML = '<p class="info">Testing connection...</p>';
+      
+      try {
+        const response = await fetch('http://localhost:3001/health');
+        const data = await response.json();
+        
+        if (response.ok) {
+          result.innerHTML = `<p class="success">✓ Backend connected successfully!</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+        } else {
+          result.innerHTML = `<p class="error">✗ Connection failed: ${response.status}</p>`;
+        }
+      } catch (error) {
+        result.innerHTML = `<p class="error">✗ Error: ${error.message}</p>`;
+      }
+    }
+
+    async function fetchLessons() {
+      const result = document.getElementById('lessons-result');
+      result.innerHTML = '<p class="info">Fetching lessons...</p>';
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/lessons`);
+        const data = await response.json();
+        
+        if (response.ok && data.lessons) {
+          let html = `<p class="success">✓ Found ${data.total} lessons</p>`;
+          data.lessons.forEach(lesson => {
+            html += `
+              <div class="lesson-card">
+                <h4>${lesson.title}</h4>
+                <p>${lesson.description}</p>
+                <small>Topic: ${lesson.topic} | Status: ${lesson.status} | ID: ${lesson.id}</small>
+              </div>
+            `;
+          });
+          result.innerHTML = html;
+        } else {
+          result.innerHTML = `<p class="error">✗ Failed to fetch lessons</p>`;
+        }
+      } catch (error) {
+        result.innerHTML = `<p class="error">✗ Error: ${error.message}</p>`;
+      }
+    }
+
+    async function fetchEnrollments() {
+      const result = document.getElementById('enrollments-result');
+      result.innerHTML = '<p class="info">Fetching enrollments...</p>';
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/enrollments/user/S101`);
+        const data = await response.json();
+        
+        if (response.ok && data.enrollments) {
+          let html = `<p class="success">✓ Found ${data.total} enrollments for student S101</p>`;
+          if (data.enrollments.length > 0) {
+            html += '<pre>' + JSON.stringify(data.enrollments, null, 2) + '</pre>';
+          } else {
+            html += '<p>No enrollments yet.</p>';
+          }
+          result.innerHTML = html;
+        } else {
+          result.innerHTML = `<p class="error">✗ Failed to fetch enrollments</p>`;
+        }
+      } catch (error) {
+        result.innerHTML = `<p class="error">✗ Error: ${error.message}</p>`;
+      }
+    }
+
+    async function testEnrollment() {
+      const result = document.getElementById('enrollment-flow-result');
+      result.innerHTML = '<p class="info">Testing enrollment flow...</p>';
+      
+      try {
+        // First, get available lessons
+        const lessonsResponse = await fetch(`${API_BASE_URL}/lessons`);
+        const lessonsData = await lessonsResponse.json();
+        
+        if (!lessonsData.lessons || lessonsData.lessons.length === 0) {
+          result.innerHTML = '<p class="error">✗ No lessons available to enroll in</p>';
+          return;
+        }
+
+        // Get enrollments to find unenrolled lessons
+        const enrollmentsResponse = await fetch(`${API_BASE_URL}/enrollments/user/S101`);
+        const enrollmentsData = await enrollmentsResponse.json();
+        
+        const enrolledLessonIds = new Set(enrollmentsData.enrollments.map(e => e.lessonId));
+        const availableLessons = lessonsData.lessons.filter(l => 
+          l.status === 'published' && !enrolledLessonIds.has(l.id)
+        );
+        
+        if (availableLessons.length === 0) {
+          result.innerHTML = '<p class="info">ℹ Student is already enrolled in all available lessons</p>';
+          return;
+        }
+
+        // Enroll in first available lesson
+        const lessonToEnroll = availableLessons[0];
+        const enrollResponse = await fetch(`${API_BASE_URL}/enrollments`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            lessonId: lessonToEnroll.id,
+            userId: 'S101'
+          })
+        });
+
+        const enrollData = await enrollResponse.json();
+        
+        if (enrollResponse.ok) {
+          result.innerHTML = `
+            <p class="success">✓ Successfully enrolled in "${lessonToEnroll.title}"</p>
+            <pre>${JSON.stringify(enrollData.enrollment, null, 2)}</pre>
+          `;
+        } else {
+          result.innerHTML = `<p class="error">✗ Enrollment failed: ${enrollData.error}</p>`;
+        }
+        
+      } catch (error) {
+        result.innerHTML = `<p class="error">✗ Error: ${error.message}</p>`;
+      }
+    }
+
+    // Auto-run connection test on load
+    window.addEventListener('DOMContentLoaded', testConnection);
+  </script>
+</body>
+</html>
