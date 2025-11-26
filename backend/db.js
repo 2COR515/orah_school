@@ -25,6 +25,12 @@ async function initDb() {
     await storage.setItem('lessons', []);
   }
   
+  // Ensure enrollments array exists
+  const enrollments = await storage.getItem('enrollments');
+  if (!enrollments) {
+    await storage.setItem('enrollments', []);
+  }
+  
   initialized = true;
 }
 
@@ -130,11 +136,138 @@ async function listLessons() {
   return lessons;
 }
 
+// ==================== ENROLLMENT CRUD FUNCTIONS ====================
+
+/**
+ * Add a new enrollment to storage
+ * Ensures a user can only enroll once per lesson
+ * @param {Object} enrollmentData - Enrollment data object with lessonId, userId
+ * @returns {Promise<Object|null>} The created enrollment or null if already enrolled
+ */
+async function addEnrollment(enrollmentData) {
+  await initDb();
+  
+  const { lessonId, userId } = enrollmentData;
+  
+  // Check for existing enrollment (unique constraint)
+  const enrollments = await storage.getItem('enrollments') || [];
+  const existingEnrollment = enrollments.find(
+    e => e.lessonId === lessonId && e.userId === userId
+  );
+  
+  if (existingEnrollment) {
+    return null; // User already enrolled in this lesson
+  }
+  
+  const now = Date.now();
+  const id = now + Math.random().toString(36).substring(2, 9);
+  
+  const enrollment = {
+    id,
+    lessonId,
+    userId,
+    enrolledAt: now,
+    status: 'active',
+    progress: 0
+  };
+  
+  enrollments.push(enrollment);
+  await storage.setItem('enrollments', enrollments);
+  
+  return enrollment;
+}
+
+/**
+ * Get a single enrollment by lessonId and userId
+ * @param {string} lessonId - Lesson id
+ * @param {string} userId - User id
+ * @returns {Promise<Object|null>} The enrollment object or null if not found
+ */
+async function getEnrollmentByLessonAndUser(lessonId, userId) {
+  await initDb();
+  
+  const enrollments = await storage.getItem('enrollments') || [];
+  return enrollments.find(e => e.lessonId === lessonId && e.userId === userId) || null;
+}
+
+/**
+ * List all enrollments for a specific lesson
+ * @param {string} lessonId - Lesson id
+ * @returns {Promise<Array>} Array of enrollment objects
+ */
+async function listEnrollmentsByLesson(lessonId) {
+  await initDb();
+  
+  const enrollments = await storage.getItem('enrollments') || [];
+  return enrollments.filter(e => e.lessonId === lessonId);
+}
+
+/**
+ * List all enrollments for a specific user
+ * @param {string} userId - User id
+ * @returns {Promise<Array>} Array of enrollment objects
+ */
+async function listEnrollmentsByUser(userId) {
+  await initDb();
+  
+  const enrollments = await storage.getItem('enrollments') || [];
+  return enrollments.filter(e => e.userId === userId);
+}
+
+/**
+ * Update an enrollment by id
+ * @param {string} id - Enrollment id
+ * @param {Object} updateData - Fields to update (primarily progress and status)
+ * @returns {Promise<Object|null>} The updated enrollment or null if not found
+ */
+async function updateEnrollment(id, updateData) {
+  await initDb();
+  
+  const enrollments = await storage.getItem('enrollments') || [];
+  const index = enrollments.findIndex(e => e.id === id);
+  
+  if (index === -1) return null;
+  
+  // Merge updates, preserving id, lessonId, userId, and enrolledAt
+  const updated = {
+    ...enrollments[index],
+    ...updateData,
+    id: enrollments[index].id,
+    lessonId: enrollments[index].lessonId,
+    userId: enrollments[index].userId,
+    enrolledAt: enrollments[index].enrolledAt
+  };
+  
+  enrollments[index] = updated;
+  await storage.setItem('enrollments', enrollments);
+  
+  return updated;
+}
+
+/**
+ * List all enrollments (raw access for cron jobs)
+ * @returns {Promise<Array>} Array of all enrollment objects
+ */
+async function listAllEnrollments() {
+  await initDb();
+  
+  const enrollments = await storage.getItem('enrollments') || [];
+  return enrollments;
+}
+
 module.exports = {
   initDb,
+  // Lesson CRUD
   addLesson,
   getLesson,
   updateLesson,
   deleteLesson,
-  listLessons
+  listLessons,
+  // Enrollment CRUD
+  addEnrollment,
+  getEnrollmentByLessonAndUser,
+  listEnrollmentsByLesson,
+  listEnrollmentsByUser,
+  updateEnrollment,
+  listAllEnrollments
 };
