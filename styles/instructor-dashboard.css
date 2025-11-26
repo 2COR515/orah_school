@@ -1,0 +1,136 @@
+/* styles/instructor-dashboard.css */
+/* Instructor dashboard: header with name/initials, tech-button nav, floating chat */
+
+:root {
+  --dark-purple: #3B0270;
+  --bright-violet: #6F00FF;
+  --light-lav: #E9B3FB;
+  --off-white: #FFF1F1;
+  --bg: #fffdfd;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', system-ui, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--dark-purple);
+}
+
+/* Header styles */
+.dashboard-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.2rem 2rem;
+  background: linear-gradient(90deg, var(--off-white), #fff);
+  border-bottom: 1px solid var(--light-lav);
+  position: relative;
+  z-index: 10;
+}
+
+/* Instructor info: initials and name */
+.instructor-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+.avatar {
+  width: 48px;
+  height: 48px;
+  background: var(--bright-violet);
+  color: #fff;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.3rem;
+  box-shadow: 0 2px 8px rgba(111,0,255,0.08);
+}
+.instructor-name {
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+/* Nav links as tech-buttons */
+.dashboard-nav {
+  margin-left: auto;
+  display: flex;
+  gap: 1rem;
+}
+.dashboard-nav .tech-button {
+  /* Inherit global .tech-button styles from styles.css */
+  min-width: 120px;
+  text-align: center;
+}
+
+/* Main dashboard panels */
+.dashboard-main {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.dashboard-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 4px 24px rgba(59,2,112,0.07);
+  padding: 2rem 1.5rem;
+  min-height: 180px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+}
+
+/* Floating chatbot button */
+.chatbot-btn {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--bright-violet);
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  font-size: 2rem;
+  box-shadow: 0 4px 18px rgba(111,0,255,0.18);
+  cursor: pointer;
+  z-index: 100;
+  transition: background 0.18s, transform 0.18s, box-shadow 0.18s;
+}
+.chatbot-btn:hover, .chatbot-btn:focus {
+  background: var(--dark-purple);
+  transform: scale(1.08);
+  box-shadow: 0 8px 32px rgba(111,0,255,0.22);
+}
+
+/* Footer */
+.dashboard-footer {
+  text-align: center;
+  padding: 1.2rem 0;
+  background: var(--off-white);
+  color: var(--dark-purple);
+  font-size: 0.98rem;
+  border-top: 1px solid var(--light-lav);
+}
+
+/* Responsive */
+@media (max-width: 700px) {
+  .dashboard-main {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+    gap: 1rem;
+  }
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.7rem;
+    padding: 1rem;
+  }
+  .dashboard-nav {
+    margin-left: 0;
+  }
+}

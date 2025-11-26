@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Reminders — Orah School</title>
+  <link rel="stylesheet" href="styles/reminders.css" />
+</head>
+<body>
+  <!-- Header: logo and nav -->
+  <header class="rem-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="48" height="32">
+    </a>
+    <nav class="rem-nav">
+      <a href="student-dashboard.html">Dashboard</a>
+      <a href="lessons.html">Lessons</a>
+      <a href="reminders.html" class="active">Reminders</a>
+    </nav>
+  </header>
+
+  <main class="rem-main">
+    <h1>Reminders</h1>
+    <!-- Reminder form -->
+    <form id="reminder-form" class="reminder-form">
+      <input type="text" id="reminder-text" placeholder="Reminder text" required />
+      <input type="datetime-local" id="reminder-datetime" required />
+      <button type="submit" class="rem-btn">Add Reminder</button>
+    </form>
+    <!-- List of reminders -->
+    <ul id="reminder-list" class="reminder-list">
+      <!-- Reminders will be rendered here -->
+    </ul>
+  </main>
+
+  <footer class="rem-footer">
+    Orah School &copy; 2025
+  </footer>
+
+  <script src="scripts/reminders.js"></script>
+</body>
+</html>

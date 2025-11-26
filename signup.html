@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Signup — Orah Schools</title>
+  <!-- Link to page-specific CSS -->
+  <link rel="stylesheet" href="./styles/signup.css" />
+</head>
+<body>
+  <!-- HEADER: same site header; signup highlighted -->
+  <header class="site-header">
+    <div class="container header-inner">
+  <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="60" height="40">
+      <nav class="main-nav">
+        <a class="tech-button" href="index.html#topics" id="explore-btn">Explore</a>
+        <div class="search"><input type="search" placeholder="Search courses..." aria-label="Search" /></div>
+        <a class="nav-cta tech-button" href="instructor-signup.html">Teach</a>
+      </nav>
+      <div class="auth">
+        <a class="ghost" href="login.html">Login</a>
+        <!-- Signup is active on this page -->
+        <span class="active">Signup</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN: Signup form card -->
+  <main class="main">
+    <div class="card">
+      <h1>Create an account</h1>
+      <p class="sub">Sign up as a student to get started</p>
+
+      <form id="signup-form" class="form" novalidate>
+        <label>
+          <span>Full name</span>
+          <input type="text" name="name" required />
+        </label>
+
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" required />
+        </label>
+
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" required />
+        </label>
+
+        <label>
+          <span>Confirm password</span>
+          <input type="password" name="confirm" required />
+        </label>
+
+        <div class="form-row">
+          <button class="btn primary" type="submit">Create account</button>
+        </div>
+
+        <div id="signup-error" class="error" aria-live="polite"></div>
+      </form>
+    </div>
+  </main>
+
+  <script src="./scripts/signup.js"></script>
+</body>
+</html>

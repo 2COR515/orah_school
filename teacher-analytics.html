@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Teacher Analytics — Orah School</title>
+  <link rel="stylesheet" href="styles/teacher-analytics.css" />
+</head>
+<body>
+  <main class="analytics-main">
+    <!-- KPIs cards -->
+    <section class="kpi-cards">
+      <div class="kpi-card">Enrollment: 120</div>
+      <div class="kpi-card">Attendance: 92%</div>
+      <div class="kpi-card">Avg. Score: 87</div>
+    </section>
+    <!-- Filters -->
+    <section class="analytics-filters">
+      <label>Topic
+        <select>
+          <option>All</option>
+          <option>Python</option>
+          <option>SQL</option>
+        </select>
+      </label>
+      <label>Date
+        <input type="date" />
+      </label>
+    </section>
+    <!-- Chart area -->
+    <section class="analytics-charts">
+      <!-- Chart area (placeholder) -->
+      <div class="chart-placeholder">[Enrollment Chart]</div>
+      <div class="chart-placeholder">[Attendance Chart]</div>
+    </section>
+    <!-- Summary/insights panel -->
+    <section class="analytics-summary">
+      <h2>Summary & Insights</h2>
+      <p>Highlight trends, outliers, and actionable insights here.</p>
+    </section>
+  </main>
+  <script src="scripts/teacher-analytics.js"></script>
+</body>
+</html>

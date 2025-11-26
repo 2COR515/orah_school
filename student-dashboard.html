@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Student Dashboard — Orah School</title>
+  <link rel="stylesheet" href="styles/student-dashboard.css" />
+</head>
+<body>
+  <!-- Sidebar navigation -->
+  <aside class="sidebar">
+    <nav>
+      <ul>
+        <li><a href="#" class="active">My Courses</a></li>
+        <li><a href="#">Progress</a></li>
+        <li><a href="#">Analytics</a></li>
+        <li><a href="#">Help</a></li>
+      </ul>
+    </nav>
+  </aside>
+
+  <!-- Main dashboard content -->
+  <main class="student-main">
+    <section class="dashboard-section" id="courses-overview">
+      <!-- Course overview cards -->
+      <h2>My Courses</h2>
+      <div class="courses-grid">
+        <!-- Example course card -->
+        <div class="course-card">
+          <h3>Data Science 101</h3>
+          <p>Next lesson: Introduction to Python</p>
+        </div>
+        <div class="course-card">
+          <h3>Statistics Basics</h3>
+          <p>Next lesson: Probability</p>
+        </div>
+      </div>
+    </section>
+    <section class="dashboard-section" id="upcoming-lessons">
+      <!-- Upcoming lessons panel -->
+      <h2>Upcoming Lessons</h2>
+      <ul class="lessons-list">
+        <li>Python Loops - Tomorrow</li>
+        <li>SQL Queries - Friday</li>
+      </ul>
+    </section>
+    <section class="dashboard-section" id="performance">
+      <!-- Performance summary -->
+      <h2>Performance</h2>
+      <div class="performance-cards">
+        <div class="performance-card">Lessons Completed: 8</div>
+        <div class="performance-card">Attendance: 95%</div>
+      </div>
+    </section>
+    <section class="dashboard-section" id="notifications">
+      <!-- Notifications panel -->
+      <h2>Notifications</h2>
+      <ul class="notifications-list">
+        <li>New lesson available: Data Visualization</li>
+        <li>Assignment due: Monday</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="scripts/student-dashboard.js"></script>
+</body>
+</html>

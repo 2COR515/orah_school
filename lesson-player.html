@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Lesson Player — Orah School</title>
+  <link rel="stylesheet" href="styles/lesson-player.css" />
+</head>
+<body>
+  <!-- Header: logo and navigation -->
+  <header class="lp-header">
+    <a href="index.html" class="logo-link">
+      <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="48" height="32">
+    </a>
+    <nav class="lp-nav">
+      <a href="student-dashboard.html">Dashboard</a>
+      <a href="lessons.html">All Lessons</a>
+      <a href="reminders.html">Reminders</a>
+    </nav>
+  </header>
+
+  <main class="lp-main">
+    <!-- Main lesson/video area -->
+    <section class="lp-player-section">
+      <div class="lp-video-player">
+        <!-- Replace with actual video player as needed -->
+        <video controls poster="assets/lesson-poster.png">
+          <source src="assets/sample-lesson.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </div>
+      <div class="lp-lesson-info">
+        <h1 class="lp-lesson-title">Lesson Title Here</h1>
+        <p class="lp-lesson-desc">This is a description of the lesson. It covers the main topics and learning objectives.</p>
+        <div class="lp-controls">
+          <button class="lp-btn" id="prev-lesson-btn">Previous Lesson</button>
+          <button class="lp-btn" id="mark-completed-btn">Mark as Completed</button>
+          <button class="lp-btn" id="next-lesson-btn">Next Lesson</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Sidebar: resources and related lessons -->
+    <aside class="lp-sidebar">
+      <section class="lp-resources">
+        <h2>Resources</h2>
+        <ul>
+          <li><a href="#">Download Slides</a></li>
+          <li><a href="#">Sample Code</a></li>
+        </ul>
+      </section>
+      <section class="lp-related">
+        <h2>Related Lessons</h2>
+        <ul>
+          <li><a href="#">Lesson 1: Introduction</a></li>
+          <li><a href="#">Lesson 2: Basics</a></li>
+        </ul>
+      </section>
+    </aside>
+  </main>
+
+  <!-- Comments/notes section -->
+  <section class="lp-comments">
+    <h2>Comments & Notes</h2>
+    <textarea placeholder="Add your notes or questions here..."></textarea>
+  </section>
+
+  <!-- Footer -->
+  <footer class="lp-footer">
+    Orah School &copy; 2025
+  </footer>
+
+  <script src="scripts/lesson-player.js"></script>
+</body>
+</html>

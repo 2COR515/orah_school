@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Become an Instructor — Orah School</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- Simple instructor signup page -->
+  <header class="header">
+    <div class="container header-inner">
+      <!-- Logo replaced with real asset -->
+      <a href="index.html" aria-label="Orah Schools home">
+  <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="60" height="40">
+      </a>
+      <nav class="nav">
+        <a class="nav-btn tech-button" href="index.html#topics">Explore</a>
+        <div class="search"><input type="search" placeholder="Search..." aria-label="Search" /></div>
+        <a class="nav-btn tech-button" id="teach-button" href="instructor-signup.html">Teach</a>
+      </nav>
+      <div class="auth-actions">
+        <a class="ghost tech-button" href="index.html">Back</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="container">
+      <section class="card" style="max-width:720px; margin:0 auto;">
+        <div class="card-side" style="grid-column:1 / -1;">
+          <h1>Become an Instructor</h1>
+          <p class="lead">Join Orah School to create courses and share knowledge.</p>
+        </div>
+
+        <div class="card-forms" style="grid-column:1 / -1;">
+          <form id="instructor-form" class="form" novalidate>
+            <label>Full name
+              <input type="text" name="name" required />
+            </label>
+            <label>Email
+              <input type="email" name="email" required />
+            </label>
+            <label>Short bio
+              <textarea name="bio" rows="4" style="padding:12px;border-radius:10px;border:1px solid rgba(59,2,112,0.06);"></textarea>
+            </label>
+            <label>Website (optional)
+              <input type="url" name="website" />
+            </label>
+            <button class="btn primary tech-button" type="submit">Apply to teach</button>
+          </form>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <script src="./script.js"></script>
+  <script src="./scripts/script.js"></script>
+</body>
+</html>

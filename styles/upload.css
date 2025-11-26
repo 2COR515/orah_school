@@ -1,0 +1,107 @@
+/* styles/upload.css */
+/* Upload lesson form and history panel */
+
+:root {
+  --dark-purple: #3B0270;
+  --bright-violet: #6F00FF;
+  --light-lav: #E9B3FB;
+  --off-white: #FFF1F1;
+  --bg: #fffdfd;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', system-ui, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--dark-purple);
+}
+
+.upload-main {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+}
+
+.upload-panel {
+  flex: 2;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(59,2,112,0.06);
+  padding: 2rem 1.5rem;
+}
+
+.upload-panel h1 {
+  margin-top: 0;
+}
+
+.upload-panel form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.upload-panel label {
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+input[type="text"], textarea, select {
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--light-lav);
+  font-size: 1rem;
+  background: var(--off-white);
+}
+
+input[type="file"] {
+  margin-top: 0.3rem;
+}
+
+.submit-btn {
+  background: var(--bright-violet);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s, transform 0.16s;
+}
+.submit-btn:hover {
+  background: var(--dark-purple);
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Upload history panel */
+.upload-history {
+  flex: 1;
+  background: var(--off-white);
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(59,2,112,0.06);
+  padding: 1.5rem 1rem;
+  min-width: 180px;
+}
+.upload-history h2 {
+  margin-top: 0;
+}
+#history-list {
+  list-style: disc inside;
+  margin: 0.5rem 0 0 1rem;
+  padding: 0;
+  font-size: 0.98rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .upload-main {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  .upload-history {
+    min-width: 0;
+    margin-top: 1rem;
+  }
+}

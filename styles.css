@@ -1,0 +1,227 @@
+/* styles.css
+   Color palette and layout for the login/signup page
+   Colors:
+     --dark-purple: #3B0270
+     --bright-violet: #6F00FF
+     --light-lav: #E9B3FB
+     --off-white: #FFF1F1
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root{
+  --dark-purple: #3B0270;
+  --bright-violet: #6F00FF;
+  --light-lav: #E9B3FB;
+  --off-white: #FFF1F1;
+  --glass: rgba(255,241,241,0.72);
+}
+
+/* Global reset and base */
+*{ box-sizing: border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family: 'Poppins', system-ui, -apple-system, 'Segoe UI', Roboto, Arial;
+  background: radial-gradient(800px 400px at 10% 10%, rgba(111,0,255,0.10), transparent),
+              radial-gradient(700px 350px at 90% 90%, rgba(59,2,112,0.06), transparent),
+              linear-gradient(180deg, #fffafc 0%, #fffefe 100%);
+  color: var(--dark-purple);
+  -webkit-font-smoothing:antialiased;
+  -moz-osx-font-smoothing:grayscale;
+}
+
+.container{ max-width:1100px; margin:0 auto; padding:0 20px; }
+
+/* Header (sticky) */
+.header{
+  position:sticky; top:0; z-index:50;
+  background: linear-gradient(90deg, rgba(111,0,255,0.04), rgba(59,2,112,0.02));
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid rgba(111,0,255,0.04);
+}
+.header-inner{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px 0; }
+.logo{ font-weight:700; color:var(--dark-purple); }
+
+/* Navigation */
+.nav{ display:flex; align-items:center; gap:12px; }
+.nav-btn{ background:transparent; border:none; padding:8px 12px; border-radius:8px; color:var(--dark-purple); cursor:pointer; transition:all 150ms ease; }
+.nav-btn:hover{ background: rgba(111,0,255,0.05); transform:translateY(-2px); }
+.search input{ padding:8px 12px; border-radius:999px; border:1px solid rgba(59,2,112,0.06); outline:none; width:220px; transition:box-shadow 180ms ease, border-color 160ms ease; }
+.search input:focus{ box-shadow:0 0 12px rgba(233,179,251,0.28); border-color:var(--light-lav); }
+
+.auth-actions{ display:flex; gap:10px; align-items:center; }
+.ghost{ background:transparent; border:1px solid rgba(59,2,112,0.06); padding:8px 12px; border-radius:8px; color:var(--dark-purple); cursor:pointer; }
+.primary{ background: linear-gradient(90deg,var(--bright-violet),var(--dark-purple)); color:#fff; border:none; padding:8px 14px; border-radius:10px; box-shadow:0 8px 26px rgba(111,0,255,0.12); cursor:pointer; transition:transform 160ms ease, box-shadow 160ms ease; }
+.primary:hover{ transform:translateY(-3px); box-shadow:0 14px 40px rgba(59,2,112,0.18); }
+
+/* Main and card */
+.main{ display:flex; align-items:center; justify-content:center; min-height: calc(100vh - 84px); padding:40px 0; }
+.card{ display:grid; grid-template-columns: 1fr 1fr; gap:24px; width:100%; max-width:980px; background: var(--glass); padding:28px; border-radius:16px; box-shadow: 0 12px 40px rgba(59,2,112,0.06); backdrop-filter: blur(8px) saturate(1.05); border:1px solid rgba(111,0,255,0.05); }
+
+/* Left side */
+.card-side{ display:flex; flex-direction:column; gap:12px; }
+.card-side h1{ margin:0; font-size:clamp(20px,3vw,30px); }
+.lead{ margin:0; color:rgba(59,2,112,0.7); }
+.tabs{ display:flex; gap:8px; margin-top:8px; }
+.tab{ background:transparent; border:none; padding:8px 12px; border-radius:10px; cursor:pointer; color:var(--dark-purple); }
+.tab.active{ background: rgba(111,0,255,0.10); box-shadow: inset 0 0 0 1px rgba(111,0,255,0.04); }
+
+/* Forms area */
+.card-forms{ display:flex; align-items:center; }
+.form{ width:100%; display:flex; flex-direction:column; gap:12px; }
+.form label{ display:flex; flex-direction:column; gap:8px; font-size:14px; color:rgba(59,2,112,0.8); }
+
+input[type="text"], input[type="email"], input[type="password"], input[type="search"]{ padding:12px 12px; border-radius:10px; border:1px solid rgba(59,2,112,0.06); background:rgba(255,255,255,0.72); transition:box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease; }
+input:focus{ outline:none; border-color:var(--light-lav); box-shadow:0 0 16px rgba(233,179,251,0.22); transform:translateY(-1px); }
+
+.pw-row{ display:flex; gap:8px; align-items:center; }
+.show-pw{ background:transparent; border:1px solid rgba(59,2,112,0.06); padding:8px 10px; border-radius:8px; cursor:pointer; }
+
+.row.between{ display:flex; justify-content:space-between; align-items:center; }
+.remember{ display:flex; align-items:center; gap:8px; font-size:14px; color:rgba(59,2,112,0.8); }
+.link{ color:var(--dark-purple); text-decoration:underline; font-size:14px; }
+
+.btn{ padding:12px 14px; border-radius:10px; border:none; cursor:pointer; transition:transform 140ms ease, box-shadow 140ms ease; }
+.btn.primary{ background:var(--bright-violet); color:#fff; box-shadow:0 10px 26px rgba(111,0,255,0.16); }
+.btn.primary:hover{ background:var(--dark-purple); transform:translateY(-3px); box-shadow:0 18px 44px rgba(59,2,112,0.2); }
+
+.hidden{ display:none; }
+
+/* small error text */
+.error{ color:#b00020; font-size:13px; margin-top:6px; }
+
+/* Responsive rules */
+@media (max-width:880px){
+  .card{ grid-template-columns: 1fr; padding:22px; }
+  .search input{ width:120px; }
+}
+@media (max-width:560px){
+  .header-inner{ flex-direction:column; align-items:flex-start; gap:10px; }
+  .nav{ width:100%; justify-content:flex-start; }
+  .search input{ width:100%; }
+  .card{ margin:12px; }
+}
+
+/* -------------------------
+   Global: Smooth scrolling
+   Ensures anchor links (like index.html#topics) scroll smoothly
+   ------------------------- */
+html { scroll-behavior: smooth; }
+
+/* -------------------------
+   Logo: consistent header sizing
+   - .logo: used for header images across pages
+   - Keep width:auto to preserve aspect ratio
+   - max-height tuned to take a small left corner of the header
+   ------------------------- */
+.logo,
+header .logo {
+  /* Constrain logo size while preserving aspect ratio
+     - max-width limits horizontal size (desktop)
+     - max-height limits vertical size so it doesn't dominate the header
+     - width/height auto preserve the image's natural ratio
+     - object-fit ensures the image scales cleanly inside its box
+  */
+  /* tightened constraints so logo doesn't push nav items away
+    Updated to 60x40 to match requested smaller logo size */
+  max-width: 60px; /* limit horizontal size to 60px */
+  max-height: 40px; /* limit vertical size to 40px */
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+/* -------------------------
+   Tech Button: futuristic / neon look
+   - .tech-button: apply to all <button> and <a> that act like buttons
+   - Dark base color, violet border, subtle neon glow on hover
+   - Uses ::before pseudo-element for animated blurred background
+   - Transitions for smooth interactions, stronger glow on :active
+   ------------------------- */
+.tech-button {
+  /* Use inline-block so anchors appear as buttons while remaining inline with text
+     Use vertical-align to center with surrounding inline content. */
+  display: inline-block;
+  vertical-align: middle;
+  text-align: center;
+  padding: 8px 12px; /* requested padding: 8px (top/bottom) 12px (left/right) */
+  font-family: 'Poppins', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: #FFF1F1;                /* light text */
+  background: #3B0270;           /* dark purple base */
+  border: 2px solid #6F00FF;     /* violet border */
+  border-radius: 12px;
+  text-decoration: none;         /* for anchor-buttons */
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 180ms cubic-bezier(.2,.9,.2,1),
+              box-shadow 220ms ease,
+              border-color 180ms ease,
+              color 150ms ease;
+  z-index: 1;
+}
+
+.tech-button::before {
+  content: "";
+  position: absolute;
+  inset: -12px; /* extend outside to create blur halo */
+  z-index: -1;
+  background: linear-gradient(120deg, #6F00FF 0%, #E9B3FB 50%, #FFF1F1 100%);
+  background-size: 300% 300%;
+  filter: blur(14px) saturate(1.1);
+  opacity: 0; /* start invisible; becomes visible on hover */
+  transition: opacity 240ms ease, filter 240ms ease;
+  pointer-events: none;
+  animation: tech-button-glow 4s linear infinite;
+}
+
+@keyframes tech-button-glow {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.tech-button:hover,
+.tech-button:focus-visible {
+  transform: translateY(-2px) scale(1.03);
+  box-shadow: 0 6px 22px rgba(111,0,255,0.12), 0 0 30px rgba(111,0,255,0.06);
+  border-color: #E9B3FB;
+  color: #fff;
+}
+
+/* Anchor-specific selector to ensure links lose underlines and inherit button styles
+   Use specificity so browser user-agent link rules don't override our button look */
+a.tech-button,
+a.tech-button:link,
+a.tech-button:visited {
+  text-decoration: none;
+  display: inline-block;
+  color: inherit;
+}
+
+.tech-button:hover::before,
+.tech-button:focus-visible::before {
+  opacity: 0.9; /* reveal blurred animated glow */
+  filter: blur(20px) saturate(1.2) brightness(1.05);
+}
+
+.tech-button:active {
+  transform: translateY(1px) scale(0.99);
+  box-shadow: 0 10px 36px rgba(111,0,255,0.18), 0 0 50px rgba(233,179,251,0.10);
+  border-color: #FFF1F1;
+}
+
+.tech-button:focus-visible {
+  outline: 3px solid rgba(111,0,255,0.12);
+  outline-offset: 4px;
+}
+
+/* Ensure the header Explore link uses the same spacing as other tech-buttons
+   (some browsers may apply default anchor styles; target by id to guarantee parity) */
+#explore-btn.tech-button {
+  padding: 8px 12px;
+}

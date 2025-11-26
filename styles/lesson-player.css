@@ -1,0 +1,201 @@
+/* styles/lesson-player.css */
+/* Modern, responsive styles for lesson player page */
+
+:root {
+  --dark-purple: #3B0270;
+  --bright-violet: #6F00FF;
+  --light-lav: #E9B3FB;
+  --off-white: #FFF1F1;
+  --bg: #fffdfd;
+}
+
+body {
+  margin: 0;
+  font-family: 'Poppins', system-ui, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--dark-purple);
+}
+
+/* Header */
+.lp-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1rem 2rem;
+  background: var(--off-white);
+  border-bottom: 1px solid var(--light-lav);
+}
+.logo-link .logo {
+  display: block;
+  height: 32px;
+}
+.lp-nav {
+  display: flex;
+  gap: 1.2rem;
+  margin-left: auto;
+}
+.lp-nav a {
+  color: var(--dark-purple);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.4rem 1rem;
+  border-radius: 8px;
+  transition: background 0.16s;
+}
+.lp-nav a:hover {
+  background: var(--light-lav);
+  color: var(--bright-violet);
+}
+
+/* Main layout */
+.lp-main {
+  display: flex;
+  gap: 2rem;
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.lp-player-section {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+.lp-video-player {
+  background: #000;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px rgba(59,2,112,0.08);
+  overflow: hidden;
+  min-height: 320px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.lp-video-player video {
+  width: 100%;
+  max-height: 400px;
+  background: #000;
+}
+.lp-lesson-info {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(111,0,255,0.07);
+  padding: 1.5rem 1.2rem;
+}
+.lp-lesson-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+.lp-lesson-desc {
+  margin: 0 0 1.2rem 0;
+  color: #555;
+}
+.lp-controls {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.lp-btn {
+  background: var(--bright-violet);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 0.7rem 1.4rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.16s, transform 0.16s;
+}
+.lp-btn:hover {
+  background: var(--dark-purple);
+  transform: translateY(-2px) scale(1.04);
+}
+
+/* Sidebar */
+.lp-sidebar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+.lp-resources, .lp-related {
+  background: var(--off-white);
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(59,2,112,0.06);
+  padding: 1.2rem 1rem;
+}
+.lp-resources h2, .lp-related h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+.lp-resources ul, .lp-related ul {
+  list-style: disc inside;
+  margin: 0.5rem 0 0 1rem;
+  padding: 0;
+}
+.lp-resources ul li a, .lp-related ul li a {
+  color: var(--bright-violet);
+  text-decoration: underline;
+  font-size: 0.98rem;
+}
+
+/* Comments/notes */
+.lp-comments {
+  max-width: 900px;
+  margin: 2rem auto 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(59,2,112,0.06);
+  padding: 1.2rem 1rem;
+}
+.lp-comments h2 {
+  margin-top: 0;
+  font-size: 1.1rem;
+}
+.lp-comments textarea {
+  width: 100%;
+  min-height: 80px;
+  border-radius: 8px;
+  border: 1px solid var(--light-lav);
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  background: var(--off-white);
+  resize: vertical;
+}
+
+/* Footer */
+.lp-footer {
+  text-align: center;
+  padding: 1.2rem 0;
+  background: var(--off-white);
+  color: var(--dark-purple);
+  font-size: 0.98rem;
+  border-top: 1px solid var(--light-lav);
+  margin-top: 2rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .lp-main {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1rem;
+  }
+  .lp-sidebar {
+    flex-direction: row;
+    gap: 1rem;
+  }
+}
+@media (max-width: 600px) {
+  .lp-header {
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1rem;
+  }
+  .lp-main {
+    padding: 0.5rem;
+  }
+  .lp-sidebar {
+    flex-direction: column;
+  }
+}

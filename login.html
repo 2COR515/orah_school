@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Login — Orah Schools</title>
+  <!-- Link to page-specific CSS -->
+  <link rel="stylesheet" href="./styles/login.css" />
+</head>
+<body>
+  <!-- HEADER: site header reused across pages -->
+  <header class="site-header">
+    <div class="container header-inner">
+        <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="60" height="40">
+      <nav class="main-nav">
+        <a class="tech-button" href="index.html#topics" id="explore-btn">Explore</a>
+        <div class="search"><input type="search" placeholder="Search courses..." aria-label="Search" /></div>
+        <a class="nav-cta tech-button" href="instructor-signup.html">Teach</a>
+      </nav>
+      <div class="auth">
+        <!-- Login is active on this page: render as plain text / highlighted -->
+        <span class="active">Login</span>
+        <a class="primary" href="signup.html">Signup</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN: Login form card -->
+  <main class="main">
+    <div class="card">
+      <h1>Welcome back</h1>
+      <p class="sub">Sign in to your student account</p>
+
+      <form id="login-form" class="form" novalidate>
+        <label>
+          <span>Email</span>
+          <input type="email" name="email" required />
+        </label>
+
+        <label>
+          <span>Password</span>
+          <input type="password" name="password" required />
+        </label>
+
+        <div class="form-row">
+          <button class="btn primary" type="submit">Log in</button>
+        </div>
+
+        <div id="login-error" class="error" aria-live="polite"></div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Page scripts -->
+  <script src="./scripts/login.js"></script>
+</body>
+</html>

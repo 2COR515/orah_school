@@ -1,0 +1,55 @@
+<!-- instructor-dashboard.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Instructor Dashboard — Orah School</title>
+  <link rel="stylesheet" href="styles/instructor-dashboard.css" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Header: avatar initials, instructor name, nav links as tech-buttons -->
+  <header class="dashboard-header">
+    <div class="instructor-info">
+      <div class="avatar">AB</div>
+      <span class="instructor-name">Alex</span>
+    </div>
+    <nav class="dashboard-nav">
+      <!-- Tech-style nav links -->
+      <a class="tech-button" href="instructor-attendance.html">Attendance</a>
+      <a class="tech-button" href="upload.html">Upload</a>
+      <a class="tech-button" href="teacher-analytics.html">Analytics</a>
+    </nav>
+  </header>
+
+  <!-- Main dashboard panels -->
+  <main class="dashboard-main">
+    <section class="dashboard-card" id="upload-panel">
+      <!-- Upload panel -->
+      <h2>Upload Lessons</h2>
+      <p>Upload new lesson materials for your students.</p>
+    </section>
+    <section class="dashboard-card" id="attendance-panel">
+      <!-- Attendance tracking panel -->
+      <h2>Attendance Tracking</h2>
+      <p>Monitor and manage student attendance.</p>
+    </section>
+    <section class="dashboard-card" id="analytics-panel">
+      <!-- Analytics panel -->
+      <h2>Analytics</h2>
+      <p>View class performance and engagement metrics.</p>
+    </section>
+  </main>
+
+  <!-- Floating chatbot button (bottom right) -->
+  <button class="chatbot-btn" id="instructor-chatbot-btn" aria-label="Open Chatbot">💬</button>
+
+  <!-- Footer -->
+  <footer class="dashboard-footer">
+    Orah School &copy; 2025
+  </footer>
+
+  <script src="scripts/instructor-dashboard.js"></script>
+</body>
+</html>

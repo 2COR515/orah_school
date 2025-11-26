@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Upload Lesson — Orah School</title>
+  <link rel="stylesheet" href="styles/upload.css" />
+</head>
+<body>
+  <!-- Upload form panel -->
+  <main class="upload-main">
+    <section class="upload-panel">
+      <h1>Upload Lesson</h1>
+      <form id="upload-form">
+        <label>
+          Title
+          <input type="text" name="title" required />
+        </label>
+        <label>
+          Description
+          <textarea name="description" rows="3" required></textarea>
+        </label>
+        <label>
+          File Upload
+          <input type="file" name="uploaded_file" required />
+        </label>
+        <label>
+          Topic
+          <select name="topic" required>
+            <option value="">Select topic</option>
+            <option value="python">Python</option>
+            <option value="sql">SQL</option>
+            <option value="stats">Statistics</option>
+          </select>
+        </label>
+        <button class="submit-btn" type="submit">Submit</button>
+      </form>
+    </section>
+    <aside class="upload-history">
+      <!-- Preview/history panel -->
+      <h2>Upload History</h2>
+      <ul id="history-list">
+        <!-- Populated by JS -->
+      </ul>
+    </aside>
+  </main>
+  <script src="scripts/upload.js"></script>
+</body>
+</html>
