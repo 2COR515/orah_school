@@ -1,7 +1,7 @@
 // scripts/student-dashboard.js
 // Handles student dashboard with backend integration
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'http://localhost:3002/api';
 const CURRENT_USER_ID = 'S101'; // Hardcoded student ID
 
 document.addEventListener('DOMContentLoaded', async () => {

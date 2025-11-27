@@ -1,8 +1,8 @@
 // scripts/lesson-player.js
 // Handles lesson player with backend integration
 
-const API_BASE_URL = 'http://localhost:3001/api';
-const UPLOADS_BASE_URL = 'http://localhost:3001/uploads';
+const API_BASE_URL = 'http://localhost:3002/api';
+const UPLOADS_BASE_URL = 'http://localhost:3002/uploads';
 
 let currentLesson = null;
 let currentEnrollmentId = null;

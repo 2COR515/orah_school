@@ -14,7 +14,7 @@ const enrollmentRouter = require('./src/routes/enrollmentRoutes');
 const JWT_SECRET = 'orah-school1';
 
 const app = express();
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3002;
 
 // Time constants for reminder scheduler
 const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;    // 48 hours

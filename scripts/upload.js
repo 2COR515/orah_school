@@ -1,7 +1,7 @@
 // scripts/upload.js
 // Upload lesson form with backend integration
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'http://localhost:3002/api';
 const INSTRUCTOR_ID = 'INST001'; // Hardcoded instructor ID
 
 document.addEventListener('DOMContentLoaded', () => {
