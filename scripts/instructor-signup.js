@@ -1,89 +1,83 @@
 // scripts/instructor-signup.js
-// Instructor signup with backend registration
+// Instructor signup logic for Orah School
 
-const API_BASE_URL = 'http://localhost:3001/api';
+const API_BASE_URL = 'http://localhost:3002/api';
 
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('instructor-form');
-  const errorBox = document.getElementById('instructor-error');
-  const submitButton = form ? form.querySelector('button[type="submit"]') : null;
-  
-  if(!form) return;
+  const errorBox = document.getElementById('instructor-signup-error');
+  const submitBtn = document.getElementById('signup-btn');
 
-  form.addEventListener('submit', async function(e){
+  if (!form) return;
+
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    errorBox.textContent = '';
-    errorBox.style.color = 'red';
+    if (errorBox) {
+      errorBox.textContent = '';
+      errorBox.style.color = '#c00';
+    }
 
-    const name = form.name.value.trim();
-    const email = form.email.value.trim();
-    const password = form.password.value;
-    const confirm = form.confirm.value;
-    const bio = form.bio.value.trim();
-    const website = form.website.value.trim();
+    const name = document.getElementById('name').value.trim();
+    const email = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm-password').value;
 
-    // Basic validation
-    if(!name){ errorBox.textContent = 'Name is required'; return; }
-    if(!email){ errorBox.textContent = 'Email is required'; return; }
-    if(!password){ errorBox.textContent = 'Password is required'; return; }
-    if(password.length < 6){ errorBox.textContent = 'Password must be at least 6 characters'; return; }
-    if(password !== confirm){ errorBox.textContent = 'Passwords do not match'; return; }
-    if(!bio){ errorBox.textContent = 'Bio is required'; return; }
+    // Validation
+    if (!name) {
+      errorBox.textContent = 'Name is required';
+      return;
+    }
+    if (!email) {
+      errorBox.textContent = 'Email is required';
+      return;
+    }
+    if (!password) {
+      errorBox.textContent = 'Password is required';
+      return;
+    }
+    if (password.length < 6) {
+      errorBox.textContent = 'Password must be at least 6 characters';
+      return;
+    }
+    if (password !== confirm) {
+      errorBox.textContent = 'Passwords do not match';
+      return;
+    }
 
-    // Disable submit button during request
-    if (submitButton) {
-      submitButton.disabled = true;
-      submitButton.textContent = 'Creating account...';
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Creating account...';
     }
 
     try {
-      // POST to /api/auth/signup with role: 'instructor'
       const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name,
           email,
           password,
-          role: 'instructor',
-          bio,
-          website
+          role: 'instructor'
         })
       });
 
       const data = await response.json();
 
       if (response.ok && data.ok) {
-        // Show success message
-        errorBox.style.color = 'green';
-        errorBox.textContent = 'Instructor account created successfully! Redirecting to login...';
-
-        // Redirect to login page after short delay
-        setTimeout(() => {
-          window.location.href = 'login.html';
-        }, 1500);
-
+        alert('Account Created');
+        window.location.href = 'login.html';
       } else {
-        // Display error message from server (e.g., duplicate email - 409)
         errorBox.textContent = data.error || 'Registration failed. Please try again.';
-        
-        // Re-enable submit button
-        if (submitButton) {
-          submitButton.disabled = false;
-          submitButton.textContent = 'Apply to teach';
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign Up';
         }
       }
-
     } catch (error) {
-      console.error('Instructor signup error:', error);
-      errorBox.textContent = 'Network error. Please check your connection and try again.';
-      
-      // Re-enable submit button
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent = 'Apply to teach';
+      errorBox.textContent = 'Network error. Please try again.';
+      if (submitBtn) {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Sign Up';
       }
     }
   });

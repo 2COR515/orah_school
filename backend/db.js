@@ -60,6 +60,8 @@ async function addLesson(lessonData) {
     topic: lessonData.topic || '',
     status: lessonData.status || 'draft',
     files: lessonData.files || [],
+    videoUrl: lessonData.videoUrl || '',
+    quiz: lessonData.quiz || [],
     durationMinutes: lessonData.durationMinutes || null,
     createdAt: now,
     updatedAt: now

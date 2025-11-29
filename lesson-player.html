@@ -1,75 +1,118 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Lesson Player — Orah School</title>
-  <link rel="stylesheet" href="styles/lesson-player.css" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title id="page-title">Lesson Player — Orah School</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="styles/lesson-player.css" />
 </head>
 <body>
-  <!-- Header: logo and navigation -->
-  <header class="lp-header">
-    <a href="index.html" class="logo-link">
-      <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="48" height="32">
-    </a>
-    <nav class="lp-nav">
-      <a href="student-dashboard.html">Dashboard</a>
-      <a href="lessons.html">All Lessons</a>
-      <a href="reminders.html">Reminders</a>
-    </nav>
-  </header>
-
-  <main class="lp-main">
-    <!-- Main lesson/video area -->
-    <section class="lp-player-section">
-      <div class="lp-video-player">
-        <!-- Replace with actual video player as needed -->
-        <video controls poster="assets/lesson-poster.png">
-          <source src="assets/sample-lesson.mp4" type="video/mp4">
-          Your browser does not support the video tag.
-        </video>
-      </div>
-      <div class="lp-lesson-info">
-        <h1 class="lp-lesson-title">Lesson Title Here</h1>
-        <p class="lp-lesson-desc">This is a description of the lesson. It covers the main topics and learning objectives.</p>
-        <div class="lp-controls">
-          <button class="lp-btn" id="prev-lesson-btn">Previous Lesson</button>
-          <button class="lp-btn" id="mark-completed-btn">Mark as Completed</button>
-          <button class="lp-btn" id="next-lesson-btn">Next Lesson</button>
+    <header id="page-header" class="player-header">
+        <div class="header-content container">
+        
+            <button id="back-btn" class="nav-button">← Back</button>
+             <a href="index.html" aria-label="Orah Schools home">
+        <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="200" height="100">
+      </a>
+            <button id="dashboard-btn" class="nav-button">Dashboard</button>
         </div>
-      </div>
-    </section>
+    </header>
 
-    <!-- Sidebar: resources and related lessons -->
-    <aside class="lp-sidebar">
-      <section class="lp-resources">
-        <h2>Resources</h2>
-        <ul>
-          <li><a href="#">Download Slides</a></li>
-          <li><a href="#">Sample Code</a></li>
-        </ul>
-      </section>
-      <section class="lp-related">
-        <h2>Related Lessons</h2>
-        <ul>
-          <li><a href="#">Lesson 1: Introduction</a></li>
-          <li><a href="#">Lesson 2: Basics</a></li>
-        </ul>
-      </section>
-    </aside>
-  </main>
+    <div class="player-wrapper container">
+        <main class="lesson-main">
+            <section class="video-container">
+                <video id="lesson-video" controls autoplay class="responsive-video">
+                    </video>
+            </section>
 
-  <!-- Comments/notes section -->
-  <section class="lp-comments">
-    <h2>Comments & Notes</h2>
-    <textarea placeholder="Add your notes or questions here..."></textarea>
-  </section>
+            <section id="lesson-details" class="details-section card">
+                <h1 id="lesson-title" class="lp-lesson-title">Loading Lesson...</h1> 
+                <h2>Lesson Overview</h2>
+                <p id="lesson-description" class="lp-lesson-desc">Fetching details and description.</p>
+            </section>
 
-  <!-- Footer -->
-  <footer class="lp-footer">
-    Orah School &copy; 2025
-  </footer>
+            <div id="utility-tabs" class="utility-tabs">
+                <button class="tab-btn active" data-tab="actions">Progress & Actions</button>
+                <button class="tab-btn" data-tab="notes">Notes</button>
+                <button class="tab-btn" data-tab="resources">Resources</button>
+            </div>
 
-  <script src="scripts/lesson-player.js"></script>
+            <div id="tab-content" class="tab-content card">
+                <div id="tab-actions" class="tab-pane active">
+                    <h3>Progress Status</h3>
+                    <div id="progress-status" class="progress-status">
+                        <p>Status: <strong id="progress-text">Not Started</strong></p>
+                        <button id="mark-completed-btn" class="tech-button complete-btn">Mark as Completed</button>
+                    </div>
+                    <h3 style="margin-top: 20px;">Lesson Navigation</h3>
+                    <div class="navigation-buttons">
+                        <button id="prev-lesson-btn" class="tech-button nav-btn">← Previous</button>
+                        <button id="next-lesson-btn" class="tech-button nav-btn">Next →</button>
+                    </div>
+                </div>
+
+                <div id="tab-notes" class="tab-pane">
+                    <h3>Your Study Notes</h3>
+                    <textarea id="lesson-notes" placeholder="Write your notes here..." rows="10"></textarea>
+                    <button id="save-notes-btn" class="tech-button save-notes-btn">Save Notes</button>
+                </div>
+
+                <div id="tab-resources" class="tab-pane">
+                    <h3>Downloadable Resources</h3>
+                    <ul id="resources-list" class="resources-list">
+                        <li>No resources found.</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <section id="lesson-quiz" class="quiz-section card" style="display:none;">
+                <h2>Test Your Knowledge</h2>
+                <div id="quiz-questions-container" class="quiz-questions">
+                    <p>The quiz will load here once the video is complete.</p>
+                </div>
+
+                <div id="quiz-results" class="quiz-results" style="margin-top: 1rem; display:none;">
+                </div>
+
+                <button id="submit-quiz-btn" class="tech-button submit-quiz-btn" style="margin-top: 1.5rem;">Submit Quiz</button>
+            </section>
+
+        </main>
+    </div>
+
+    <script src="scripts/lesson-player.js"></script>
+    <script>
+        // Simple client-side routing handlers
+        document.getElementById('back-btn').addEventListener('click', () => {
+            window.history.back();
+        });
+        document.getElementById('dashboard-btn').addEventListener('click', () => {
+            window.location.href = 'student-dashboard.html';
+        });
+
+        // Simple Tab Logic (Needs refinement in JS file, but works for basic display)
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', (e) => {
+                const tabId = e.target.dataset.tab;
+                
+                // Remove active class from all buttons and panes
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(pane => pane.style.display = 'none');
+
+                // Add active class to the clicked button and show the corresponding pane
+                e.target.classList.add('active');
+                document.getElementById(`tab-${tabId}`).style.display = 'block';
+            });
+        });
+
+        // Initial tab setup
+        document.querySelectorAll('.tab-pane').forEach((pane, index) => {
+            if (pane.id !== 'tab-actions') {
+                pane.style.display = 'none';
+            }
+        });
+        
+    </script>
 </body>
 </html>

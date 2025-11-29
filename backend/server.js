@@ -30,7 +30,7 @@ if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 // Serve uploaded files as static content (BEFORE API routes)
 app.use('/uploads', express.static(UPLOADS_DIR));
 
-// Multer setup for secure uploads (images and PDFs)
+// Multer setup for secure uploads (videos and PDFs)
 const storage = multer.diskStorage({
 	destination: function (req, file, cb) {
 		cb(null, UPLOADS_DIR);
@@ -44,15 +44,19 @@ const storage = multer.diskStorage({
 	}
 });
 
-// Accept only JPEG, PNG and PDF; limit size to 5MB
+// Accept only mp4, mkv, and PDF; limit size to 200MB
 const upload = multer({
 	storage,
-	limits: { fileSize: 5 * 1024 * 1024 }, // 5 MB
+	limits: { fileSize: 200 * 1024 * 1024 }, // 200 MB
 	fileFilter: (req, file, cb) => {
-		const allowed = ['image/jpeg', 'image/png', 'application/pdf'];
+		const allowed = [
+			'video/mp4',
+			'video/x-matroska',
+			'application/pdf'
+		];
 		if (allowed.includes(file.mimetype)) return cb(null, true);
 		const err = new multer.MulterError('LIMIT_UNEXPECTED_FILE', file.fieldname);
-		err.message = 'Invalid file type. Only JPEG, PNG and PDF files are allowed.';
+		err.message = 'Invalid file type. Only MP4, MKV videos and PDF files are allowed.';
 		return cb(err);
 	}
 });
@@ -71,43 +75,42 @@ app.use('/api/lessons', lessonRouter);
 app.use('/api/enrollments', enrollmentRouter);
 
 // Upload endpoint (single file). Field name: uploaded_file
-// NOTE: This uploads files but doesn't associate them with lessons yet
-// To attach files to a lesson, use PATCH /api/lessons/:id with the file metadata
+// Accepts video (mp4, mkv) and PDF files. Returns public URL.
 app.post('/api/upload', (req, res, next) => {
-	// delegate to multer and handle errors via next(err)
-	const handler = upload.single('uploaded_file');
-	handler(req, res, async function (err) {
-		if (err) return next(err);
-		if (!req.file) return res.status(400).json({ ok: false, error: 'No file uploaded.' });
+  // delegate to multer and handle errors via next(err)
+  const handler = upload.single('uploaded_file');
+  handler(req, res, async function (err) {
+    if (err) return next(err);
+    if (!req.file) return res.status(400).json({ ok: false, error: 'No file uploaded.' });
 
-		try {
-			const { originalname, filename, mimetype, size } = req.file;
-			const url = `/uploads/${filename}`;
-			// Determine file type based on mimetype
-			let fileType = 'pdf';
-			if (mimetype.startsWith('video/')) fileType = 'video';
-			else if (mimetype.startsWith('image/')) fileType = 'image';
-			
-			const meta = { 
-				type: fileType,
-				originalname, 
-				filename, 
-				mimetype, 
-				size, 
-				url, 
-				uploadedAt: new Date().toISOString() 
-			};
-			
-			console.log('Uploaded file:', { filename, mimetype, size });
-			return res.status(201).json({ 
-				ok: true, 
-				message: 'File uploaded successfully. Use PATCH /api/lessons/:id to attach to a lesson.', 
-				file: meta 
-			});
-		} catch (e) {
-			return next(e);
-		}
-	});
+    try {
+      const { originalname, filename, mimetype, size } = req.file;
+      const url = `/uploads/${filename}`;
+      // Determine file type based on mimetype
+      let fileType = 'other';
+      if (mimetype.startsWith('video/')) fileType = 'video';
+      else if (mimetype === 'application/pdf') fileType = 'pdf';
+
+      const meta = { 
+        type: fileType,
+        originalname, 
+        filename, 
+        mimetype, 
+        size, 
+        url, 
+        uploadedAt: new Date().toISOString() 
+      };
+
+      console.log('Uploaded file:', { filename, mimetype, size });
+      return res.status(201).json({ 
+        ok: true, 
+        message: 'File uploaded successfully. Use the returned URL in your lesson.', 
+        file: meta 
+      });
+    } catch (e) {
+      return next(e);
+    }
+  });
 });
 
 // Start server with database initialization

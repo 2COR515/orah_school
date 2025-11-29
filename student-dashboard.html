@@ -4,64 +4,76 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Student Dashboard — Orah School</title>
+  <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="styles/student-dashboard.css" />
 </head>
 <body>
-  <!-- Sidebar navigation -->
-  <aside class="sidebar">
-    <nav>
-      <ul>
-        <li><a href="#" class="active">My Courses</a></li>
-        <li><a href="#">Progress</a></li>
-        <li><a href="#">Analytics</a></li>
-        <li><a href="#">Help</a></li>
-      </ul>
-    </nav>
-  </aside>
+  <!-- Top Dashboard Header -->
+  <header id="dashboard-header" class="dashboard-header">
+    <div class="header-content container">
+      <div class="welcome-section">
+        <h1 id="welcome-message">Welcome, Student</h1>
+        <p>Ready to continue your learning journey?</p>
+      </div>
+      <div class="header-actions">
+        <button id="logout-btn" class="tech-button secondary-btn">Logout</button>
+      </div>
+    </div>
+    
+    <!-- Quick Stats -->
+    <div class="quick-stats container">
+      <div class="stat-card">
+        <div id="enrolled-count" class="stat-number">0</div>
+        <div class="stat-label">Enrolled Lessons</div>
+      </div>
+      <div class="stat-card">
+        <div id="completed-count" class="stat-number">0</div>
+        <div class="stat-label">Completed</div>
+      </div>
+      <div class="stat-card">
+        <div id="completion-rate" class="stat-number">0%</div>
+        <div class="stat-label">Completion Rate</div>
+      </div>
+    </div>
+  </header>
 
-  <!-- Main dashboard content -->
-  <main class="student-main">
-    <section class="dashboard-section" id="courses-overview">
-      <!-- Course overview cards -->
-      <h2>My Courses</h2>
-      <div class="courses-grid">
-        <!-- Example course card -->
-        <div class="course-card">
-          <h3>Data Science 101</h3>
-          <p>Next lesson: Introduction to Python</p>
-        </div>
-        <div class="course-card">
-          <h3>Statistics Basics</h3>
-          <p>Next lesson: Probability</p>
-        </div>
-      </div>
-    </section>
-    <section class="dashboard-section" id="upcoming-lessons">
-      <!-- Upcoming lessons panel -->
-      <h2>Upcoming Lessons</h2>
-      <ul class="lessons-list">
-        <li>Python Loops - Tomorrow</li>
-        <li>SQL Queries - Friday</li>
-      </ul>
-    </section>
-    <section class="dashboard-section" id="performance">
-      <!-- Performance summary -->
-      <h2>Performance</h2>
-      <div class="performance-cards">
-        <div class="performance-card">Lessons Completed: 8</div>
-        <div class="performance-card">Attendance: 95%</div>
-      </div>
-    </section>
-    <section class="dashboard-section" id="notifications">
-      <!-- Notifications panel -->
-      <h2>Notifications</h2>
-      <ul class="notifications-list">
-        <li>New lesson available: Data Visualization</li>
-        <li>Assignment due: Monday</li>
-      </ul>
-    </section>
+  <!-- Main Dashboard Content -->
+  <main id="dashboard-content" class="dashboard-main container">
+    <!-- My Enrolled Lessons Section -->
+    
+
+    <!-- Available Lessons Section -->
+    
   </main>
 
+  <!-- Floating Chatbot Button -->
+  <button class="chatbot-btn" id="student-chatbot-btn" aria-label="Open Support Chat">💬</button>
+
   <script src="scripts/student-dashboard.js"></script>
+  <script>
+    // Update welcome message with user name
+    const USER_NAME = localStorage.getItem('userName') || localStorage.getItem('userFirstName') || 'Student';
+    const welcomeMsg = document.getElementById('welcome-message');
+    if (welcomeMsg) {
+      welcomeMsg.textContent = `Welcome, ${USER_NAME}`;
+    }
+
+    // Logout handler
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        localStorage.clear();
+        window.location.href = 'login.html';
+      });
+    }
+
+    // Chatbot handler
+    const chatbotBtn = document.getElementById('student-chatbot-btn');
+    if (chatbotBtn) {
+      chatbotBtn.addEventListener('click', () => {
+        alert('Support chatbot coming soon! For now, email support@orahschools.com');
+      });
+    }
+  </script>
 </body>
 </html>

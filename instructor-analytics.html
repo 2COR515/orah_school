@@ -1,0 +1,415 @@
+<!-- instructor-analytics.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Analytics — Orah School</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles/instructor-dashboard.css" />
+</head>
+<body>
+  <!-- Modern Header with Logo and Navigation -->
+  <header id="instructor-header" class="dashboard-header">
+    <div class="header-container">
+      <div class="logo-brand">
+        <button id="back-to-hub-btn" class="btn-back">← Back to Hub</button>
+        <span class="logo-text">Analytics Dashboard</span>
+      </div>
+      <nav class="header-nav">
+        <a class="nav-link" href="instructor-hub.html">Hub</a>
+        <a class="nav-link" href="instructor-lessons.html">Lessons</a>
+        <button id="logout-btn" class="btn-logout">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main id="dashboard-main" class="dashboard-main" style="grid-template-columns: 1fr;">
+    
+    <!-- Overview Stats -->
+    <section class="dashboard-card">
+      <h2>Overview Statistics</h2>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+        <div class="stat-box">
+          <div class="stat-value" id="total-lessons-count">0</div>
+          <div class="stat-label">Total Lessons</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="total-enrollments-count">0</div>
+          <div class="stat-label">Total Enrollments</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="avg-completion-rate">0%</div>
+          <div class="stat-label">Avg Completion Rate</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="active-students-count">0</div>
+          <div class="stat-label">Active Students</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Lesson Performance -->
+    <section class="dashboard-card">
+      <h2>Lesson Performance</h2>
+      <div id="lesson-performance-list" class="performance-list">
+        <p style="color: #666;">Loading lesson data...</p>
+      </div>
+    </section>
+
+    <!-- Student Progress -->
+    <section class="dashboard-card">
+      <h2>Student Progress Tracking</h2>
+      <div class="form-group">
+        <label for="lesson-filter">Filter by Lesson</label>
+        <select id="lesson-filter" class="form-control">
+          <option value="">All Lessons</option>
+        </select>
+      </div>
+      <div id="student-progress-list" class="progress-list">
+        <p style="color: #666;">Loading student progress...</p>
+      </div>
+    </section>
+
+    <!-- Engagement Metrics -->
+    <section class="dashboard-card">
+      <h2>Engagement Insights</h2>
+      <div style="background: var(--color-bg-soft); padding: 2rem; border-radius: 12px; margin-top: 1rem;">
+        <div style="margin-bottom: 1.5rem;">
+          <h3 style="margin: 0 0 0.5rem 0; color: var(--color-text-dark); font-size: 1.1rem;">Most Popular Lessons</h3>
+          <div id="popular-lessons" style="color: #666;">
+            <p>Loading...</p>
+          </div>
+        </div>
+        <div style="margin-bottom: 1.5rem;">
+          <h3 style="margin: 0 0 0.5rem 0; color: var(--color-text-dark); font-size: 1.1rem;">Recent Activity</h3>
+          <div id="recent-activity" style="color: #666;">
+            <p>Loading...</p>
+          </div>
+        </div>
+        <div>
+          <h3 style="margin: 0 0 0.5rem 0; color: var(--color-text-dark); font-size: 1.1rem;">Completion Trends</h3>
+          <div id="completion-trends" style="color: #666;">
+            <p>Analyzing trends...</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <style>
+    .stat-box {
+      text-align: center;
+      padding: 1.5rem;
+      background: var(--color-bg-soft);
+      border-radius: 12px;
+      border: 2px solid var(--color-border);
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--color-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      font-size: 0.875rem;
+      color: var(--color-text-light);
+      font-weight: 600;
+    }
+
+    .performance-item {
+      background: var(--color-bg-soft);
+      padding: 1.25rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--color-primary);
+    }
+
+    .performance-item h3 {
+      margin: 0 0 0.75rem 0;
+      color: var(--color-text-dark);
+      font-size: 1.1rem;
+    }
+
+    .performance-metrics {
+      display: flex;
+      gap: 2rem;
+      margin-top: 0.75rem;
+    }
+
+    .metric {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .metric-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-primary);
+    }
+
+    .metric-label {
+      font-size: 0.75rem;
+      color: var(--color-text-light);
+      text-transform: uppercase;
+    }
+
+    .progress-item {
+      background: white;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      border: 1px solid var(--color-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .progress-bar-container {
+      width: 200px;
+      height: 8px;
+      background: var(--color-bg-soft);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--color-primary);
+      transition: width 0.3s;
+    }
+  </style>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:3002/api';
+    const token = localStorage.getItem('token');
+    const instructorId = localStorage.getItem('userId');
+
+    // Back to Hub handler
+    document.getElementById('back-to-hub-btn').addEventListener('click', () => {
+      window.location.href = 'instructor-hub.html';
+    });
+
+    // Logout handler
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    });
+
+    // Load analytics data
+    async function loadAnalytics() {
+      try {
+        // Fetch lessons
+        const lessonsResponse = await fetch(`${API_BASE_URL}/lessons`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        let myLessons = [];
+        if (lessonsResponse.ok) {
+          const lessonsData = await lessonsResponse.json();
+          myLessons = (lessonsData.lessons || []).filter(l => l.instructorId === instructorId);
+          document.getElementById('total-lessons-count').textContent = myLessons.length;
+
+          // Populate lesson filter
+          const filterSelect = document.getElementById('lesson-filter');
+          filterSelect.innerHTML = '<option value="">All Lessons</option>';
+          myLessons.forEach(lesson => {
+            const option = document.createElement('option');
+            option.value = lesson.id;
+            option.textContent = lesson.title;
+            filterSelect.appendChild(option);
+          });
+        }
+
+        // Fetch enrollments
+        const enrollmentsResponse = await fetch(`${API_BASE_URL}/enrollments`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (enrollmentsResponse.ok) {
+          const enrollmentsData = await enrollmentsResponse.json();
+          const allEnrollments = enrollmentsData.enrollments || [];
+          
+          // Filter enrollments for instructor's lessons
+          const myLessonIds = myLessons.map(l => l.id);
+          const myEnrollments = allEnrollments.filter(e => myLessonIds.includes(e.lessonId));
+
+          // Update overview stats
+          document.getElementById('total-enrollments-count').textContent = myEnrollments.length;
+
+          const activeStudents = new Set(myEnrollments.map(e => e.userId)).size;
+          document.getElementById('active-students-count').textContent = activeStudents;
+
+          if (myEnrollments.length > 0) {
+            const avgCompletion = Math.round(
+              myEnrollments.reduce((sum, e) => sum + (e.progress || 0), 0) / myEnrollments.length
+            );
+            document.getElementById('avg-completion-rate').textContent = `${avgCompletion}%`;
+          }
+
+          // Render lesson performance
+          renderLessonPerformance(myLessons, myEnrollments);
+
+          // Render student progress
+          renderStudentProgress(myEnrollments);
+
+          // Render engagement insights
+          renderEngagementInsights(myLessons, myEnrollments);
+        }
+      } catch (error) {
+        console.error('Error loading analytics:', error);
+      }
+    }
+
+    function renderLessonPerformance(lessons, enrollments) {
+      const container = document.getElementById('lesson-performance-list');
+      
+      if (lessons.length === 0) {
+        container.innerHTML = '<p style="color: #666;">No lessons created yet</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      lessons.forEach(lesson => {
+        const lessonEnrollments = enrollments.filter(e => e.lessonId === lesson.id);
+        const enrollmentCount = lessonEnrollments.length;
+        const completedCount = lessonEnrollments.filter(e => e.progress === 100).length;
+        const avgProgress = enrollmentCount > 0
+          ? Math.round(lessonEnrollments.reduce((sum, e) => sum + (e.progress || 0), 0) / enrollmentCount)
+          : 0;
+
+        const item = document.createElement('div');
+        item.className = 'performance-item';
+        item.innerHTML = `
+          <h3>${lesson.title}</h3>
+          <div class="performance-metrics">
+            <div class="metric">
+              <span class="metric-value">${enrollmentCount}</span>
+              <span class="metric-label">Enrolled</span>
+            </div>
+            <div class="metric">
+              <span class="metric-value">${completedCount}</span>
+              <span class="metric-label">Completed</span>
+            </div>
+            <div class="metric">
+              <span class="metric-value">${avgProgress}%</span>
+              <span class="metric-label">Avg Progress</span>
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function renderStudentProgress(enrollments) {
+      const container = document.getElementById('student-progress-list');
+      
+      if (enrollments.length === 0) {
+        container.innerHTML = '<p style="color: #666;">No student enrollments yet</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+
+      enrollments.forEach(enrollment => {
+        const item = document.createElement('div');
+        item.className = 'progress-item';
+        item.innerHTML = `
+          <div>
+            <strong>${enrollment.userId}</strong>
+            <div style="font-size: 0.875rem; color: #666; margin-top: 0.25rem;">Lesson ID: ${enrollment.lessonId}</div>
+          </div>
+          <div style="display: flex; align-items: center; gap: 1rem;">
+            <span style="font-weight: 600; color: var(--color-primary);">${enrollment.progress || 0}%</span>
+            <div class="progress-bar-container">
+              <div class="progress-bar-fill" style="width: ${enrollment.progress || 0}%;"></div>
+            </div>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function renderEngagementInsights(lessons, enrollments) {
+      // Popular lessons
+      const lessonEnrollmentCounts = {};
+      enrollments.forEach(e => {
+        lessonEnrollmentCounts[e.lessonId] = (lessonEnrollmentCounts[e.lessonId] || 0) + 1;
+      });
+
+      const sortedLessons = lessons
+        .map(l => ({ title: l.title, count: lessonEnrollmentCounts[l.id] || 0 }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 3);
+
+      const popularContainer = document.getElementById('popular-lessons');
+      if (sortedLessons.length > 0) {
+        popularContainer.innerHTML = sortedLessons
+          .map((l, i) => `<div style="padding: 0.5rem 0;">${i + 1}. ${l.title} (${l.count} enrollments)</div>`)
+          .join('');
+      } else {
+        popularContainer.innerHTML = '<p>No data available</p>';
+      }
+
+      // Recent activity
+      const recentEnrollments = enrollments
+        .sort((a, b) => new Date(b.enrolledAt) - new Date(a.enrolledAt))
+        .slice(0, 5);
+
+      const activityContainer = document.getElementById('recent-activity');
+      if (recentEnrollments.length > 0) {
+        activityContainer.innerHTML = recentEnrollments
+          .map(e => `<div style="padding: 0.5rem 0;">${e.userId} enrolled in lesson ${e.lessonId}</div>`)
+          .join('');
+      } else {
+        activityContainer.innerHTML = '<p>No recent activity</p>';
+      }
+
+      // Completion trends
+      const completedCount = enrollments.filter(e => e.progress === 100).length;
+      const inProgressCount = enrollments.filter(e => e.progress > 0 && e.progress < 100).length;
+      const notStartedCount = enrollments.filter(e => !e.progress || e.progress === 0).length;
+
+      const trendsContainer = document.getElementById('completion-trends');
+      trendsContainer.innerHTML = `
+        <div style="padding: 0.5rem 0;">Completed: ${completedCount}</div>
+        <div style="padding: 0.5rem 0;">In Progress: ${inProgressCount}</div>
+        <div style="padding: 0.5rem 0;">Not Started: ${notStartedCount}</div>
+      `;
+    }
+
+    // Filter student progress by lesson
+    document.getElementById('lesson-filter').addEventListener('change', async (e) => {
+      const lessonId = e.target.value;
+      
+      try {
+        const response = await fetch(`${API_BASE_URL}/enrollments`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          let enrollments = data.enrollments || [];
+          
+          if (lessonId) {
+            enrollments = enrollments.filter(e => e.lessonId === lessonId);
+          }
+
+          renderStudentProgress(enrollments);
+        }
+      } catch (error) {
+        console.error('Error filtering progress:', error);
+      }
+    });
+
+    // Initialize
+    loadAnalytics();
+  </script>
+</body>
+</html>

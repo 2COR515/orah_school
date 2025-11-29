@@ -9,11 +9,11 @@ const { addLesson, getLesson, updateLesson: dbUpdateLesson, deleteLesson: dbDele
 const createLesson = async (req, res) => {
   try {
     // Extract required fields from form data
-    const { title, instructorId } = req.body;
-    
+    const { title, instructorId, videoUrl, quiz } = req.body;
+
     // Extract optional fields from form data
     const { description, topic, durationMinutes } = req.body;
-    
+
     // Input validation
     if (!title) {
       return res.status(400).json({ 
@@ -21,14 +21,50 @@ const createLesson = async (req, res) => {
         error: 'title is required' 
       });
     }
-    
+
     if (!instructorId) {
       return res.status(400).json({ 
         ok: false, 
         error: 'instructorId is required' 
       });
     }
-    
+
+    // Validate videoUrl (optional, but if present must be a string)
+    if (videoUrl !== undefined && typeof videoUrl !== 'string') {
+      return res.status(400).json({
+        ok: false,
+        error: 'videoUrl must be a string if provided'
+      });
+    }
+
+    // Validate quiz (optional, but if present must be an array of objects)
+    let quizArray = [];
+    if (quiz !== undefined) {
+      try {
+        // quiz may come as a JSON string from form-data
+        quizArray = typeof quiz === 'string' ? JSON.parse(quiz) : quiz;
+        if (!Array.isArray(quizArray)) throw new Error();
+        for (const q of quizArray) {
+          if (
+            typeof q !== 'object' ||
+            typeof q.question !== 'string' ||
+            !Array.isArray(q.options) ||
+            (typeof q.correctAnswer !== 'string' && typeof q.correctAnswer !== 'number')
+          ) {
+            return res.status(400).json({
+              ok: false,
+              error: 'Each quiz item must have question (string), options (array), and correctAnswer (string or index)'
+            });
+          }
+        }
+      } catch (e) {
+        return res.status(400).json({
+          ok: false,
+          error: 'quiz must be a valid array of objects'
+        });
+      }
+    }
+
     // Process uploaded files
     const uploadedFiles = [];
     if (req.files && req.files.length > 0) {
@@ -42,7 +78,7 @@ const createLesson = async (req, res) => {
         } else if (file.mimetype.startsWith('image/')) {
           fileType = 'image';
         }
-        
+
         // Map file metadata to Lesson Data Model structure
         uploadedFiles.push({
           type: fileType,
@@ -54,7 +90,7 @@ const createLesson = async (req, res) => {
         });
       });
     }
-    
+
     // Prepare lesson data
     const lessonData = {
       title,
@@ -63,12 +99,14 @@ const createLesson = async (req, res) => {
       topic: topic || '',
       durationMinutes: durationMinutes ? parseInt(durationMinutes) : null,
       files: uploadedFiles,
-      status: req.body.status || 'draft' // Allow status to be set, default to 'draft'
+      status: req.body.status || 'draft', // Allow status to be set, default to 'draft'
+      videoUrl: videoUrl || '',
+      quiz: quizArray
     };
-    
+
     // Call addLesson to store the lesson
     const createdLesson = await addLesson(lessonData);
-    
+
     // Send success response with 201 status
     return res.status(201).json({
       ok: true,
@@ -235,45 +273,66 @@ const updateLesson = async (req, res) => {
 };
 
 /**
- * Delete a lesson by ID (owner only)
+ * Delete a lesson by ID (instructor only - must be lesson owner)
  * @param {Object} req - Express request object
  * @param {Object} res - Express response object
  */
 const deleteLesson = async (req, res) => {
   try {
+    // Extract lessonId from URL params
     const { id } = req.params;
-    const { instructorId } = req.body;
-    
-    // Fetch existing lesson
-    const existingLesson = await getLesson(id);
-    
-    // Check if lesson exists
-    if (!existingLesson) {
+
+    // Input validation
+    if (!id) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Lesson ID is required'
+      });
+    }
+
+    // 1. Authentication Check: Verify token exists (handled by authenticateToken middleware)
+    if (!req.user) {
+      return res.status(401).json({
+        ok: false,
+        error: 'Authentication required'
+      });
+    }
+
+    // 2. Fetch the lesson to verify ownership
+    const lesson = await getLesson(id);
+
+    if (!lesson) {
       return res.status(404).json({
         ok: false,
         error: 'Lesson not found'
       });
     }
-    
-    // Authorization check: must be owner
-    if (!instructorId || existingLesson.instructorId !== instructorId) {
+
+    // 3. Authorization Check: Verify the authenticated user is the lesson owner
+    if (req.user.id !== lesson.instructorId) {
       return res.status(403).json({
         ok: false,
-        error: 'Forbidden: You are not the owner of this lesson'
+        error: 'Forbidden: You can only delete your own lessons'
       });
     }
-    
-    // Delete lesson from database
-    await dbDeleteLesson(id);
-    
-    // Send success response
+
+    // 4. Deletion: Remove the lesson from database
+    const deleted = await dbDeleteLesson(id);
+
+    if (!deleted) {
+      return res.status(500).json({
+        ok: false,
+        error: 'Failed to delete lesson from database'
+      });
+    }
+
+    // 5. Response: Return success status
     return res.status(200).json({
       ok: true,
       message: 'Lesson deleted successfully'
     });
-    
+
   } catch (error) {
-    // Handle server errors
     console.error('Error deleting lesson:', error);
     return res.status(500).json({
       ok: false,

@@ -2,7 +2,6 @@
 // Upload lesson form with backend integration
 
 const API_BASE_URL = 'http://localhost:3002/api';
-const INSTRUCTOR_ID = 'INST001'; // Hardcoded instructor ID
 
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('upload-form');
@@ -15,6 +14,14 @@ document.addEventListener('DOMContentLoaded', () => {
   msg.style.padding = '0.75rem';
   msg.style.borderRadius = '4px';
   form.parentNode.insertBefore(msg, form.nextSibling);
+
+  // Retrieve JWT token
+  const token = localStorage.getItem('token');
+  if (!token) {
+    alert('You must be logged in to upload lessons.');
+    window.location.href = 'login.html';
+    return;
+  }
 
   // Load upload history on page load
   loadUploadHistory();
@@ -60,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     formData.append('title', title);
     formData.append('description', description);
     formData.append('topic', topic);
-    formData.append('instructorId', INSTRUCTOR_ID);
+    formData.append('instructorId', localStorage.getItem('userId'));
     formData.append('status', 'published'); // Default to published
 
     // Append all selected files
@@ -71,6 +78,10 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const response = await fetch(`${API_BASE_URL}/lessons`, {
         method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`
+          // Do NOT set Content-Type for FormData!
+        },
         body: formData
       });
 
@@ -80,13 +91,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const data = await response.json();
-      
+
       // Show success message
       showMessage('✓ Lesson uploaded successfully!', 'success');
-      
+
       // Add to history
       addToHistory(data.lesson);
-      
+
       // Reset form
       form.reset();
 
@@ -107,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function showMessage(message, type) {
     msg.textContent = message;
     msg.style.display = 'block';
-    
+
     if (type === 'error') {
       msg.style.backgroundColor = '#f8d7da';
       msg.style.color = '#721c24';
@@ -130,10 +141,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const listItem = document.createElement('li');
     listItem.style.padding = '0.5rem 0';
     listItem.style.borderBottom = '1px solid #eee';
-    
+
     const fileCount = lesson.files ? lesson.files.length : 0;
     const filesText = fileCount === 1 ? '1 file' : `${fileCount} files`;
-    
+
     listItem.innerHTML = `
       <strong>${escapeHtml(lesson.title)}</strong><br>
       <small style="color: #666;">
@@ -141,7 +152,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ${new Date(lesson.createdAt).toLocaleString()}
       </small>
     `;
-    
+
     historyList.prepend(listItem);
   }
 
@@ -150,29 +161,20 @@ document.addEventListener('DOMContentLoaded', () => {
    */
   async function loadUploadHistory() {
     try {
-      const response = await fetch(`${API_BASE_URL}/lessons?instructorId=${INSTRUCTOR_ID}`);
-      
+      const response = await fetch(`${API_BASE_URL}/lessons?instructorId=${localStorage.getItem('userId')}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
       if (!response.ok) {
         console.warn('Failed to load upload history');
         return;
       }
-
       const data = await response.json();
       const lessons = data.lessons || [];
-
-      // Clear existing history
-      historyList.innerHTML = '';
-
-      if (lessons.length === 0) {
-        historyList.innerHTML = '<li style="color: #666;">No uploads yet.</li>';
-        return;
-      }
-
-      // Display each lesson in the history
       lessons.forEach(lesson => {
         addToHistory(lesson);
       });
-
     } catch (error) {
       console.error('Error loading upload history:', error);
     }

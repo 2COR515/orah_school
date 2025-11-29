@@ -1,0 +1,189 @@
+<!-- instructor-hub.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Instructor Hub — Orah School</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles/instructor-hub.css" />
+</head>
+<body>
+  <!-- Modern Header with Logo and Logout -->
+  <header id="instructor-header" class="hub-header">
+    <div class="header-container">
+      <div class="logo-brand">
+        <span class="logo-text">Orah School</span>
+        <span class="role-badge">Instructor Hub</span>
+      </div>
+      <div class="header-actions">
+        <span id="instructor-name" class="instructor-greeting">Welcome, Instructor</span>
+        <button id="logout-btn" class="btn-logout">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Hub Content -->
+  <main class="hub-main">
+    <div class="hub-container">
+      <!-- Welcome Section -->
+      <section class="hub-welcome">
+        <h1>Instructor Dashboard</h1>
+        <p>Manage your lessons, track attendance, and view analytics from one central hub.</p>
+      </section>
+
+      <!-- Feature Cards Grid -->
+      <section class="feature-cards-grid">
+        
+        <!-- Lessons Card -->
+        <article class="feature-card lessons-card">
+          <div class="card-icon">📚</div>
+          <div class="card-content">
+            <h2>Lessons</h2>
+            <p>Create new lessons with videos and quizzes. Manage and edit your existing lesson content.</p>
+            <ul class="feature-list">
+              <li>Upload video lessons</li>
+              <li>Create interactive quizzes</li>
+              <li>Manage lesson library</li>
+              <li>Edit and delete lessons</li>
+            </ul>
+          </div>
+          <a href="instructor-lessons.html" class="card-action-btn">Manage Lessons →</a>
+        </article>
+
+        <!-- Attendance Card -->
+        <article class="feature-card attendance-card">
+          <div class="card-icon">📋</div>
+          <div class="card-content">
+            <h2>Attendance</h2>
+            <p>Track student attendance, view attendance reports, and manage class rosters.</p>
+            <ul class="feature-list">
+              <li>Mark daily attendance</li>
+              <li>View attendance history</li>
+              <li>Generate reports</li>
+              <li>Track patterns</li>
+            </ul>
+          </div>
+          <a href="instructor-attendance.html" class="card-action-btn">Track Attendance →</a>
+        </article>
+
+        <!-- Analytics Card -->
+        <article class="feature-card analytics-card">
+          <div class="card-icon">📊</div>
+          <div class="card-content">
+            <h2>Analytics</h2>
+            <p>View detailed analytics on student performance, engagement, and lesson completion rates.</p>
+            <ul class="feature-list">
+              <li>Student progress tracking</li>
+              <li>Completion statistics</li>
+              <li>Performance insights</li>
+              <li>Engagement metrics</li>
+            </ul>
+          </div>
+          <a href="instructor-analytics.html" class="card-action-btn">View Analytics →</a>
+        </article>
+
+        <!-- Quick Stats Card -->
+        <article class="feature-card stats-card">
+          <div class="card-icon">⚡</div>
+          <div class="card-content">
+            <h2>Quick Stats</h2>
+            <div class="stats-grid">
+              <div class="stat-item">
+                <span class="stat-value" id="total-lessons">0</span>
+                <span class="stat-label">Total Lessons</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="total-students">0</span>
+                <span class="stat-label">Active Students</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="avg-completion">0%</span>
+                <span class="stat-label">Avg Completion</span>
+              </div>
+              <div class="stat-item">
+                <span class="stat-value" id="recent-activity">0</span>
+                <span class="stat-label">Recent Activities</span>
+              </div>
+            </div>
+          </div>
+        </article>
+
+      </section>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="hub-footer">
+    <p>Orah School &copy; 2025 | Empowering Education</p>
+  </footer>
+
+  <script>
+    // Load instructor name
+    const firstName = localStorage.getItem('userFirstName') || 'Instructor';
+    const lastName = localStorage.getItem('userLastName') || '';
+    document.getElementById('instructor-name').textContent = `Welcome, ${firstName}`;
+
+    // Logout handler
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      if (confirm('Are you sure you want to logout?')) {
+        localStorage.clear();
+        window.location.href = 'login.html';
+      }
+    });
+
+    // Load quick stats
+    async function loadQuickStats() {
+      const token = localStorage.getItem('token');
+      const userId = localStorage.getItem('userId');
+
+      try {
+        // Fetch lessons count
+        const lessonsResponse = await fetch('http://localhost:3002/api/lessons', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (lessonsResponse.ok) {
+          const lessonsData = await lessonsResponse.json();
+          const myLessons = (lessonsData.lessons || []).filter(l => l.instructorId === userId);
+          document.getElementById('total-lessons').textContent = myLessons.length;
+        }
+
+        // Fetch enrollments to calculate stats
+        const enrollmentsResponse = await fetch('http://localhost:3002/api/enrollments', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (enrollmentsResponse.ok) {
+          const enrollmentsData = await enrollmentsResponse.json();
+          const enrollments = enrollmentsData.enrollments || [];
+          
+          // Unique students
+          const uniqueStudents = new Set(enrollments.map(e => e.userId)).size;
+          document.getElementById('total-students').textContent = uniqueStudents;
+
+          // Average completion
+          if (enrollments.length > 0) {
+            const avgCompletion = Math.round(
+              enrollments.reduce((sum, e) => sum + (e.progress || 0), 0) / enrollments.length
+            );
+            document.getElementById('avg-completion').textContent = `${avgCompletion}%`;
+          }
+
+          // Recent activity (enrollments in last 7 days)
+          const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
+          const recentCount = enrollments.filter(e => 
+            new Date(e.enrolledAt).getTime() > weekAgo
+          ).length;
+          document.getElementById('recent-activity').textContent = recentCount;
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Load stats on page load
+    loadQuickStats();
+  </script>
+</body>
+</html>
