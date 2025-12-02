@@ -1,0 +1,119 @@
+<!-- instructor-dashboard.html -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Instructor Dashboard — Orah School</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles/instructor-dashboard.css" />
+</head>
+<body>
+  <!-- Modern Header with Logo and Navigation -->
+  <header id="instructor-header" class="dashboard-header">
+    <div class="header-container">
+      <div class="logo-brand">
+        <span class="logo-text">Orah School</span>
+        <span class="role-badge">Instructor</span>
+      </div>
+      <nav class="header-nav">
+        <a class="nav-link" href="instructor-dashboard.html">Dashboard</a>
+        <a class="nav-link" href="teacher-analytics.html">Analytics</a>
+        <button id="logout-btn" class="btn-logout">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content Wrapper -->
+  <main id="dashboard-main" class="dashboard-main">
+    <!-- Quick Actions removed - simplified interface -->
+
+    <!-- Create Lesson Form -->
+    <section class="dashboard-card" id="upload-panel">
+      <h2>Create Lesson</h2>
+      <form id="create-lesson-form">
+        <div class="form-group">
+          <label for="lesson-title">Lesson Title</label>
+          <input id="lesson-title" name="lesson-title" type="text" required placeholder="Enter a clear lesson title" />
+        </div>
+
+        <div class="form-group">
+          <label for="lesson-description">Description</label>
+          <textarea id="lesson-description" name="lesson-description" rows="4" required placeholder="Describe the lesson objectives and content"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="video-upload">Video Upload</label>
+          <input id="video-upload" name="video-upload" type="file" accept="video/*,application/pdf" />
+          <div id="upload-progress" aria-live="polite" style="margin-top: 0.5rem; background: #f2e9ff; border-radius: 8px; height: 10px; overflow: hidden;">
+            <div class="progress-bar" style="width: 0%; height: 100%; background: #6F00FF; transition: width 0.2s ease;"></div>
+          </div>
+        </div>
+
+        <section class="dashboard-section" aria-labelledby="quiz-builder-title" style="padding: 0;">
+          <h3 id="quiz-builder-title" style="margin: 1rem 0 0.5rem;">Quiz Builder</h3>
+          <div id="quiz-questions" class="quiz-questions" style="display:flex; flex-direction:column; gap:1rem;"></div>
+          <button type="button" id="add-question-btn" class="tech-button" style="margin-top: 0.5rem;">+ Add Question</button>
+        </section>
+
+        <div style="margin-top: 1rem; display: flex; gap: 0.75rem;">
+          <button type="submit" id="submit-lesson-btn" class="tech-button" style="background:#6F00FF; color:#fff;">Create Lesson</button>
+          <span id="create-lesson-msg" role="status" style="align-self:center; color:#3B0270;"></span>
+        </div>
+      </form>
+    </section>
+
+    <!-- Manage Your Lessons Section -->
+    <section class="dashboard-card" id="manage-lessons-panel">
+      <h2>Manage Your Lessons</h2>
+      <div id="lessons-list-container" aria-live="polite">
+        <p id="lessons-loading-msg">Loading your lessons...</p>
+        <div id="lessons-list" class="lessons-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;"></div>
+      </div>
+    </section>
+
+    <!-- Attendance Tracking Panel -->
+    <section class="dashboard-card" id="attendance-panel">
+      <h2>Attendance Tracking</h2>
+      <p>Monitor and manage student attendance.</p>
+      <a href="instructor-attendance.html" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: #6F00FF; color: white; text-decoration: none; border-radius: 4px;">View Attendance</a>
+    </section>
+
+    <!-- Analytics Panel -->
+    <section class="dashboard-card" id="analytics-panel">
+      <h2>Analytics</h2>
+      <p>View class performance and engagement metrics.</p>
+      <a href="teacher-analytics.html" style="display: inline-block; margin-top: 1rem; padding: 0.75rem 1.5rem; background: #6F00FF; color: white; text-decoration: none; border-radius: 4px;">View Analytics</a>
+    </section>
+  </main>
+
+  <!-- Floating chatbot button (bottom right) -->
+  <button class="chatbot-btn" id="instructor-chatbot-btn" aria-label="Open Chatbot">💬</button>
+
+  <!-- Footer -->
+  <footer class="dashboard-footer">
+    Orah School &copy; 2025
+  </footer>
+
+  <script src="scripts/instructor-dashboard.js"></script>
+  <script>
+    // Load instructor name from localStorage
+    const firstName = localStorage.getItem('userFirstName') || 'Instructor';
+    const lastName = localStorage.getItem('userLastName') || '';
+    document.getElementById('instructor-name').textContent = `${firstName} ${lastName}`;
+    document.getElementById('instructor-avatar').textContent = 
+      `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase();
+    
+    // Logout handler
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    });
+    
+    // Chatbot handler
+    document.getElementById('instructor-chatbot-btn').addEventListener('click', () => {
+      alert('Instructor support coming soon! Email admin@orahschools.com for assistance.');
+    });
+  </script>
+</body>
+</html>

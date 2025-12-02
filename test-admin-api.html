@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin API Test Page</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+
+        .status {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .status.logged-out {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status.logged-in {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .login-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+
+        .login-section h2 {
+            margin-bottom: 1rem;
+            color: #495057;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            font-size: 1rem;
+        }
+
+        button {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #c82333;
+        }
+
+        .endpoints {
+            margin-top: 2rem;
+        }
+
+        .endpoint-card {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #667eea;
+        }
+
+        .endpoint-card h3 {
+            color: #495057;
+            margin-bottom: 0.5rem;
+        }
+
+        .endpoint-card .method {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.875rem;
+            font-weight: bold;
+            margin-right: 0.5rem;
+        }
+
+        .method.get { background: #17a2b8; color: white; }
+        .method.post { background: #28a745; color: white; }
+        .method.patch { background: #ffc107; color: #333; }
+        .method.delete { background: #dc3545; color: white; }
+
+        .endpoint-path {
+            font-family: 'Courier New', monospace;
+            background: white;
+            padding: 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .result {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: #fff;
+            border: 1px solid #dee2e6;
+            border-radius: 6px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Admin API Test Page</h1>
+        
+        <div id="status" class="status logged-out">
+            Not logged in
+        </div>
+
+        <div id="login-section" class="login-section">
+            <h2>Login as Admin</h2>
+            <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" value="admin@test.com">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" value="admin123">
+            </div>
+            <button class="btn-primary" onclick="login()">Login</button>
+        </div>
+
+        <div id="endpoints-section" class="endpoints hidden">
+            <h2>Available Admin Endpoints</h2>
+            
+            <div class="endpoint-card">
+                <h3>Get All Users</h3>
+                <span class="method get">GET</span>
+                <div class="endpoint-path">/api/admin/users</div>
+                <button class="btn-primary" onclick="testEndpoint('/api/admin/users', 'GET')">Test</button>
+            </div>
+
+            <div class="endpoint-card">
+                <h3>Get All Lessons (Including Drafts)</h3>
+                <span class="method get">GET</span>
+                <div class="endpoint-path">/api/admin/lessons</div>
+                <button class="btn-primary" onclick="testEndpoint('/api/admin/lessons', 'GET')">Test</button>
+            </div>
+
+            <div class="endpoint-card">
+                <h3>Get All Enrollments</h3>
+                <span class="method get">GET</span>
+                <div class="endpoint-path">/api/admin/enrollments</div>
+                <button class="btn-primary" onclick="testEndpoint('/api/admin/enrollments', 'GET')">Test</button>
+            </div>
+
+            <div class="endpoint-card">
+                <h3>Get All Attendance Records</h3>
+                <span class="method get">GET</span>
+                <div class="endpoint-path">/api/admin/attendance</div>
+                <button class="btn-primary" onclick="testEndpoint('/api/admin/attendance', 'GET')">Test</button>
+            </div>
+
+            <div class="endpoint-card">
+                <h3>Update User Role</h3>
+                <span class="method patch">PATCH</span>
+                <div class="endpoint-path">/api/admin/users/:userId/role</div>
+                <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #6c757d;">
+                    Body: <code>{ "role": "student" | "instructor" | "admin" }</code>
+                </p>
+                <button class="btn-secondary" onclick="alert('Use the admin dashboard for this operation')">Use Dashboard</button>
+            </div>
+
+            <div class="endpoint-card">
+                <h3>Delete User</h3>
+                <span class="method delete">DELETE</span>
+                <div class="endpoint-path">/api/admin/users/:userId</div>
+                <button class="btn-danger" onclick="alert('Use the admin dashboard for this operation')">Use Dashboard</button>
+            </div>
+
+            <div id="result" class="result hidden">
+                <h3>Response:</h3>
+                <pre id="result-content"></pre>
+            </div>
+
+            <div style="margin-top: 2rem; padding: 1rem; background: #d1ecf1; border-radius: 8px; color: #0c5460;">
+                <strong>📝 Note:</strong> The endpoint <code>/api/admin</code> by itself doesn't exist. 
+                You must use the specific paths listed above (e.g., <code>/api/admin/users</code>).
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'http://localhost:3002/api';
+        let token = null;
+
+        async function login() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch(`${API_BASE}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.ok && data.token) {
+                    token = data.token;
+                    document.getElementById('status').textContent = `Logged in as: ${data.user.email} (${data.user.role})`;
+                    document.getElementById('status').className = 'status logged-in';
+                    document.getElementById('login-section').classList.add('hidden');
+                    document.getElementById('endpoints-section').classList.remove('hidden');
+                } else {
+                    alert('Login failed: ' + (data.error || 'Unknown error'));
+                }
+            } catch (error) {
+                alert('Login error: ' + error.message);
+            }
+        }
+
+        async function testEndpoint(path, method) {
+            if (!token) {
+                alert('Please login first');
+                return;
+            }
+
+            const resultDiv = document.getElementById('result');
+            const resultContent = document.getElementById('result-content');
+
+            resultContent.textContent = 'Loading...';
+            resultDiv.classList.remove('hidden');
+
+            try {
+                const response = await fetch(`${API_BASE}${path}`, {
+                    method: method,
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                resultContent.textContent = JSON.stringify(data, null, 2);
+            } catch (error) {
+                resultContent.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

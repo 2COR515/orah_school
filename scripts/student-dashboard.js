@@ -8,12 +8,33 @@ const CURRENT_USER_ID = localStorage.getItem('userId') || 'S101';
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadDashboard();
+  
+  // Auto-refresh stats every 10 seconds
+  setInterval(async () => {
+    console.log('⏰ Auto-refresh: Updating dashboard...');
+    await loadDashboard();
+  }, 10000);
+});
+
+// Refresh dashboard when page becomes visible (returning from lesson player)
+document.addEventListener('visibilitychange', async () => {
+  if (!document.hidden) {
+    console.log('👁️ Page visible - refreshing dashboard stats...');
+    await loadDashboard();
+  }
+});
+
+// Also refresh when window regains focus
+window.addEventListener('focus', async () => {
+  console.log('🎯 Window focused - refreshing dashboard stats...');
+  await loadDashboard();
 });
 
 /**
  * Load all dashboard data: lessons and enrollments
  */
 async function loadDashboard() {
+  console.log('🔄 Loading dashboard data...');
   const token = localStorage.getItem('token');
   
   try {
@@ -175,22 +196,38 @@ function renderAvailableLessons(lessons) {
  * Update performance stats
  */
 function updatePerformanceStats(enrollments) {
-  const statsContainer = document.getElementById('performance') || 
-                         document.querySelector('.performance-cards');
+  console.log('Updating performance stats with', enrollments.length, 'enrollments');
   
-  if (!statsContainer) return;
-
   const completedCount = enrollments.filter(e => e.progress === 100).length;
   const totalCount = enrollments.length;
   const completionRate = totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+  console.log(`Stats: Enrolled=${totalCount}, Completed=${completedCount}, Rate=${completionRate}%`);
 
   const enrolledSpan = document.getElementById('enrolled-count');
   const completedSpan = document.getElementById('completed-count');
   const rateSpan = document.getElementById('completion-rate');
 
-  if (enrolledSpan) enrolledSpan.textContent = totalCount;
-  if (completedSpan) completedSpan.textContent = completedCount;
-  if (rateSpan) rateSpan.textContent = `${completionRate}%`;
+  if (enrolledSpan) {
+    enrolledSpan.textContent = totalCount;
+    console.log('Updated enrolled-count to', totalCount);
+  } else {
+    console.warn('enrolled-count element not found');
+  }
+  
+  if (completedSpan) {
+    completedSpan.textContent = completedCount;
+    console.log('Updated completed-count to', completedCount);
+  } else {
+    console.warn('completed-count element not found');
+  }
+  
+  if (rateSpan) {
+    rateSpan.textContent = `${completionRate}%`;
+    console.log('Updated completion-rate to', completionRate + '%');
+  } else {
+    console.warn('completion-rate element not found');
+  }
 }
 
 /**

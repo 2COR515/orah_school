@@ -23,4 +23,34 @@ router.patch('/:enrollmentId/progress', authenticateToken, updateProgress);
 // GET /lesson/:lessonId - List all enrollments for a specific lesson (protected: instructor only)
 router.get('/lesson/:lessonId', authenticateToken, authorizeRole('instructor'), listLessonEnrollments);
 
+// GET / - List all enrollments (protected: instructor or admin only)
+router.get('/', authenticateToken, async (req, res) => {
+  try {
+    const db = require('../../db');
+    const userRole = req.user.role;
+    
+    // Only allow instructors and admins to view all enrollments
+    if (userRole !== 'instructor' && userRole !== 'admin') {
+      return res.status(403).json({
+        ok: false,
+        error: 'Access denied. Instructors and admins only.'
+      });
+    }
+    
+    const enrollments = await db.listAllEnrollments();
+    
+    return res.status(200).json({
+      ok: true,
+      enrollments,
+      total: enrollments.length
+    });
+  } catch (error) {
+    console.error('Error fetching all enrollments:', error);
+    return res.status(500).json({
+      ok: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
 module.exports = router;

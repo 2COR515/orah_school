@@ -102,8 +102,8 @@
                 <span class="stat-label">Avg Completion</span>
               </div>
               <div class="stat-item">
-                <span class="stat-value" id="recent-activity">0</span>
-                <span class="stat-label">Recent Activities</span>
+                <span class="stat-value" id="missed-classes">0</span>
+                <span class="stat-label">Missed Classes</span>
               </div>
             </div>
           </div>
@@ -134,56 +134,108 @@
 
     // Load quick stats
     async function loadQuickStats() {
+      console.log('🔄 Loading instructor stats...');
       const token = localStorage.getItem('token');
       const userId = localStorage.getItem('userId');
 
       try {
-        // Fetch lessons count
+        // Fetch all lessons
         const lessonsResponse = await fetch('http://localhost:3002/api/lessons', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
         
+        let myLessons = [];
+        let myLessonIds = new Set();
+        
         if (lessonsResponse.ok) {
           const lessonsData = await lessonsResponse.json();
-          const myLessons = (lessonsData.lessons || []).filter(l => l.instructorId === userId);
-          document.getElementById('total-lessons').textContent = myLessons.length;
+          // Filter to get only THIS instructor's lessons
+          myLessons = (lessonsData.lessons || []).filter(l => l.instructorId === userId);
+          myLessonIds = new Set(myLessons.map(l => l.id));
+          
+          const lessonsCount = myLessons.length;
+          document.getElementById('total-lessons').textContent = lessonsCount;
+          console.log('📚 Total Lessons:', lessonsCount);
+          console.log('📚 My Lesson IDs:', Array.from(myLessonIds));
         }
 
-        // Fetch enrollments to calculate stats
+        // Fetch all enrollments
         const enrollmentsResponse = await fetch('http://localhost:3002/api/enrollments', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (enrollmentsResponse.ok) {
           const enrollmentsData = await enrollmentsResponse.json();
-          const enrollments = enrollmentsData.enrollments || [];
+          const allEnrollments = enrollmentsData.enrollments || [];
+          console.log('📊 Total enrollments in system:', allEnrollments.length);
           
-          // Unique students
-          const uniqueStudents = new Set(enrollments.map(e => e.userId)).size;
+          // Filter to get ONLY enrollments in THIS instructor's lessons
+          const myEnrollments = allEnrollments.filter(e => myLessonIds.has(e.lessonId));
+          console.log('📊 Enrollments in my lessons:', myEnrollments.length);
+          
+          // Count unique students enrolled in THIS instructor's lessons
+          const uniqueStudents = new Set(myEnrollments.map(e => e.userId)).size;
           document.getElementById('total-students').textContent = uniqueStudents;
+          console.log('👥 Active Students (in my lessons):', uniqueStudents);
 
-          // Average completion
-          if (enrollments.length > 0) {
+          // Average completion for THIS instructor's lessons
+          if (myEnrollments.length > 0) {
             const avgCompletion = Math.round(
-              enrollments.reduce((sum, e) => sum + (e.progress || 0), 0) / enrollments.length
+              myEnrollments.reduce((sum, e) => sum + (e.progress || 0), 0) / myEnrollments.length
             );
             document.getElementById('avg-completion').textContent = `${avgCompletion}%`;
+            console.log('📈 Average Completion:', avgCompletion + '%');
+          } else {
+            document.getElementById('avg-completion').textContent = '0%';
           }
 
-          // Recent activity (enrollments in last 7 days)
-          const weekAgo = Date.now() - (7 * 24 * 60 * 60 * 1000);
-          const recentCount = enrollments.filter(e => 
-            new Date(e.enrolledAt).getTime() > weekAgo
-          ).length;
-          document.getElementById('recent-activity').textContent = recentCount;
+          // Fetch attendance records to calculate missed classes
+          const attendanceResponse = await fetch('http://localhost:3002/api/attendance', {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+
+          let missedCount = 0;
+          if (attendanceResponse.ok) {
+            const attendanceData = await attendanceResponse.json();
+            const allAttendance = attendanceData.records || [];
+            
+            // Filter attendance records for THIS instructor's lessons only
+            const myAttendance = allAttendance.filter(a => myLessonIds.has(a.lessonId));
+            
+            // Count absent records
+            missedCount = myAttendance.filter(a => a.status === 'absent').length;
+            console.log('❌ Missed Classes (in my lessons):', missedCount);
+          }
+          
+          document.getElementById('missed-classes').textContent = missedCount;
         }
       } catch (error) {
-        console.error('Error loading stats:', error);
+        console.error('❌ Error loading stats:', error);
       }
     }
 
     // Load stats on page load
     loadQuickStats();
+
+    // Refresh stats when page becomes visible
+    document.addEventListener('visibilitychange', () => {
+      if (!document.hidden) {
+        console.log('Page visible - refreshing instructor stats...');
+        loadQuickStats();
+      }
+    });
+
+    // Also refresh when window regains focus
+    window.addEventListener('focus', () => {
+      console.log('Window focused - refreshing instructor stats...');
+      loadQuickStats();
+    });
+
+    // Auto-refresh stats every 30 seconds
+    setInterval(() => {
+      console.log('Auto-refreshing instructor stats...');
+      loadQuickStats();
+    }, 30000);
   </script>
 </body>
 </html>

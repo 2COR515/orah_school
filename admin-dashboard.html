@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Orah School</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="styles/admin-dashboard.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="admin-header">
+        <div class="header-content">
+            <div class="logo-section">
+                <img src="assets/orahlogo.png" alt="Orah Logo" class="logo-img">
+                <span class="logo-text">Orah School Admin</span>
+            </div>
+            <nav class="admin-nav">
+                <button id="back-btn" class="nav-button">← Back</button>
+                <button id="logout-btn" class="nav-button danger">Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="admin-wrapper container">
+        <main class="admin-main">
+            <!-- System Overview -->
+            <section class="card stats-section">
+                <h2>System Overview</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <h3 id="total-users">0</h3>
+                        <p>Total Users</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📚</div>
+                        <h3 id="total-lessons">0</h3>
+                        <p>Total Lessons</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">✅</div>
+                        <h3 id="total-enrollments">0</h3>
+                        <p>Total Enrollments</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <h3 id="total-attendance">0</h3>
+                        <p>Attendance Records</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- User Management -->
+            <section class="card management-section">
+                <div class="section-header">
+                    <h2>User Management</h2>
+                    <button id="refresh-users-btn" class="btn-secondary">🔄 Refresh</button>
+                </div>
+                <div class="table-container">
+                    <table id="users-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-tbody">
+                            <tr>
+                                <td colspan="5" class="loading">Loading users...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Lesson Management -->
+            <section class="card management-section">
+                <div class="section-header">
+                    <h2>Lesson Management</h2>
+                    <button id="refresh-lessons-btn" class="btn-secondary">🔄 Refresh</button>
+                </div>
+                <div class="table-container">
+                    <table id="lessons-table">
+                        <thead>
+                            <tr>
+                                <th>Title</th>
+                                <th>Instructor</th>
+                                <th>Status</th>
+                                <th>Enrollments</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="lessons-tbody">
+                            <tr>
+                                <td colspan="6" class="loading">Loading lessons...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <footer class="admin-footer">
+        <p>Orah School Admin Dashboard © 2025</p>
+    </footer>
+
+    <script src="scripts/admin-dashboard.js"></script>
+</body>
+</html>

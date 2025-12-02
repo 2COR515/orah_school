@@ -74,6 +74,14 @@ app.use('/api/lessons', lessonRouter);
 // Mount Enrollment API routes
 app.use('/api/enrollments', enrollmentRouter);
 
+// Mount Attendance API routes
+const attendanceRouter = require('./src/routes/attendanceRoutes');
+app.use('/api/attendance', attendanceRouter);
+
+// Mount Admin API routes
+const adminRouter = require('./src/routes/adminRoutes');
+app.use('/api/admin', adminRouter);
+
 // Upload endpoint (single file). Field name: uploaded_file
 // Accepts video (mp4, mkv) and PDF files. Returns public URL.
 app.post('/api/upload', (req, res, next) => {
@@ -113,6 +121,9 @@ app.post('/api/upload', (req, res, next) => {
   });
 });
 
+// Import reminder service
+const { startReminderScheduler } = require('./reminderService');
+
 // Start server with database initialization
 async function startServer() {
 	try {
@@ -120,35 +131,8 @@ async function startServer() {
 		await initDb();
 		console.log('Database initialized successfully');
 		
-		// Automated Reminder Scheduler: runs every hour
-		cron.schedule('0 * * * *', async () => {
-			try {
-				const now = Date.now();
-				const enrollments = await listAllEnrollments();
-				
-				let reminderCount = 0;
-				
-				enrollments.forEach(enrollment => {
-					// Only check active enrollments with incomplete progress
-					if (enrollment.status === 'active' && enrollment.progress < 100) {
-						const enrollmentAge = now - enrollment.enrolledAt;
-						
-						// Send reminder if enrollment is between 2-3 days old
-						if (enrollmentAge >= TWO_DAYS_MS && enrollmentAge < THREE_DAYS_MS) {
-							console.log(`[REMINDER SENT] User ${enrollment.userId} for Lesson ${enrollment.lessonId} is 2 days overdue.`);
-							reminderCount++;
-						}
-					}
-				});
-				
-				if (reminderCount > 0) {
-					console.log(`[REMINDER SCHEDULER] Sent ${reminderCount} reminder(s) at ${new Date().toISOString()}`);
-				}
-			} catch (err) {
-				console.error('[REMINDER ERROR]', err);
-			}
-		});
-		console.log('✓ Reminder scheduler started (runs every hour)');
+		// Start automated reminder scheduler
+		startReminderScheduler();
 		
 		// Serve static frontend files after API routes so /api/* is not shadowed
 		app.use(express.static(path.join(__dirname, '..')));
@@ -158,6 +142,8 @@ async function startServer() {
 			console.log(`✓ Server listening on port ${PORT}`);
 			console.log(`✓ Lesson API available at http://localhost:${PORT}/api/lessons`);
 			console.log(`✓ Enrollment API available at http://localhost:${PORT}/api/enrollments`);
+			console.log(`✓ Attendance API available at http://localhost:${PORT}/api/attendance`);
+			console.log(`✓ Admin API available at http://localhost:${PORT}/api/admin`);
 			console.log(`✓ Health check at http://localhost:${PORT}/health`);
 		});
 	} catch (error) {

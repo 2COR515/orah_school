@@ -7,7 +7,8 @@ const {
   listPublishedLessons,
   getLessonById,
   updateLesson,
-  deleteLesson
+  deleteLesson,
+  addLessonResource
 } = require('../controllers/lessonController');
 const { authenticateToken, authorizeRole } = require('../middleware/authMiddleware');
 
@@ -69,5 +70,8 @@ router.patch('/:id', authenticateToken, authorizeRole('instructor'), updateLesso
 
 // DELETE /:id - Delete a lesson by ID (protected: instructor only)
 router.delete('/:id', authenticateToken, authorizeRole('instructor'), deleteLesson);
+
+// POST /:id/resources - Add resource to lesson (protected: instructor only)
+router.post('/:id/resources', authenticateToken, authorizeRole('instructor'), addLessonResource);
 
 module.exports = router;

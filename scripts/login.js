@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function(){
         // Store authentication data
         localStorage.setItem('token', data.token);
         localStorage.setItem('userId', data.user.userId);
-        localStorage.setItem('userRole', data.user.role);
+        localStorage.setItem('role', data.user.role); // Fixed: changed from 'userRole' to 'role'
         localStorage.setItem('userFirstName', data.user.firstName || '');
         localStorage.setItem('userLastName', data.user.lastName || '');
         localStorage.setItem('userEmail', data.user.email);
@@ -52,6 +52,8 @@ document.addEventListener('DOMContentLoaded', function(){
           window.location.href = 'student-dashboard.html';
         } else if (data.user.role === 'instructor') {
           window.location.href = 'instructor-hub.html';
+        } else if (data.user.role === 'admin') {
+          window.location.href = 'admin-dashboard.html';
         } else {
           errorBox.textContent = 'Unknown user role. Please contact support.';
         }

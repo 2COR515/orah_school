@@ -43,12 +43,12 @@
         </select>
       </div>
 
-      <div id="students-list" class="students-attendance-list">
-        <p style="color: #666;">Select a lesson to view students</p>
+      <div id="student-roster" class="student-roster">
+        <p style="color: #666; text-align: center; padding: 2rem;">Select a lesson to view enrolled students</p>
       </div>
 
       <button id="save-attendance-btn" class="tech-button" style="margin-top: 1.5rem;">Save Attendance</button>
-      <span id="attendance-msg" style="margin-left: 1rem; color: var(--color-success);"></span>
+      <span id="attendance-msg" style="margin-left: 1rem; font-weight: 600;"></span>
     </section>
 
     <!-- Attendance Report Card -->
@@ -81,146 +81,7 @@
 
   </main>
 
-  <script>
-    const API_BASE_URL = 'http://localhost:3002/api';
-    const token = localStorage.getItem('token');
-    const instructorId = localStorage.getItem('userId');
-
-    // Set today's date
-    document.getElementById('attendance-date').valueAsDate = new Date();
-
-    // Back to Hub handler
-    document.getElementById('back-to-hub-btn').addEventListener('click', () => {
-      window.location.href = 'instructor-hub.html';
-    });
-
-    // Logout handler
-    document.getElementById('logout-btn').addEventListener('click', () => {
-      localStorage.clear();
-      window.location.href = 'login.html';
-    });
-
-    // Load instructor's lessons
-    async function loadLessons() {
-      try {
-        const response = await fetch(`${API_BASE_URL}/lessons`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const myLessons = (data.lessons || []).filter(l => l.instructorId === instructorId);
-          
-          const lessonSelect = document.getElementById('lesson-select');
-          const reportLessonSelect = document.getElementById('report-lesson');
-          
-          lessonSelect.innerHTML = '<option value="">-- Select a lesson --</option>';
-          reportLessonSelect.innerHTML = '<option value="">All Lessons</option>';
-          
-          myLessons.forEach(lesson => {
-            const option1 = document.createElement('option');
-            option1.value = lesson.id;
-            option1.textContent = lesson.title;
-            lessonSelect.appendChild(option1);
-
-            const option2 = document.createElement('option');
-            option2.value = lesson.id;
-            option2.textContent = lesson.title;
-            reportLessonSelect.appendChild(option2);
-          });
-        }
-      } catch (error) {
-        console.error('Error loading lessons:', error);
-      }
-    }
-
-    // Load students for selected lesson
-    document.getElementById('lesson-select').addEventListener('change', async (e) => {
-      const lessonId = e.target.value;
-      if (!lessonId) {
-        document.getElementById('students-list').innerHTML = '<p style="color: #666;">Select a lesson to view students</p>';
-        return;
-      }
-
-      try {
-        // Fetch enrollments for this lesson
-        const response = await fetch(`${API_BASE_URL}/enrollments`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-          const data = await response.json();
-          const enrollments = (data.enrollments || []).filter(e => e.lessonId === lessonId);
-          
-          const studentsList = document.getElementById('students-list');
-          studentsList.innerHTML = '<h3 style="margin-top: 0;">Students</h3>';
-
-          if (enrollments.length === 0) {
-            studentsList.innerHTML += '<p style="color: #666;">No students enrolled in this lesson</p>';
-            return;
-          }
-
-          enrollments.forEach((enrollment, index) => {
-            const studentDiv = document.createElement('div');
-            studentDiv.className = 'student-attendance-row';
-            studentDiv.style.cssText = 'display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--color-bg-soft); border-radius: 8px; margin-bottom: 0.75rem;';
-            studentDiv.innerHTML = `
-              <span style="font-weight: 600;">${enrollment.userId || `Student ${index + 1}`}</span>
-              <div style="display: flex; gap: 1rem;">
-                <label style="display: flex; align-items: center; gap: 0.5rem;">
-                  <input type="radio" name="attendance-${enrollment.id}" value="present" checked />
-                  <span>Present</span>
-                </label>
-                <label style="display: flex; align-items: center; gap: 0.5rem;">
-                  <input type="radio" name="attendance-${enrollment.id}" value="absent" />
-                  <span>Absent</span>
-                </label>
-              </div>
-            `;
-            studentsList.appendChild(studentDiv);
-          });
-        }
-      } catch (error) {
-        console.error('Error loading students:', error);
-        document.getElementById('students-list').innerHTML = '<p style="color: #ff3b3b;">Error loading students</p>';
-      }
-    });
-
-    // Save attendance
-    document.getElementById('save-attendance-btn').addEventListener('click', () => {
-      const msgSpan = document.getElementById('attendance-msg');
-      msgSpan.textContent = '✓ Attendance saved successfully!';
-      msgSpan.style.color = 'var(--color-success)';
-      setTimeout(() => msgSpan.textContent = '', 3000);
-    });
-
-    // Generate report
-    document.getElementById('generate-report-btn').addEventListener('click', () => {
-      const reportContainer = document.getElementById('attendance-report');
-      reportContainer.innerHTML = `
-        <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid var(--color-border);">
-          <h3 style="margin-top: 0; color: var(--color-text-dark);">Attendance Summary</h3>
-          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-            <div style="text-align: center; padding: 1rem; background: var(--color-bg-soft); border-radius: 8px;">
-              <div style="font-size: 2rem; font-weight: 900; color: var(--color-primary);">85%</div>
-              <div style="color: #666; font-size: 0.875rem; margin-top: 0.5rem;">Average Attendance</div>
-            </div>
-            <div style="text-align: center; padding: 1rem; background: var(--color-bg-soft); border-radius: 8px;">
-              <div style="font-size: 2rem; font-weight: 900; color: var(--color-success);">42</div>
-              <div style="color: #666; font-size: 0.875rem; margin-top: 0.5rem;">Present</div>
-            </div>
-            <div style="text-align: center; padding: 1rem; background: var(--color-bg-soft); border-radius: 8px;">
-              <div style="font-size: 2rem; font-weight: 900; color: #dc3545;">8</div>
-              <div style="color: #666; font-size: 0.875rem; margin-top: 0.5rem;">Absent</div>
-            </div>
-          </div>
-          <p style="margin-top: 1.5rem; color: #666; font-style: italic;">* Sample data - connect to real attendance records</p>
-        </div>
-      `;
-    });
-
-    // Initialize
-    loadLessons();
-  </script>
+  <!-- External Script -->
+  <script src="scripts/instructor-attendance.js"></script>
 </body>
 </html>

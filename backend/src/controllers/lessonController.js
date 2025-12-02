@@ -341,10 +341,97 @@ const deleteLesson = async (req, res) => {
   }
 };
 
+/**
+ * Add resource to existing lesson (instructor only)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const addLessonResource = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { fileUrl, fileName } = req.body;
+    
+    if (!fileUrl || !fileName) {
+      return res.status(400).json({
+        ok: false,
+        error: 'File URL and name are required'
+      });
+    }
+    
+    // Get the lesson
+    const lesson = await getLesson(id);
+    
+    if (!lesson) {
+      return res.status(404).json({
+        ok: false,
+        error: 'Lesson not found'
+      });
+    }
+    
+    // Verify ownership
+    if (req.user.id !== lesson.instructorId) {
+      return res.status(403).json({
+        ok: false,
+        error: 'You can only add resources to your own lessons'
+      });
+    }
+    
+    // Add the resource
+    const newResource = {
+      url: fileUrl,
+      originalName: fileName,
+      uploadedAt: new Date().toISOString()
+    };
+    
+    lesson.files = lesson.files || [];
+    lesson.files.push(newResource);
+    
+    // Update the lesson
+    const updated = await dbUpdateLesson(id, lesson);
+    
+    return res.status(200).json({
+      ok: true,
+      message: 'Resource added successfully',
+      lesson: updated
+    });
+  } catch (error) {
+    console.error('Error adding resource:', error);
+    return res.status(500).json({
+      ok: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
+/**
+ * List ALL lessons (admin only) - includes drafts and published
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const listAllLessonsAdmin = async (req, res) => {
+  try {
+    const lessons = await listLessons();
+    
+    return res.status(200).json({
+      ok: true,
+      lessons,
+      total: lessons.length
+    });
+  } catch (error) {
+    console.error('Error listing all lessons (admin):', error);
+    return res.status(500).json({
+      ok: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
 module.exports = {
   createLesson,
   listPublishedLessons,
+  listAllLessonsAdmin,
   getLessonById,
   updateLesson,
-  deleteLesson
+  deleteLesson,
+  addLessonResource
 };
