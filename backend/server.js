@@ -1,3 +1,6 @@
+// Load environment variables from .env file
+require('dotenv').config();
+
 const express = require('express');
 const path = require('path');
 const multer = require('multer');
@@ -9,9 +12,9 @@ const enrollmentRouter = require('./src/routes/enrollmentRoutes');
 
 /**
  * JWT Secret Key for signing and verifying tokens.
- * NOTE: Using a simple hardcoded string for development. This must be an environment variable in production.
+ * Now uses environment variable with fallback for development.
  */
-const JWT_SECRET = 'orah-school1';
+const JWT_SECRET = process.env.JWT_SECRET || 'orah-school1';
 
 const app = express();
 const PORT = process.env.PORT || 3002;
@@ -82,6 +85,10 @@ app.use('/api/attendance', attendanceRouter);
 const adminRouter = require('./src/routes/adminRoutes');
 app.use('/api/admin', adminRouter);
 
+// Mount Analytics API routes
+const analyticsRoutes = require('./src/routes/analyticsRoutes');
+app.use('/api/analytics', analyticsRoutes);
+
 // Upload endpoint (single file). Field name: uploaded_file
 // Accepts video (mp4, mkv) and PDF files. Returns public URL.
 app.post('/api/upload', (req, res, next) => {
@@ -124,6 +131,9 @@ app.post('/api/upload', (req, res, next) => {
 // Import reminder service
 const { startReminderScheduler } = require('./reminderService');
 
+// Import deadline service
+const { startDeadlineService } = require('./deadlineService');
+
 // Start server with database initialization
 async function startServer() {
 	try {
@@ -133,6 +143,9 @@ async function startServer() {
 		
 		// Start automated reminder scheduler
 		startReminderScheduler();
+		
+		// Start deadline checking service
+		startDeadlineService();
 		
 		// Serve static frontend files after API routes so /api/* is not shadowed
 		app.use(express.static(path.join(__dirname, '..')));

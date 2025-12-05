@@ -182,8 +182,11 @@ async function addEnrollment(enrollmentData) {
     lessonId,
     userId,
     enrolledAt: now,
-    status: 'active',
-    progress: 0
+    enrollmentDate: new Date().toISOString(), // ISO date for deadline tracking
+    lastAccessDate: new Date().toISOString(), // Track last interaction
+    status: 'active', // active | missed | completed
+    progress: 0,
+    timeSpentSeconds: 0 // Track time spent on lesson
   };
   
   enrollments.push(enrollment);
@@ -315,6 +318,7 @@ async function saveUser(user) {
   const newUser = {
     userId: Date.now().toString() + Math.random().toString(36).substring(2, 9), // Simple unique ID
     role: user.role || 'student', // Default to student
+    reminderFrequency: user.reminderFrequency || 'weekly', // Default reminder frequency
     ...user
   };
   

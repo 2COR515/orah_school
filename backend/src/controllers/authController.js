@@ -151,4 +151,125 @@ async function login(req, res) {
   }
 }
 
-module.exports = { signup, login };
+/**
+ * Handles user profile updates (e.g., reminder frequency preferences).
+ * Requires authentication token.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function updateProfile(req, res) {
+  try {
+    // Get user ID from JWT token (set by authenticateToken middleware)
+    const userId = req.user.id;
+    
+    // Get update data from request body
+    const { reminderFrequency, firstName, lastName } = req.body;
+    
+    // Validate reminderFrequency if provided
+    const validFrequencies = ['daily', 'weekly', 'twice-weekly', 'never'];
+    if (reminderFrequency && !validFrequencies.includes(reminderFrequency)) {
+      return res.status(400).json({
+        ok: false,
+        error: 'Invalid reminder frequency. Must be: daily, weekly, twice-weekly, or never'
+      });
+    }
+    
+    // Find the user
+    const { getAllUsers } = require('../../db');
+    const users = await getAllUsers();
+    const user = users.find(u => u.userId === userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        error: 'User not found'
+      });
+    }
+    
+    // Update user fields
+    if (reminderFrequency !== undefined) {
+      user.reminderFrequency = reminderFrequency;
+    }
+    if (firstName !== undefined) {
+      user.firstName = firstName;
+    }
+    if (lastName !== undefined) {
+      user.lastName = lastName;
+    }
+    
+    // Save updated user
+    const storage = require('node-persist');
+    await storage.init({
+      dir: require('path').join(__dirname, '../../storage')
+    });
+    await storage.setItem('users', users);
+    
+    // Return success response
+    return res.status(200).json({
+      ok: true,
+      message: 'Profile updated successfully',
+      user: {
+        userId: user.userId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        reminderFrequency: user.reminderFrequency
+      }
+    });
+    
+  } catch (error) {
+    console.error('Update profile error:', error);
+    return res.status(500).json({
+      ok: false,
+      error: 'Internal server error during profile update'
+    });
+  }
+}
+
+/**
+ * Get current user's profile information.
+ * Requires authentication token.
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+async function getProfile(req, res) {
+  try {
+    // Get user ID from JWT token
+    const userId = req.user.id;
+    
+    // Find the user
+    const { getAllUsers } = require('../../db');
+    const users = await getAllUsers();
+    const user = users.find(u => u.userId === userId);
+    
+    if (!user) {
+      return res.status(404).json({
+        ok: false,
+        error: 'User not found'
+      });
+    }
+    
+    // Return user profile (excluding password)
+    return res.status(200).json({
+      ok: true,
+      user: {
+        userId: user.userId,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        role: user.role,
+        reminderFrequency: user.reminderFrequency || 'weekly'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Get profile error:', error);
+    return res.status(500).json({
+      ok: false,
+      error: 'Internal server error while fetching profile'
+    });
+  }
+}
+
+module.exports = { signup, login, updateProfile, getProfile };

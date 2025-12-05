@@ -100,6 +100,11 @@ function renderMyLessons(lessons, enrollmentsByLessonId) {
                     document.getElementById('my-lessons-list') ||
                     createSection('My Enrolled Lessons', 'my-lessons-container');
 
+  // CRITICAL FIX: Clear the container's current contents to prevent duplicates
+  if (container) {
+    container.innerHTML = '';
+  }
+  
   container.innerHTML = '<h2>My Enrolled Lessons</h2>';
 
   if (lessons.length === 0) {
@@ -148,6 +153,11 @@ function renderAvailableLessons(lessons) {
                     document.getElementById('available-lessons-list') ||
                     createSection('Available Lessons', 'available-lessons-container');
 
+  // CRITICAL FIX: Clear the container's current contents to prevent duplicates
+  if (container) {
+    container.innerHTML = '';
+  }
+  
   container.innerHTML = '<h2>Available Lessons</h2>';
 
   if (lessons.length === 0) {
@@ -315,11 +325,17 @@ async function enrollInLesson(lessonId, lessonTitle) {
  * Create a section if it doesn't exist
  */
 function createSection(title, id) {
+  // CRITICAL FIX: Check if section already exists before creating
+  let section = document.getElementById(id);
+  if (section) {
+    return section;
+  }
+  
   const main = document.querySelector('.student-main') || 
                document.querySelector('.dashboard-main') || 
                document.body;
   
-  const section = document.createElement('section');
+  section = document.createElement('section');
   section.id = id;
   section.className = 'dashboard-section';
   main.appendChild(section);
@@ -539,4 +555,161 @@ function showReminderNotification(incompleteLessons, lessonMap) {
       overlay.remove();
     }
   });
+}
+
+// ==================== REMINDER PREFERENCES ====================
+
+/**
+ * Load user's current reminder preference setting
+ */
+async function loadReminderPreference() {
+  console.log('📧 Loading reminder preference...');
+  const token = localStorage.getItem('token');
+  
+  if (!token) {
+    console.warn('⚠️  No auth token found');
+    return;
+  }
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+    
+    if (!response.ok) {
+      throw new Error(`Failed to load profile: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.ok && data.user) {
+      const frequency = data.user.reminderFrequency || 'weekly';
+      const selectElement = document.getElementById('frequency-select');
+      
+      if (selectElement) {
+        selectElement.value = frequency;
+        console.log(`✅ Current reminder frequency: ${frequency}`);
+      }
+    }
+    
+  } catch (error) {
+    console.error('❌ Error loading reminder preference:', error);
+  }
+}
+
+/**
+ * Save user's reminder preference
+ */
+async function saveReminderPreference() {
+  console.log('💾 Saving reminder preference...');
+  const token = localStorage.getItem('token');
+  const selectElement = document.getElementById('frequency-select');
+  const messageBox = document.getElementById('frequency-message');
+  const saveButton = document.getElementById('save-frequency-btn');
+  
+  if (!token) {
+    showMessage('Please log in to save preferences', 'error');
+    return;
+  }
+  
+  if (!selectElement) {
+    console.error('❌ Frequency select element not found');
+    return;
+  }
+  
+  const newFrequency = selectElement.value;
+  
+  // Disable button while saving
+  if (saveButton) {
+    saveButton.disabled = true;
+    saveButton.textContent = 'Saving...';
+  }
+  
+  try {
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        reminderFrequency: newFrequency
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || `Failed to update: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    
+    if (data.ok) {
+      console.log(`✅ Reminder frequency updated to: ${newFrequency}`);
+      showMessage('✅ Preferences saved successfully!', 'success');
+    } else {
+      throw new Error(data.error || 'Unknown error');
+    }
+    
+  } catch (error) {
+    console.error('❌ Error saving reminder preference:', error);
+    showMessage(`❌ Failed to save: ${error.message}`, 'error');
+  } finally {
+    // Re-enable button
+    if (saveButton) {
+      saveButton.disabled = false;
+      saveButton.textContent = 'Save Preferences';
+    }
+  }
+}
+
+/**
+ * Show success or error message
+ * @param {string} message - Message text
+ * @param {string} type - 'success' or 'error'
+ */
+function showMessage(message, type) {
+  const messageBox = document.getElementById('frequency-message');
+  
+  if (!messageBox) return;
+  
+  messageBox.textContent = message;
+  messageBox.className = `message-box ${type}`;
+  messageBox.style.display = 'block';
+  
+  // Auto-hide after 5 seconds
+  setTimeout(() => {
+    messageBox.style.display = 'none';
+  }, 5000);
+}
+
+/**
+ * Initialize reminder preferences on page load
+ */
+async function initReminderPreferences() {
+  console.log('🎛️ Initializing reminder preferences...');
+  
+  // Load current setting
+  await loadReminderPreference();
+  
+  // Attach event listener to save button
+  const saveButton = document.getElementById('save-frequency-btn');
+  if (saveButton) {
+    saveButton.addEventListener('click', saveReminderPreference);
+    console.log('✅ Save button listener attached');
+  } else {
+    console.warn('⚠️  Save button not found');
+  }
+}
+
+// Initialize reminder preferences when DOM is loaded
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initReminderPreferences);
+} else {
+  // DOM already loaded
+  initReminderPreferences();
 }

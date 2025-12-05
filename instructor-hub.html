@@ -237,5 +237,33 @@
       loadQuickStats();
     }, 30000);
   </script>
+
+  <!-- Floating Chatbot Button -->
+  <button class="chatbot-btn" id="instructor-chatbot-btn" aria-label="Open Instructor Support Chat">💬</button>
+
+  <!-- Chatbot Container -->
+  <div id="chatbot-container" class="chatbot-container">
+    <div class="chatbot-header">
+      <h3>Instructor Assistant</h3>
+      <button id="chatbot-close-btn" class="chatbot-close-btn">&times;</button>
+    </div>
+    <div id="chatbot-messages" class="chatbot-messages">
+      <div class="bot-message">
+        <strong>Instructor Assistant:</strong> Hello! I'm here to help you with lessons, attendance, analytics, and more. What do you need assistance with?
+      </div>
+    </div>
+    <div class="chatbot-input-area">
+      <input 
+        type="text" 
+        id="chatbot-input" 
+        class="chatbot-input" 
+        placeholder="Type your message..."
+        autocomplete="off"
+      />
+      <button id="chatbot-send-btn" class="chatbot-send-btn">Send</button>
+    </div>
+  </div>
+
+  <script src="scripts/instructor-chatbot.js"></script>
 </body>
 </html>

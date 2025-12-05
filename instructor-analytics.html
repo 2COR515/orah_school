@@ -30,7 +30,7 @@
     <!-- Overview Stats -->
     <section class="dashboard-card">
       <h2>Overview Statistics</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
         <div class="stat-box">
           <div class="stat-value" id="total-lessons-count">0</div>
           <div class="stat-label">Total Lessons</div>
@@ -42,6 +42,10 @@
         <div class="stat-box">
           <div class="stat-value" id="avg-completion-rate">0%</div>
           <div class="stat-label">Avg Completion Rate</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-value" id="digital-attendance-rate">0%</div>
+          <div class="stat-label">Digital Attendance Rate</div>
         </div>
         <div class="stat-box">
           <div class="stat-value" id="active-students-count">0</div>
@@ -185,6 +189,10 @@
     }
   </style>
 
+  <!-- ✨ Load new Analytics Dashboard Script -->
+  <script src="scripts/instructor-analytics.js"></script>
+  
+  <!-- OLD CODE REPLACED - Keeping for reference if needed
   <script>
     const API_BASE_URL = 'http://localhost:3002/api';
     const token = localStorage.getItem('token');
@@ -411,5 +419,6 @@
     // Initialize
     loadAnalytics();
   </script>
+  END OF OLD CODE -->
 </body>
 </html>

@@ -39,6 +39,30 @@
 
   <!-- Main Dashboard Content -->
   <main id="dashboard-content" class="dashboard-main container">
+    <!-- Reminder Settings Section -->
+    <section id="reminder-settings" class="dashboard-card">
+      <h2>📧 Reminder Preferences</h2>
+      <p class="card-description">Choose how often you'd like to receive learning reminders</p>
+      
+      <div class="settings-form">
+        <div class="form-group">
+          <label for="frequency-select">Reminder Frequency:</label>
+          <select id="frequency-select" class="form-control">
+            <option value="daily">Daily - Every day</option>
+            <option value="twice-weekly">Twice Weekly - Monday & Thursday</option>
+            <option value="weekly" selected>Weekly - Monday only</option>
+            <option value="never">Never - No reminders</option>
+          </select>
+        </div>
+        
+        <button id="save-frequency-btn" class="tech-button primary-btn">
+          Save Preferences
+        </button>
+        
+        <div id="frequency-message" class="message-box" style="display: none;"></div>
+      </div>
+    </section>
+
     <!-- My Enrolled Lessons Section -->
     
 
@@ -66,14 +90,31 @@
         window.location.href = 'login.html';
       });
     }
-
-    // Chatbot handler
-    const chatbotBtn = document.getElementById('student-chatbot-btn');
-    if (chatbotBtn) {
-      chatbotBtn.addEventListener('click', () => {
-        alert('Support chatbot coming soon! For now, email support@orahschools.com');
-      });
-    }
   </script>
+
+  <!-- Chatbot Container -->
+  <div id="chatbot-container" class="chatbot-container">
+    <div class="chatbot-header">
+      <h3>Orah Assistant</h3>
+      <button id="chatbot-close-btn" class="chatbot-close-btn">&times;</button>
+    </div>
+    <div id="chatbot-messages" class="chatbot-messages">
+      <div class="bot-message">
+        <strong>Orah Assistant:</strong> Hi! How can I help you today? You can ask me about your courses, progress, or technical issues.
+      </div>
+    </div>
+    <div class="chatbot-input-area">
+      <input 
+        type="text" 
+        id="chatbot-input" 
+        class="chatbot-input" 
+        placeholder="Type your message..."
+        autocomplete="off"
+      />
+      <button id="chatbot-send-btn" class="chatbot-send-btn">Send</button>
+    </div>
+  </div>
+
+  <script src="scripts/student-chatbot.js"></script>
 </body>
 </html>

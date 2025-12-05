@@ -124,8 +124,8 @@ const updateProgress = async (req, res) => {
     // Extract enrollmentId from URL params
     const { enrollmentId } = req.params;
     
-    // Extract progress and optional status from body
-    let { progress, status } = req.body;
+    // Extract progress, status, and optional time tracking fields from body
+    let { progress, status, timeSpentSeconds, lastAccessDate } = req.body;
     
     // Input validation for enrollmentId
     if (!enrollmentId) {
@@ -152,40 +152,64 @@ const updateProgress = async (req, res) => {
       });
     }
     
-    // Input validation for progress
-    if (progress === undefined || progress === null) {
-      return res.status(400).json({
-        ok: false,
-        error: 'progress is required'
-      });
-    }
-    
-    // Convert progress to number and validate range
-    progress = Number(progress);
-    
-    if (isNaN(progress)) {
-      return res.status(400).json({
-        ok: false,
-        error: 'progress must be a valid number'
-      });
-    }
-    
-    if (progress < 0 || progress > 100) {
-      return res.status(400).json({
-        ok: false,
-        error: 'progress must be between 0 and 100'
-      });
-    }
-    
     // Prepare update data
-    const updateData = { progress };
+    const updateData = {};
     
-    // Automatic status update: if progress reaches 100, mark as completed
-    if (progress === 100) {
-      updateData.status = 'completed';
+    // Input validation for progress (if provided)
+    if (progress !== undefined && progress !== null) {
+      // Convert progress to number and validate range
+      progress = Number(progress);
+      
+      if (isNaN(progress)) {
+        return res.status(400).json({
+          ok: false,
+          error: 'progress must be a valid number'
+        });
+      }
+      
+      if (progress < 0 || progress > 100) {
+        return res.status(400).json({
+          ok: false,
+          error: 'progress must be between 0 and 100'
+        });
+      }
+      
+      updateData.progress = progress;
+      
+      // Automatic status update: if progress reaches 100, mark as completed
+      if (progress === 100) {
+        updateData.status = 'completed';
+      } else if (status) {
+        // Allow manual status override if provided (and not 100% progress)
+        updateData.status = status;
+      }
     } else if (status) {
-      // Allow manual status override if provided (and not 100% progress)
+      // Allow status update without progress change
       updateData.status = status;
+    }
+    
+    // ✨ Add time spent tracking if provided
+    // Frontend sends session time, backend accumulates it with existing total
+    if (timeSpentSeconds !== undefined && timeSpentSeconds !== null) {
+      const currentTotal = existingEnrollment.timeSpentSeconds || 0;
+      const sessionTime = Number(timeSpentSeconds);
+      
+      // Add session time to existing total
+      updateData.timeSpentSeconds = currentTotal + sessionTime;
+      console.log(`⏱️ Time spent: +${sessionTime}s → Total: ${updateData.timeSpentSeconds}s`);
+    }
+    
+    // ✨ Update last access date if provided
+    if (lastAccessDate) {
+      updateData.lastAccessDate = lastAccessDate;
+    }
+    
+    // Validate that at least one field is being updated
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({
+        ok: false,
+        error: 'At least one field (progress, status, timeSpentSeconds, or lastAccessDate) must be provided'
+      });
     }
     
     // Update enrollment in database

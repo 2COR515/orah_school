@@ -4,6 +4,12 @@ const UPLOADS_BASE_URL = 'http://localhost:3002'; // Already correctly set
 let currentLesson = null;
 let currentEnrollmentId = null;
 
+// ✨ Time Spent Tracking Variables
+let timeSpentOnLesson = 0; // Total time spent in THIS SESSION (seconds)
+let lastSentTime = 0; // Last time value sent to backend
+let startTime = null; // Timestamp when video starts playing
+let timeTrackingInterval = null; // Interval for periodic updates
+
 /**
  * Look up enrollment for current user and lesson
  */
@@ -162,6 +168,9 @@ function renderLesson(lesson) {
 
         // Setup video progress tracking
         setupVideoProgressTracking(videoElement);
+        
+        // ✨ Setup time spent tracking
+        setupTimeSpentTracking(videoElement);
     } else if (videoElement) {
         // If no video, hide the container or show placeholder
         videoElement.parentElement.style.display = 'none';
@@ -240,6 +249,175 @@ async function updateVideoProgress(progress) {
         }
     } catch (error) {
         console.error('Error updating video progress:', error);
+    }
+}
+
+/**
+ * ✨ Setup time spent tracking on video element
+ * Tracks actual viewing time and sends updates to the backend
+ */
+function setupTimeSpentTracking(videoElement) {
+    if (!currentEnrollmentId) {
+        console.warn('No enrollment ID available for time tracking');
+        return;
+    }
+
+    // Event listener: Video starts playing
+    videoElement.addEventListener('play', () => {
+        console.log('▶️ Video playing - Starting time tracking');
+        startTime = Date.now();
+        
+        // Start periodic updates every 30 seconds while playing
+        if (timeTrackingInterval) {
+            clearInterval(timeTrackingInterval);
+        }
+        
+        timeTrackingInterval = setInterval(() => {
+            if (!videoElement.paused && startTime) {
+                const duration = Math.floor((Date.now() - startTime) / 1000);
+                timeSpentOnLesson += duration;
+                startTime = Date.now(); // Reset for next interval
+                console.log(`⏱️ Time spent update: ${timeSpentOnLesson}s total`);
+            }
+        }, 30000); // Update every 30 seconds
+    });
+
+    // Event listener: Video pauses
+    videoElement.addEventListener('pause', () => {
+        if (startTime) {
+            const duration = Math.floor((Date.now() - startTime) / 1000);
+            timeSpentOnLesson += duration;
+            console.log(`⏸️ Video paused - Session duration: ${duration}s, Total: ${timeSpentOnLesson}s`);
+            startTime = null;
+        }
+        
+        // Clear the interval when paused
+        if (timeTrackingInterval) {
+            clearInterval(timeTrackingInterval);
+            timeTrackingInterval = null;
+        }
+        
+        // Send update to backend
+        updateTimeSpent();
+    });
+
+    // Event listener: Video ends
+    videoElement.addEventListener('ended', () => {
+        if (startTime) {
+            const duration = Math.floor((Date.now() - startTime) / 1000);
+            timeSpentOnLesson += duration;
+            console.log(`🏁 Video ended - Total time: ${timeSpentOnLesson}s`);
+            startTime = null;
+        }
+        
+        if (timeTrackingInterval) {
+            clearInterval(timeTrackingInterval);
+            timeTrackingInterval = null;
+        }
+        
+        // Send final update
+        updateTimeSpent();
+    });
+
+    // Event listener: Video seeking (skipping)
+    videoElement.addEventListener('seeking', () => {
+        // Reset startTime to prevent counting skipped time
+        if (startTime && !videoElement.paused) {
+            const duration = Math.floor((Date.now() - startTime) / 1000);
+            timeSpentOnLesson += duration;
+            startTime = Date.now(); // Reset
+        }
+    });
+}
+
+/**
+ * ✨ Update time spent on the backend
+ * Sends only the NEW time since last update (incremental)
+ */
+async function updateTimeSpent() {
+    const token = localStorage.getItem('token');
+    if (!token || !currentEnrollmentId) return;
+    
+    // Calculate increment since last sent
+    const increment = timeSpentOnLesson - lastSentTime;
+    
+    if (increment <= 0) return; // Nothing new to send
+
+    try {
+        const response = await fetch(`${API_BASE_URL}/enrollments/${currentEnrollmentId}/progress`, {
+            method: 'PATCH',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify({ 
+                timeSpentSeconds: increment, // Send only the increment
+                lastAccessDate: new Date().toISOString()
+            })
+        });
+
+        if (response.ok) {
+            lastSentTime = timeSpentOnLesson; // Update last sent marker
+            console.log(`✅ Time increment sent: +${increment}s (Session total: ${timeSpentOnLesson}s)`);
+        } else {
+            console.error('Failed to update time spent:', response.status);
+        }
+    } catch (error) {
+        console.error('Error updating time spent:', error);
+    }
+}
+
+/**
+ * ✨ Send final time update before page unload
+ * Ensures the last viewing session is recorded
+ */
+function sendFinalTimeUpdate() {
+    // If video is currently playing, capture remaining time
+    if (startTime) {
+        const duration = Math.floor((Date.now() - startTime) / 1000);
+        timeSpentOnLesson += duration;
+        startTime = null;
+    }
+
+    // Clear interval
+    if (timeTrackingInterval) {
+        clearInterval(timeTrackingInterval);
+        timeTrackingInterval = null;
+    }
+
+    // Calculate final increment
+    const finalIncrement = timeSpentOnLesson - lastSentTime;
+
+    // Send synchronous request using sendBeacon (more reliable for page unload)
+    if (finalIncrement > 0 && currentEnrollmentId) {
+        const token = localStorage.getItem('token');
+        if (token) {
+            const url = `${API_BASE_URL}/enrollments/${currentEnrollmentId}/progress`;
+            const data = JSON.stringify({
+                timeSpentSeconds: finalIncrement, // Send only unsent time
+                lastAccessDate: new Date().toISOString()
+            });
+
+            // Try sendBeacon first (preferred for unload events)
+            const blob = new Blob([data], { type: 'application/json' });
+            const sent = navigator.sendBeacon(url, blob);
+            
+            if (sent) {
+                console.log(`📤 Final increment sent via beacon: +${finalIncrement}s (Session: ${timeSpentOnLesson}s)`);
+            } else {
+                // Fallback to synchronous fetch
+                console.log(`📤 Sending final increment via fetch: +${finalIncrement}s`);
+                fetch(url, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: data,
+                    keepalive: true // Allows request to complete even if page closes
+                }).catch(err => console.error('Final update failed:', err));
+            }
+        }
     }
 }
 
@@ -520,4 +698,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (completeBtn) {
         completeBtn.addEventListener('click', markAsCompleted);
     }
+    
+    // ✨ Setup beforeunload event to capture final time spent
+    window.addEventListener('beforeunload', sendFinalTimeUpdate);
+    
+    // ✨ Also capture time when navigating away (SPA-style navigation)
+    window.addEventListener('pagehide', sendFinalTimeUpdate);
 });
