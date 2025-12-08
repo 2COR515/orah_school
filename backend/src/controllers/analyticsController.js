@@ -1,5 +1,5 @@
 // analyticsController.js - Controller for analytics and performance data
-const { getAllUsers, listAllLessons, listAllEnrollments, listAllAttendance } = require('../../db');
+const { getAllUsers, listLessons, listAllEnrollments, getAttendanceRecords } = require('../../db');
 
 /**
  * Get comprehensive dashboard summary with aggregated analytics
@@ -9,16 +9,34 @@ const { getAllUsers, listAllLessons, listAllEnrollments, listAllAttendance } = r
  */
 async function getDashboardSummary(req, res) {
   try {
+    console.log('📊 getDashboardSummary called');
+    console.log('Request user:', req.user);
+    
+    // CRITICAL: Verify authentication
+    if (!req.user || !req.user.id || !req.user.role) {
+      console.error('❌ Authentication failed: req.user is missing or incomplete');
+      console.error('req.user value:', JSON.stringify(req.user, null, 2));
+      return res.status(401).json({
+        ok: false,
+        error: 'Authentication required. Please log in again.'
+      });
+    }
+
     const userId = req.user.id;
     const userRole = req.user.role;
+    
+    console.log(`✅ Authenticated user: ${userId} (${userRole})`);
 
-    // Fetch all data
+    // Fetch all data with safe fallbacks
+    console.log('📥 Fetching data from database...');
     const [users, lessons, enrollments, attendanceRecords] = await Promise.all([
-      getAllUsers(),
-      listAllLessons(),
-      listAllEnrollments(),
-      listAllAttendance()
+      getAllUsers().catch(() => []),
+      listLessons().catch(() => []),
+      listAllEnrollments().catch(() => []),
+      getAttendanceRecords().catch(() => [])
     ]);
+    
+    console.log(`📊 Data fetched: ${users.length} users, ${lessons.length} lessons, ${enrollments.length} enrollments, ${attendanceRecords.length} attendance records`);
 
     // Filter data based on role
     let filteredLessons = lessons;
@@ -122,10 +140,21 @@ async function getDashboardSummary(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error in getDashboardSummary:', error);
+    console.error('\n═══════════════════════════════════════════════════');
+    console.error('❌ CRITICAL ANALYTICS CRASH in getDashboardSummary');
+    console.error('═══════════════════════════════════════════════════');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Request URL:', req.originalUrl);
+    console.error('Request method:', req.method);
+    console.error('Request user:', JSON.stringify(req.user, null, 2));
+    console.error('═══════════════════════════════════════════════════\n');
+    
     return res.status(500).json({
       ok: false,
-      error: 'Internal server error while fetching dashboard summary'
+      error: 'Internal server error while fetching dashboard summary',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }
@@ -139,15 +168,34 @@ async function getDashboardSummary(req, res) {
 async function getLessonPerformance(req, res) {
   try {
     const { lessonId } = req.params;
+    
+    console.log(`📊 getLessonPerformance called for lesson: ${lessonId}`);
+    console.log('Request user:', req.user);
+
+    // CRITICAL: Verify authentication
+    if (!req.user || !req.user.id || !req.user.role) {
+      console.error('❌ Authentication failed: req.user is missing or incomplete');
+      console.error('req.user value:', JSON.stringify(req.user, null, 2));
+      return res.status(401).json({
+        ok: false,
+        error: 'Authentication required. Please log in again.'
+      });
+    }
+
     const userId = req.user.id;
     const userRole = req.user.role;
 
-    // Fetch all data
+    console.log(`✅ Authenticated user: ${userId} (${userRole})`);
+
+    // Fetch all data with safe fallbacks
+    console.log('📥 Fetching lesson data from database...');
     const [lessons, enrollments, attendanceRecords] = await Promise.all([
-      listAllLessons(),
-      listAllEnrollments(),
-      listAllAttendance()
+      listLessons().catch(() => []),
+      listAllEnrollments().catch(() => []),
+      getAttendanceRecords().catch(() => [])
     ]);
+    
+    console.log(`📊 Data fetched: ${lessons.length} lessons, ${enrollments.length} enrollments, ${attendanceRecords.length} attendance records`);
 
     // Find the lesson
     const lesson = lessons.find(l => l.id === lessonId);
@@ -261,10 +309,22 @@ async function getLessonPerformance(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error in getLessonPerformance:', error);
+    console.error('\n═══════════════════════════════════════════════════');
+    console.error('❌ CRITICAL ANALYTICS CRASH in getLessonPerformance');
+    console.error('═══════════════════════════════════════════════════');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Request URL:', req.originalUrl);
+    console.error('Request method:', req.method);
+    console.error('Request params:', JSON.stringify(req.params, null, 2));
+    console.error('Request user:', JSON.stringify(req.user, null, 2));
+    console.error('═══════════════════════════════════════════════════\n');
+    
     return res.status(500).json({
       ok: false,
-      error: 'Internal server error while fetching lesson performance'
+      error: 'Internal server error while fetching lesson performance',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
     });
   }
 }
@@ -277,11 +337,23 @@ async function getLessonPerformance(req, res) {
 async function getStudentAnalytics(req, res) {
   try {
     const { studentId } = req.params;
+    
+    console.log(`📊 getStudentAnalytics called for student: ${studentId}`);
+
+    // CRITICAL: Verify authentication
+    if (!req.user || !req.user.id || !req.user.role) {
+      console.error('❌ Authentication failed in getStudentAnalytics');
+      console.error('req.user:', JSON.stringify(req.user, null, 2));
+      return res.status(401).json({
+        ok: false,
+        error: 'Authentication required'
+      });
+    }
 
     const [users, enrollments, attendanceRecords] = await Promise.all([
-      getAllUsers(),
-      listAllEnrollments(),
-      listAllAttendance()
+      getAllUsers().catch(() => []),
+      listAllEnrollments().catch(() => []),
+      listAllAttendance().catch(() => [])
     ]);
 
     const student = users.find(u => u.userId === studentId && u.role === 'student');
@@ -320,7 +392,16 @@ async function getStudentAnalytics(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error in getStudentAnalytics:', error);
+    console.error('\n═══════════════════════════════════════════════════');
+    console.error('❌ CRITICAL ANALYTICS CRASH in getStudentAnalytics');
+    console.error('═══════════════════════════════════════════════════');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Request params:', JSON.stringify(req.params, null, 2));
+    console.error('Request user:', JSON.stringify(req.user, null, 2));
+    console.error('═══════════════════════════════════════════════════\n');
+    
     return res.status(500).json({
       ok: false,
       error: 'Internal server error'
@@ -336,6 +417,19 @@ async function getStudentAnalytics(req, res) {
 async function getInstructorAnalytics(req, res) {
   try {
     const { instructorId } = req.params;
+    
+    console.log(`📊 getInstructorAnalytics called for instructor: ${instructorId}`);
+
+    // CRITICAL: Verify authentication
+    if (!req.user || !req.user.id || !req.user.role) {
+      console.error('❌ Authentication failed in getInstructorAnalytics');
+      console.error('req.user:', JSON.stringify(req.user, null, 2));
+      return res.status(401).json({
+        ok: false,
+        error: 'Authentication required'
+      });
+    }
+
     const userId = req.user.id;
     const userRole = req.user.role;
 
@@ -348,9 +442,9 @@ async function getInstructorAnalytics(req, res) {
     }
 
     const [users, lessons, enrollments] = await Promise.all([
-      getAllUsers(),
-      listAllLessons(),
-      listAllEnrollments()
+      getAllUsers().catch(() => []),
+      listLessons().catch(() => []),
+      listAllEnrollments().catch(() => [])
     ]);
 
     const instructor = users.find(u => u.userId === instructorId && u.role === 'instructor');
@@ -389,7 +483,16 @@ async function getInstructorAnalytics(req, res) {
     });
 
   } catch (error) {
-    console.error('❌ Error in getInstructorAnalytics:', error);
+    console.error('\n═══════════════════════════════════════════════════');
+    console.error('❌ CRITICAL ANALYTICS CRASH in getInstructorAnalytics');
+    console.error('═══════════════════════════════════════════════════');
+    console.error('Error name:', error.name);
+    console.error('Error message:', error.message);
+    console.error('Error stack:', error.stack);
+    console.error('Request params:', JSON.stringify(req.params, null, 2));
+    console.error('Request user:', JSON.stringify(req.user, null, 2));
+    console.error('═══════════════════════════════════════════════════\n');
+    
     return res.status(500).json({
       ok: false,
       error: 'Internal server error'

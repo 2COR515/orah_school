@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Chatbot Test</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .test-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 40px;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .status {
+      padding: 15px;
+      border-radius: 8px;
+      margin: 20px 0;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .test-section {
+      margin: 30px 0;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    h2 {
+      color: #555;
+      margin-bottom: 15px;
+      font-size: 18px;
+    }
+
+    .test-item {
+      padding: 10px;
+      margin: 10px 0;
+      background: white;
+      border-radius: 4px;
+      border-left: 4px solid #667eea;
+    }
+
+    .test-item.pass {
+      border-left-color: #28a745;
+    }
+
+    .test-item.fail {
+      border-left-color: #dc3545;
+    }
+
+    button {
+      background: #667eea;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      margin: 10px 5px;
+      transition: all 0.3s ease;
+    }
+
+    button:hover {
+      background: #5568d3;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .console-output {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 13px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin: 15px 0;
+    }
+
+    .console-output div {
+      margin: 5px 0;
+      padding: 5px;
+    }
+
+    .console-output .success { color: #4ec9b0; }
+    .console-output .error { color: #f48771; }
+    .console-output .info { color: #569cd6; }
+    .console-output .warn { color: #dcdcaa; }
+
+    /* Chatbot Button Styles */
+    .chatbot-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .chatbot-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+
+    /* Chatbot Container */
+    .chatbot-container {
+      position: fixed;
+      bottom: 100px;
+      right: 30px;
+      width: 400px;
+      max-height: 600px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      display: none;
+      flex-direction: column;
+      z-index: 1000;
+      overflow: hidden;
+    }
+
+    .chatbot-container.active {
+      display: flex !important;
+      animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .chatbot-header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chatbot-header h3 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .chatbot-close-btn {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background 0.2s;
+    }
+
+    .chatbot-close-btn:hover {
+      background: rgba(255, 255, 255, 0.2);
+    }
+
+    .chatbot-messages {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+      max-height: 400px;
+      background: #f8f9fa;
+    }
+
+    .bot-message, .user-message {
+      margin: 10px 0;
+      padding: 10px 15px;
+      border-radius: 8px;
+      max-width: 85%;
+      word-wrap: break-word;
+    }
+
+    .bot-message {
+      background: white;
+      border: 1px solid #e0e0e0;
+      align-self: flex-start;
+    }
+
+    .user-message {
+      background: #667eea;
+      color: white;
+      margin-left: auto;
+      text-align: right;
+    }
+
+    .chatbot-input-area {
+      display: flex;
+      padding: 15px;
+      border-top: 1px solid #e0e0e0;
+      background: white;
+    }
+
+    .chatbot-input {
+      flex: 1;
+      padding: 10px 15px;
+      border: 1px solid #ddd;
+      border-radius: 20px;
+      outline: none;
+      font-size: 14px;
+    }
+
+    .chatbot-input:focus {
+      border-color: #667eea;
+    }
+
+    .chatbot-send-btn {
+      margin-left: 10px;
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 14px;
+      transition: background 0.3s;
+    }
+
+    .chatbot-send-btn:hover {
+      background: #5568d3;
+    }
+  </style>
+</head>
+<body>
+  <div class="test-container">
+    <h1>🧪 Student Chatbot Test</h1>
+    <p style="color: #666; margin-bottom: 20px;">Testing the fixed student chatbot implementation</p>
+
+    <div id="status" class="status info">
+      🔄 Initializing tests...
+    </div>
+
+    <div class="test-section">
+      <h2>📋 Pre-flight Checks</h2>
+      <div id="preflight-results"></div>
+    </div>
+
+    <div class="test-section">
+      <h2>🎯 Action Tests</h2>
+      <button onclick="testButtonClick()">Test Button Click</button>
+      <button onclick="testToggle()">Test Manual Toggle</button>
+      <button onclick="testAPI()">Test API Call</button>
+      <button onclick="clearConsole()">Clear Console</button>
+    </div>
+
+    <div class="test-section">
+      <h2>📊 Console Output</h2>
+      <div id="console" class="console-output">
+        <div class="info">Console ready...</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Floating Chatbot Button -->
+  <button class="chatbot-btn" id="student-chatbot-btn" aria-label="Open Support Chat">💬</button>
+
+  <!-- Chatbot Container -->
+  <div id="chatbot-container" class="chatbot-container">
+    <div class="chatbot-header">
+      <h3>Orah Assistant</h3>
+      <button id="chatbot-close-btn" class="chatbot-close-btn">&times;</button>
+    </div>
+    <div id="chatbot-messages" class="chatbot-messages">
+      <div class="bot-message">
+        <strong>Orah Assistant:</strong> Hello! I'm here to help you with your courses and learning. What can I assist you with today?
+      </div>
+    </div>
+    <div class="chatbot-input-area">
+      <input 
+        type="text" 
+        id="chatbot-input" 
+        class="chatbot-input" 
+        placeholder="Type your message..."
+        autocomplete="off"
+      />
+      <button id="chatbot-send-btn" class="chatbot-send-btn">Send</button>
+    </div>
+  </div>
+
+  <!-- Load the student chatbot script -->
+  <script src="scripts/student-chatbot.js"></script>
+
+  <!-- Test script -->
+  <script>
+    // Store student token (from your previous login)
+    localStorage.setItem('token', 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjE3NjQ5MzA2NzQ1NTlveGg5enZ6Iiwicm9sZSI6InN0dWRlbnQiLCJpYXQiOjE3NjQ5MzQ2MjksImV4cCI6MTc2NTAyMTAyOX0.CBfafQHb1GkH3v5PIaThP13RJCJWNxZtYdZuOBE52Sw');
+    localStorage.setItem('role', 'student');
+
+    // Console logging function
+    function logToConsole(message, type = 'info') {
+      const consoleDiv = document.getElementById('console');
+      const logDiv = document.createElement('div');
+      logDiv.className = type;
+      logDiv.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+      consoleDiv.appendChild(logDiv);
+      consoleDiv.scrollTop = consoleDiv.scrollHeight;
+    }
+
+    // Run pre-flight checks
+    function runPreflightChecks() {
+      const resultsDiv = document.getElementById('preflight-results');
+      const checks = [];
+
+      // Check 1: Button exists
+      const btn = document.getElementById('student-chatbot-btn');
+      checks.push({
+        name: 'Button element exists',
+        pass: !!btn,
+        details: btn ? '✓ Found' : '✗ Not found'
+      });
+
+      // Check 2: Container exists
+      const container = document.getElementById('chatbot-container');
+      checks.push({
+        name: 'Container element exists',
+        pass: !!container,
+        details: container ? '✓ Found' : '✗ Not found'
+      });
+
+      // Check 3: Script loaded
+      const scriptLoaded = typeof initStudentChatbot === 'function';
+      checks.push({
+        name: 'Script loaded',
+        pass: scriptLoaded,
+        details: scriptLoaded ? '✓ Function available' : '✗ Function not found'
+      });
+
+      // Check 4: Button has event listener
+      const hasListener = btn && btn.__chatbot_initialized__;
+      checks.push({
+        name: 'Event listener attached',
+        pass: hasListener,
+        details: hasListener ? '✓ Initialized' : '⚠ Not initialized (might init on DOMContentLoaded)'
+      });
+
+      // Check 5: Token exists
+      const token = localStorage.getItem('token');
+      checks.push({
+        name: 'Auth token available',
+        pass: !!token,
+        details: token ? '✓ Token stored' : '✗ No token'
+      });
+
+      // Display results
+      resultsDiv.innerHTML = checks.map(check => `
+        <div class="test-item ${check.pass ? 'pass' : 'fail'}">
+          <strong>${check.name}:</strong> ${check.details}
+        </div>
+      `).join('');
+
+      const allPass = checks.every(c => c.pass);
+      const statusDiv = document.getElementById('status');
+      if (allPass) {
+        statusDiv.className = 'status success';
+        statusDiv.textContent = '✅ All checks passed! Chatbot should be working.';
+      } else {
+        statusDiv.className = 'status error';
+        statusDiv.textContent = '⚠️ Some checks failed. See details below.';
+      }
+
+      logToConsole('Pre-flight checks completed', allPass ? 'success' : 'warn');
+    }
+
+    // Test button click
+    function testButtonClick() {
+      logToConsole('Testing button click...', 'info');
+      const btn = document.getElementById('student-chatbot-btn');
+      if (btn) {
+        btn.click();
+        logToConsole('✓ Button clicked programmatically', 'success');
+      } else {
+        logToConsole('✗ Button not found', 'error');
+      }
+    }
+
+    // Test manual toggle
+    function testToggle() {
+      logToConsole('Testing manual toggle...', 'info');
+      const container = document.getElementById('chatbot-container');
+      if (container) {
+        container.classList.toggle('active');
+        const isActive = container.classList.contains('active');
+        logToConsole(`✓ Container ${isActive ? 'opened' : 'closed'}`, 'success');
+      } else {
+        logToConsole('✗ Container not found', 'error');
+      }
+    }
+
+    // Test API call
+    async function testAPI() {
+      logToConsole('Testing API call...', 'info');
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        logToConsole('✗ No auth token found', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch('http://localhost:3002/api/chat/query', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            message: 'Hello, this is a test message',
+            userRole: 'student'
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        logToConsole('✓ API response received', 'success');
+        logToConsole(`Reply: ${data.reply?.substring(0, 100)}...`, 'info');
+        logToConsole(`LLM Active: ${data.isLLMActive !== false}`, 'info');
+      } catch (error) {
+        logToConsole(`✗ API error: ${error.message}`, 'error');
+      }
+    }
+
+    // Clear console
+    function clearConsole() {
+      document.getElementById('console').innerHTML = '<div class="info">Console cleared...</div>';
+    }
+
+    // Run checks when page loads
+    window.addEventListener('load', () => {
+      // Wait 1.5 seconds to ensure chatbot initialization completes (including fallback)
+      setTimeout(runPreflightChecks, 1500);
+      logToConsole('Test page loaded', 'info');
+      logToConsole('Waiting for chatbot initialization to complete...', 'info');
+    });
+
+    // Log chatbot initialization
+    const originalLog = console.log;
+    console.log = function(...args) {
+      if (args[0] && typeof args[0] === 'string' && args[0].includes('chatbot')) {
+        logToConsole(args.join(' '), 'info');
+      }
+      originalLog.apply(console, args);
+    };
+  </script>
+</body>
+</html>

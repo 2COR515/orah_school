@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quick Login Test - Orah School</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+
+    .subtitle {
+      color: #666;
+      text-align: center;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      color: #555;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .status {
+      margin-top: 20px;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .status.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+      display: block;
+    }
+
+    .status.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+      display: block;
+    }
+
+    .status.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+      display: block;
+    }
+
+    .current-token {
+      margin-top: 20px;
+      padding: 15px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      word-break: break-all;
+    }
+
+    .token-label {
+      font-weight: 600;
+      color: #555;
+      margin-bottom: 8px;
+    }
+
+    .quick-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .quick-btn {
+      padding: 10px;
+      background: #f8f9fa;
+      border: 2px solid #ddd;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .quick-btn:hover {
+      background: #e9ecef;
+      border-color: #667eea;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔐 Quick Login Test</h1>
+    <p class="subtitle">Get a fresh authentication token</p>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input 
+          type="email" 
+          id="email" 
+          value="student@test.com" 
+          placeholder="Enter email"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password:</label>
+        <input 
+          type="password" 
+          id="password" 
+          value="student123" 
+          placeholder="Enter password"
+          required
+        />
+      </div>
+
+      <button type="submit" id="login-btn">Login & Get Token</button>
+    </form>
+
+    <div class="quick-buttons">
+      <button class="quick-btn" onclick="fillStudent()">👨‍🎓 Student</button>
+      <button class="quick-btn" onclick="fillInstructor()">👨‍🏫 Instructor</button>
+    </div>
+
+    <div id="status" class="status"></div>
+
+    <div class="current-token" id="current-token-display" style="display: none;">
+      <div class="token-label">Current Token in localStorage:</div>
+      <div id="token-text"></div>
+      <div class="token-label" style="margin-top: 10px;">Expires:</div>
+      <div id="token-exp"></div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE_URL = 'http://localhost:3002/api';
+
+    // Quick fill functions
+    function fillStudent() {
+      document.getElementById('email').value = 'student@test.com';
+      document.getElementById('password').value = 'student123';
+    }
+
+    function fillInstructor() {
+      document.getElementById('email').value = 'instructor@test.com';
+      document.getElementById('password').value = 'instructor123';
+    }
+
+    // Display current token on load
+    window.addEventListener('load', () => {
+      displayCurrentToken();
+    });
+
+    function displayCurrentToken() {
+      const token = localStorage.getItem('token');
+      const display = document.getElementById('current-token-display');
+      const tokenText = document.getElementById('token-text');
+      const tokenExp = document.getElementById('token-exp');
+
+      if (token) {
+        display.style.display = 'block';
+        tokenText.textContent = token;
+
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          const expDate = new Date(payload.exp * 1000);
+          const now = new Date();
+          const isExpired = expDate < now;
+
+          tokenExp.textContent = `${expDate.toLocaleString()} ${isExpired ? '(EXPIRED ❌)' : '(Valid ✅)'}`;
+          tokenExp.style.color = isExpired ? '#dc3545' : '#28a745';
+        } catch (e) {
+          tokenExp.textContent = 'Unable to parse expiration';
+        }
+      } else {
+        display.style.display = 'none';
+      }
+    }
+
+    // Login form handler
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('password').value.trim();
+      const status = document.getElementById('status');
+      const loginBtn = document.getElementById('login-btn');
+
+      if (!email || !password) {
+        showStatus('Please enter email and password', 'error');
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = 'Logging in...';
+      showStatus('Attempting login...', 'info');
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok && data.token) {
+          // Store token and user info
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('userId', data.user.id);
+          localStorage.setItem('role', data.user.role);
+          localStorage.setItem('userName', data.user.name);
+          localStorage.setItem('userEmail', data.user.email);
+
+          showStatus(`✅ Login successful! Token saved for ${data.user.name}`, 'success');
+          displayCurrentToken();
+
+          // Redirect after 2 seconds
+          setTimeout(() => {
+            const role = data.user.role;
+            if (role === 'student') {
+              window.location.href = 'student-dashboard.html';
+            } else if (role === 'instructor') {
+              window.location.href = 'instructor-hub.html';
+            } else if (role === 'admin') {
+              window.location.href = 'admin-dashboard.html';
+            }
+          }, 2000);
+
+        } else {
+          showStatus(`❌ Login failed: ${data.error || 'Unknown error'}`, 'error');
+        }
+
+      } catch (error) {
+        console.error('Login error:', error);
+        showStatus(`❌ Connection error: ${error.message}`, 'error');
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = 'Login & Get Token';
+      }
+    });
+
+    function showStatus(message, type) {
+      const status = document.getElementById('status');
+      status.textContent = message;
+      status.className = `status ${type}`;
+    }
+  </script>
+</body>
+</html>

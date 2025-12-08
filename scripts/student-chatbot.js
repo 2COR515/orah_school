@@ -1,200 +1,351 @@
-// Student Chatbot - AI-like Pattern Matching Responses
-// Provides instant support for students with intelligent responses
+/**
+ * Student Chatbot - Rule-Based Assistant
+ * 100% Client-Side Pattern Matching System
+ * 
+ * This module handles all student chatbot interactions including:
+ * - Message sending and receiving
+ * - Rule-based pattern matching responses
+ * - Chat UI management
+ * - NO API calls - fully self-contained
+ */
+(function() {
+  'use strict';
 
-// Chatbot response patterns and replies
-const CHATBOT_RESPONSES = {
-  greeting: {
-    patterns: [/hi|hello|hey|greetings|good morning|good afternoon|good evening/i],
-    responses: [
-      "Hello! 👋 How can I assist you today?",
-      "Hi there! I'm here to help. What do you need?",
-      "Hey! Welcome back. What can I do for you?"
-    ]
-  },
-  courses: {
-    patterns: [/course|courses|lesson|lessons|class|classes|enroll|available/i],
-    responses: [
-      "You can view all your courses in the dashboard above. Check 'Enrolled Lessons' for your current courses and 'Available Lessons' for new ones to join!",
-      "To see your courses, scroll up to the dashboard. Your enrolled courses show your progress, and you can browse available courses to enroll in.",
-      "Your courses are displayed in the dashboard sections above. Enrolled courses show your completion status, and you can explore new courses in the 'Available Lessons' section."
-    ]
-  },
-  progress: {
-    patterns: [/progress|completion|complete|finish|status|how am i doing|my performance/i],
-    responses: [
-      "Check your progress stats at the top of the dashboard! You can see completed lessons, enrollment status, and time spent learning.",
-      "Your progress is tracked in real-time. Look at the stats cards at the top to see your completed lessons, enrolled courses, and study time.",
-      "To view your progress, check the dashboard header showing your completed lessons, current enrollments, and total learning time!"
-    ]
-  },
-  technical: {
-    patterns: [/video|play|error|bug|not working|broken|issue|problem|help|stuck/i],
-    responses: [
-      "If you're experiencing technical issues, try refreshing the page first. If the problem persists, contact support@orahschools.com with details.",
-      "For technical problems: 1) Refresh your browser, 2) Clear cache, 3) Try a different browser. Still stuck? Email support@orahschools.com",
-      "Having trouble? Quick fixes: refresh the page, check your internet connection, or try logging out and back in. Contact support@orahschools.com for persistent issues."
-    ]
-  },
-  time: {
-    patterns: [/time|hours|minutes|spent|study time|how long/i],
-    responses: [
-      "Your total study time is displayed in the stats at the top of the dashboard. It's automatically tracked as you watch lessons!",
-      "Study time is tracked automatically when you watch lessons. Check the 'Time Spent' stat card at the top to see your total learning hours.",
-      "We track your learning time automatically! Your total study time is shown in the dashboard stats, updated in real-time as you learn."
-    ]
-  },
-  reminders: {
-    patterns: [/reminder|reminders|notification|notifications|email|alert/i],
-    responses: [
-      "You can customize your reminder frequency in the 'Reminder Settings' section above. Choose daily, weekly, or never!",
-      "To manage reminders, scroll to the 'Reminder Settings' section on your dashboard. You can set the frequency that works best for you.",
-      "Reminder preferences are in the 'Reminder Settings' section. Choose how often you'd like to receive email reminders about your courses!"
-    ]
-  },
-  enrollment: {
-    patterns: [/enroll|join|sign up|register|start|begin/i],
-    responses: [
-      "To enroll in a course, scroll to 'Available Lessons' and click 'Enroll Now' on any course you'd like to join!",
-      "You can enroll in new courses from the 'Available Lessons' section. Just click 'Enroll Now' on any course that interests you.",
-      "Ready to start learning? Check out the 'Available Lessons' section and click 'Enroll Now' on courses you want to take!"
-    ]
-  },
-  support: {
-    patterns: [/contact|support|help desk|email|phone|reach/i],
-    responses: [
-      "Need personalized help? Contact our support team at support@orahschools.com. We typically respond within 24 hours!",
-      "For direct support, email us at support@orahschools.com. Our team is here to help with any questions or concerns!",
-      "You can reach our support team at support@orahschools.com for personalized assistance. We're here to help!"
-    ]
-  },
-  thanks: {
-    patterns: [/thank|thanks|appreciate|helpful|great/i],
-    responses: [
-      "You're welcome! Happy learning! 😊",
-      "Glad I could help! Keep up the great work! 🌟",
-      "Anytime! If you need anything else, just ask! 💪"
-    ]
-  },
-  default: {
-    patterns: [],
-    responses: [
-      "I'm not sure I understand. Could you rephrase that? Or try asking about courses, progress, reminders, or technical issues.",
-      "Hmm, I didn't quite catch that. I can help with courses, progress tracking, reminders, enrollments, and technical support. What would you like to know?",
-      "I'm here to help with courses, progress, reminders, and technical issues. Could you clarify your question?"
-    ]
-  }
-};
+  console.log('📱 Student Chatbot Script Loaded (Rule-Based)');
+  console.log('Current page:', window.location.pathname);
+  console.log('DOM State:', document.readyState);
 
-// XSS Prevention - Escape HTML in user input
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-// Get chatbot response based on user input
-function getBotResponse(userInput) {
-  const input = userInput.toLowerCase().trim();
-
-  // Check each pattern category
-  for (const category in CHATBOT_RESPONSES) {
-    if (category === 'default') continue;
+  /**
+   * Predefined chatbot responses for common student queries
+   */
+  const CHATBOT_RESPONSES = {
+    greeting: [
+      "Hi! I'm here to help you with your learning at Orah School. What would you like to know?",
+      "Hello! How can I assist you with your courses today?",
+      "Hey there! I'm your Orah School assistant. What can I help you with?"
+    ],
     
-    const { patterns, responses } = CHATBOT_RESPONSES[category];
-    for (const pattern of patterns) {
+    enrollment: [
+      "To enroll in a course: Go to the 'Available Courses' section on your dashboard, find a course you're interested in, and click 'Enroll'. You'll be able to start learning right away!",
+      "Enrolling is easy! Browse available courses, click on one that interests you, and hit the 'Enroll' button. Your progress will be tracked automatically."
+    ],
+    
+    progress: [
+      "You can check your progress by viewing your dashboard. It shows your completion percentage for each enrolled course, time spent learning, and upcoming deadlines.",
+      "Your learning progress is tracked automatically! Check the stats at the top of your dashboard to see your overall completion rate and courses in progress."
+    ],
+    
+    lessons: [
+      "To access your lessons: Click on 'My Courses' to see all enrolled courses, then select a course to view its lessons. Click 'Start Lesson' to begin learning!",
+      "Your lessons are in the 'My Courses' section. Each course has multiple lessons you can complete at your own pace."
+    ],
+    
+    reminders: [
+      "You can set up study reminders! Go to your account settings and choose how often you'd like to receive reminder emails: daily, twice weekly, or weekly.",
+      "Reminder emails help you stay on track! Set your preference in the settings to get notifications about your incomplete courses."
+    ],
+    
+    completion: [
+      "When you complete a lesson, your progress automatically updates. Complete all lessons in a course to mark it as 100% complete and earn your completion certificate!",
+      "Progress is saved as you go. Watch the entire video lesson and complete any quizzes to mark that lesson as done."
+    ],
+    
+    technical: [
+      "If you're having technical issues: Try refreshing the page, clearing your browser cache, or using a different browser. If problems persist, contact support@orahschools.com",
+      "For video playback issues: Check your internet connection, try a different browser, or reduce video quality. Still having trouble? Email support@orahschools.com"
+    ],
+    
+    help: [
+      "I can help you with:\n• Enrolling in courses\n• Tracking your progress\n• Accessing lessons\n• Setting up reminders\n• Understanding completion requirements\n• Technical issues\n\nWhat would you like to know?",
+      "Need help with something? I can assist with course enrollment, progress tracking, lessons, reminders, and more. Just ask!"
+    ],
+    
+    default: [
+      "I'm here to help with your learning! You can ask me about enrolling in courses, tracking progress, accessing lessons, or setting reminders.",
+      "That's a great question! For detailed information, you might want to check the FAQ section or contact our support team at support@orahschools.com",
+      "I'm still learning! For specific questions, try browsing our help documentation or reach out to support@orahschools.com"
+    ]
+  };
+
+  /**
+   * Pattern matching rules for identifying user intent
+   */
+  const PATTERNS = {
+    greeting: /(^|\s)(hi|hello|hey|greetings|good morning|good afternoon|good evening)/i,
+    enrollment: /(enroll|join|sign up|register|add|take course)/i,
+    progress: /(progress|track|completion|how far|percentage|stats|status)/i,
+    lessons: /(lesson|course|module|video|watch|learn|study|access)/i,
+    reminders: /(reminder|notify|notification|alert|email)/i,
+    completion: /(complete|finish|done|certificate|graduation)/i,
+    technical: /(error|bug|broken|not working|issue|problem|help|fix|crash)/i,
+    help: /(help|what can you|what do you|how does|guide|assist|support)/i
+  };
+
+  /**
+   * Get chatbot response based on pattern matching
+   * @param {string} userInput - User's message
+   * @returns {string} Bot response text
+   */
+  function getBotResponse(userInput) {
+    const input = userInput.toLowerCase().trim();
+    
+    // Check each pattern and return appropriate response
+    for (const [category, pattern] of Object.entries(PATTERNS)) {
       if (pattern.test(input)) {
+        const responses = CHATBOT_RESPONSES[category];
         // Return random response from category
         return responses[Math.floor(Math.random() * responses.length)];
       }
     }
+    
+    // Default response if no pattern matches
+    const defaultResponses = CHATBOT_RESPONSES.default;
+    return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
   }
 
-  // Return default response if no pattern matches
-  const defaultResponses = CHATBOT_RESPONSES.default.responses;
-  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
-}
+  /**
+   * Escape HTML to prevent XSS attacks
+   * @param {string} text - Text to escape
+   * @returns {string} Escaped HTML string
+   */
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
 
-// Add message to chat
-function addMessage(message, isUser = false) {
-  const messagesContainer = document.getElementById('chatbot-messages');
-  const messageDiv = document.createElement('div');
-  messageDiv.className = isUser ? 'user-message' : 'bot-message';
-  
-  const sender = isUser ? 'You' : 'Orah Assistant';
-  const escapedMessage = escapeHtml(message);
-  
-  messageDiv.innerHTML = `<strong>${sender}:</strong> ${escapedMessage}`;
-  messagesContainer.appendChild(messageDiv);
-  
-  // Scroll to bottom
-  messagesContainer.scrollTop = messagesContainer.scrollHeight;
-}
+  /**
+   * Add message to chat interface
+   * @param {string} message - Message text to display
+   * @param {boolean} isUser - True if message is from user, false if from bot
+   */
+  function addMessage(message, isUser = false) {
+    const messagesContainer = document.getElementById('chatbot-messages');
+    if (!messagesContainer) {
+      console.error('❌ Messages container not found');
+      return;
+    }
 
-// Send message handler
-function sendMessage() {
-  const inputField = document.getElementById('chatbot-input');
-  const userMessage = inputField.value.trim();
-
-  if (!userMessage) return;
-
-  // Add user message
-  addMessage(userMessage, true);
-
-  // Clear input
-  inputField.value = '';
-
-  // Get and add bot response after short delay (simulate thinking)
-  setTimeout(() => {
-    const botResponse = getBotResponse(userMessage);
-    addMessage(botResponse, false);
-  }, 500);
-}
-
-// Initialize chatbot functionality
-function initChatbot() {
-  const chatbotContainer = document.getElementById('chatbot-container');
-  const chatbotBtn = document.getElementById('student-chatbot-btn');
-  const closeBtn = document.getElementById('chatbot-close-btn');
-  const sendBtn = document.getElementById('chatbot-send-btn');
-  const inputField = document.getElementById('chatbot-input');
-
-  // Toggle chatbot visibility
-  function toggleChatbot() {
-    chatbotContainer.classList.toggle('active');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = isUser ? 'user-message' : 'bot-message';
     
-    // Focus input when opened
-    if (chatbotContainer.classList.contains('active')) {
-      setTimeout(() => inputField.focus(), 100);
+    const sender = isUser ? 'You' : 'Orah Assistant';
+    const escapedMessage = escapeHtml(message);
+    
+    messageDiv.innerHTML = `<strong>${sender}:</strong> ${escapedMessage}`;
+    messagesContainer.appendChild(messageDiv);
+    
+    // Auto-scroll to show latest message
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    console.log(`💬 Message added (${isUser ? 'User' : 'Bot'}):`, message.substring(0, 50));
+  }
+
+  /**
+   * Show typing indicator in chat
+   * @returns {HTMLElement|null} The typing indicator element
+   */
+  function addTypingIndicator() {
+    const messagesContainer = document.getElementById('chatbot-messages');
+    if (!messagesContainer) return null;
+
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'bot-message typing-indicator';
+    typingDiv.id = 'typing-indicator';
+    typingDiv.innerHTML = '<strong>Orah Assistant:</strong> <span class="typing-dots">Typing<span>.</span><span>.</span><span>.</span></span>';
+    messagesContainer.appendChild(typingDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    console.log('⏳ Typing indicator shown');
+    return typingDiv;
+  }
+
+  /**
+   * Remove typing indicator from chat
+   */
+  function removeTypingIndicator() {
+    const typingIndicator = document.getElementById('typing-indicator');
+    if (typingIndicator) {
+      typingIndicator.remove();
+      console.log('✅ Typing indicator removed');
     }
   }
 
-  // Event Listeners
-  if (chatbotBtn) {
-    chatbotBtn.addEventListener('click', toggleChatbot);
+  /**
+   * Handle sending user message and getting bot response
+   * Now using rule-based pattern matching - instant responses!
+   */
+  function sendMessage() {
+    const inputField = document.getElementById('chatbot-input');
+    if (!inputField) {
+      console.error('❌ Input field not found');
+      return;
+    }
+
+    const userMessage = inputField.value.trim();
+
+    if (!userMessage) {
+      console.log('⚠️ Empty message, skipping');
+      return;
+    }
+
+    console.log('📤 Sending message:', userMessage);
+
+    // Display user message
+    addMessage(userMessage, true);
+
+    // Clear input field
+    inputField.value = '';
+
+    // Show typing indicator briefly for natural feel
+    addTypingIndicator();
+
+    // Get instant rule-based response after brief delay (natural typing effect)
+    setTimeout(() => {
+      // Get bot response using pattern matching
+      const botResponse = getBotResponse(userMessage);
+      
+      // Remove typing indicator
+      removeTypingIndicator();
+      
+      // Display bot response
+      addMessage(botResponse, false);
+    }, 600); // 600ms delay for natural conversation feel
   }
 
-  if (closeBtn) {
-    closeBtn.addEventListener('click', toggleChatbot);
-  }
+  /**
+   * Initialize student chatbot functionality
+   * Sets up event listeners and prepares the chat interface
+   */
+  function initStudentChatbot() {
+    // Prevent double initialization
+    if (window.__studentChatbotInitialized) {
+      console.log('⚠️ Student chatbot already initialized, skipping...');
+      return;
+    }
+    
+    console.log('🚀 Initializing Student Chatbot...');
+    
+    // Get all required DOM elements
+    const chatbotContainer = document.getElementById('chatbot-container');
+    const chatbotBtn = document.getElementById('student-chatbot-btn');
+    const closeBtn = document.getElementById('chatbot-close-btn');
+    const sendBtn = document.getElementById('chatbot-send-btn');
+    const inputField = document.getElementById('chatbot-input');
+    const messagesContainer = document.getElementById('chatbot-messages');
 
-  if (sendBtn) {
-    sendBtn.addEventListener('click', sendMessage);
-  }
+    // Log element existence for debugging
+    console.log('Element Check:');
+    console.log('  chatbot-container:', chatbotContainer ? '✅ Found' : '❌ Missing');
+    console.log('  student-chatbot-btn:', chatbotBtn ? '✅ Found' : '❌ Missing');
+    console.log('  chatbot-close-btn:', closeBtn ? '✅ Found' : '❌ Missing');
+    console.log('  chatbot-send-btn:', sendBtn ? '✅ Found' : '❌ Missing');
+    console.log('  chatbot-input:', inputField ? '✅ Found' : '❌ Missing');
+    console.log('  chatbot-messages:', messagesContainer ? '✅ Found' : '❌ Missing');
 
-  if (inputField) {
-    // Send message on Enter key
-    inputField.addEventListener('keypress', (e) => {
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        sendMessage();
+    // Validate critical elements exist
+    if (!chatbotBtn) {
+      console.error('❌ CRITICAL: Chatbot button (#student-chatbot-btn) not found!');
+      console.log('Available elements with "chatbot" in ID:');
+      document.querySelectorAll('[id*="chatbot"]').forEach(el => {
+        console.log('  -', el.id, el.tagName, el.className);
+      });
+      return;
+    }
+
+    if (!chatbotContainer) {
+      console.error('❌ CRITICAL: Chatbot container (#chatbot-container) not found!');
+      return;
+    }
+
+    console.log('✅ All required elements found');
+
+    /**
+     * Toggle chatbot visibility
+     * Opens or closes the chat window
+     */
+    function toggleChatbot() {
+      const wasOpen = chatbotContainer.classList.contains('open');
+      chatbotContainer.classList.toggle('open');
+      const isOpen = chatbotContainer.classList.contains('open');
+      
+      console.log(`🔄 Chatbot toggled: ${wasOpen ? 'OPEN' : 'CLOSED'} → ${isOpen ? 'OPEN' : 'CLOSED'}`);
+      console.log('Container classes:', chatbotContainer.className);
+      console.log('Display style:', window.getComputedStyle(chatbotContainer).display);
+      
+      // Focus input field when chat opens
+      if (isOpen && inputField) {
+        setTimeout(() => {
+          inputField.focus();
+          console.log('⌨️ Input field focused');
+        }, 100);
       }
-    });
-  }
-}
+    }
 
-// Initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initChatbot);
-} else {
-  initChatbot();
-}
+    // Attach event listeners
+    if (chatbotBtn) {
+      chatbotBtn.addEventListener('click', () => {
+        console.log('🖱️ Chatbot button clicked!');
+        toggleChatbot();
+      });
+      console.log('✅ Chatbot button event listener attached');
+    }
+
+    if (closeBtn) {
+      closeBtn.addEventListener('click', () => {
+        console.log('❌ Close button clicked');
+        toggleChatbot();
+      });
+      console.log('✅ Close button event listener attached');
+    }
+
+    if (sendBtn) {
+      sendBtn.addEventListener('click', () => {
+        console.log('📨 Send button clicked');
+        sendMessage();
+      });
+      console.log('✅ Send button event listener attached');
+    }
+
+    if (inputField) {
+      // Send message on Enter key press
+      inputField.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          console.log('⏎ Enter key pressed');
+          sendMessage();
+        }
+      });
+      console.log('✅ Input field enter key listener attached');
+    }
+
+    // Mark as initialized to prevent duplicate initialization
+    window.__studentChatbotInitialized = true;
+    
+    console.log('🎉 Student Chatbot Initialization Complete!');
+    console.log('💡 Click the floating 💬 button to open the chat');
+  }
+
+  // Initialize when DOM is ready
+  console.log('🔍 Checking initialization timing...');
+
+  if (document.readyState === 'loading') {
+    console.log('⏳ DOM is still loading, waiting for DOMContentLoaded...');
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('✅ DOMContentLoaded fired');
+      initStudentChatbot();
+    });
+  } else {
+    console.log('✅ DOM already loaded, initializing immediately');
+    initStudentChatbot();
+  }
+
+  // Fallback initialization after delay
+  setTimeout(() => {
+    if (!window.__studentChatbotInitialized) {
+      console.log('⏰ Fallback: Attempting delayed initialization...');
+      initStudentChatbot();
+    } else {
+      console.log('✅ Chatbot already initialized');
+    }
+  }, 1000);
+
+})();

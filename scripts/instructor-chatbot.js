@@ -1,149 +1,106 @@
-// Instructor Chatbot - AI-like Pattern Matching Responses
-// Provides instant support for instructors with intelligent responses
+// Instructor Chatbot - Rule-Based Assistant
+// 100% Client-Side Pattern Matching System
+// NO API calls - fully self-contained
 
-// Chatbot response patterns and replies tailored for instructors
+/**
+ * Predefined chatbot responses for common instructor queries
+ */
 const CHATBOT_RESPONSES = {
-  greeting: {
-    patterns: [/hi|hello|hey|greetings|good morning|good afternoon|good evening/i],
-    responses: [
-      "Hello! 👋 How can I assist you with your teaching today?",
-      "Hi there! I'm here to help with lessons, attendance, analytics, and more. What do you need?",
-      "Hey! Welcome back. What can I help you with today?"
-    ]
-  },
-  lessons: {
-    patterns: [/lesson|lessons|create|upload|video|content|course|material/i],
-    responses: [
-      "To create a new lesson, go to the 'Manage Lessons' page. You can upload videos, create quizzes, and organize your content there!",
-      "Need help with lessons? Visit the Lessons section to create, edit, or delete lesson content. You can upload videos and add interactive quizzes.",
-      "The Lessons page lets you manage all your teaching content. Upload videos, create quizzes, and organize lessons for your students!"
-    ]
-  },
-  attendance: {
-    patterns: [/attendance|present|absent|mark|track|roster|student list/i],
-    responses: [
-      "You can track attendance in the 'Track Attendance' section. Mark students present or absent, view attendance history, and generate reports!",
-      "To manage attendance: Go to the Attendance page, select a lesson, and mark students as present or absent. View reports to track patterns.",
-      "The Attendance page lets you mark daily attendance, view history, and generate reports. You can track student attendance patterns over time."
-    ]
-  },
-  analytics: {
-    patterns: [/analytics|stats|statistics|performance|progress|report|metrics|data/i],
-    responses: [
-      "View detailed analytics on the 'Analytics' page! Track student progress, lesson completion rates, time spent learning, and engagement metrics.",
-      "Check the Analytics section for comprehensive data on student performance, digital attendance rates, and lesson completion statistics.",
-      "The Analytics dashboard shows student progress, completion rates, time spent on lessons, and missed topics. Perfect for identifying students who need help!"
-    ]
-  },
-  deleteLesson: {
-    patterns: [/delete|remove|erase|get rid|lesson deletion/i],
-    responses: [
-      "To delete a lesson, go to 'Manage Lessons', find the lesson you want to remove, and click the delete button. Note: This action cannot be undone!",
-      "You can delete lessons from the Lessons page. Click the delete/trash icon on any lesson. Be careful - deletion is permanent!",
-      "Delete lessons from the 'Manage Lessons' section. Find the lesson and use the delete option. Remember, this will remove it for all students!"
-    ]
-  },
-  users: {
-    patterns: [/user|users|student|students|account|manage users|delete user|add student/i],
-    responses: [
-      "User management is available in the Admin Dashboard (if you have admin access). You can view, add, edit, or remove student and instructor accounts.",
-      "To manage users, you need admin privileges. Contact your system administrator or use the Admin Dashboard to manage student and instructor accounts.",
-      "Student and user management requires admin access. If you're an admin, visit the Admin Dashboard to add, edit, or remove users."
-    ]
-  },
-  quiz: {
-    patterns: [/quiz|quizzes|test|exam|question|assessment/i],
-    responses: [
-      "Create quizzes when editing or creating a lesson! You can add multiple-choice questions, set correct answers, and track student performance.",
-      "Quizzes are part of lesson creation. Go to 'Manage Lessons', create or edit a lesson, and add quiz questions with answer options.",
-      "Add interactive quizzes to your lessons from the Lessons page. Students complete quizzes after watching videos, and you can track their scores!"
-    ]
-  },
-  enrollment: {
-    patterns: [/enroll|enrollment|registered|who is enrolled|student list/i],
-    responses: [
-      "View student enrollments in the Analytics section. You can see which students are enrolled in each lesson and track their progress.",
-      "Check the Analytics page to see enrollment data for your lessons. You'll find lists of enrolled students and their completion status.",
-      "To see who's enrolled in your lessons, visit the Analytics dashboard. It shows enrollment counts and individual student progress."
-    ]
-  },
-  technical: {
-    patterns: [/error|bug|not working|broken|issue|problem|help|stuck|video.*not|upload.*fail/i],
-    responses: [
-      "Experiencing technical issues? Try these steps: 1) Refresh the page, 2) Clear browser cache, 3) Try a different browser. Still stuck? Contact support@orahschools.com",
-      "For technical problems: Refresh your browser first. If issues persist, check your internet connection or try logging out and back in. Email support@orahschools.com for help.",
-      "Having trouble? Quick fixes: refresh the page, clear cache, check file size limits for uploads. Contact support@orahschools.com with error details for persistent issues."
-    ]
-  },
-  reminders: {
-    patterns: [/reminder|reminders|notification|notifications|email|alert/i],
-    responses: [
-      "The system automatically sends reminders to students based on their preferences. They can customize reminder frequency in their dashboard settings.",
-      "Student reminders are automated! Students receive emails based on their chosen frequency (daily, weekly, twice-weekly, or never).",
-      "Reminder notifications are sent automatically to students who have incomplete lessons. Students manage their own reminder preferences in their dashboard."
-    ]
-  },
-  dashboard: {
-    patterns: [/dashboard|hub|home|main page|overview/i],
-    responses: [
-      "The Instructor Hub is your central dashboard! From here, you can access Lessons, Attendance, Analytics, and view Quick Stats.",
-      "Your dashboard shows quick stats and provides access to all instructor tools. Use the feature cards to navigate to Lessons, Attendance, or Analytics.",
-      "The Instructor Hub gives you an overview of your teaching metrics and quick access to all tools. Check Quick Stats for total lessons, active students, and more!"
-    ]
-  },
-  support: {
-    patterns: [/contact|support|help desk|admin|email|phone|reach/i],
-    responses: [
-      "Need personalized support? Contact our team at support@orahschools.com. For admin-level help, reach out to your system administrator!",
-      "For technical or administrative support, email support@orahschools.com. We typically respond within 24 hours!",
-      "You can reach support at support@orahschools.com for any questions or issues. Include details about your problem for faster assistance!"
-    ]
-  },
-  thanks: {
-    patterns: [/thank|thanks|appreciate|helpful|great|awesome/i],
-    responses: [
-      "You're welcome! Happy teaching! 📚",
-      "Glad I could help! Keep up the great work with your students! 🌟",
-      "Anytime! If you need anything else, just ask! 💪"
-    ]
-  },
-  default: {
-    patterns: [],
-    responses: [
-      "I'm not sure I understand. Could you rephrase that? I can help with lessons, attendance, analytics, quizzes, user management, and technical issues.",
-      "Hmm, I didn't quite catch that. I can assist with lessons, attendance tracking, analytics, student management, and technical support. What would you like to know?",
-      "I'm here to help with lessons, attendance, analytics, quizzes, enrollments, and technical issues. Could you clarify your question?"
-    ]
-  }
+  greeting: [
+    "Hi! I'm here to help you manage your courses and students at Orah School. What would you like to know?",
+    "Hello! How can I assist you with teaching today?",
+    "Hey there! I'm your Orah School instructor assistant. What can I help you with?"
+  ],
+  
+  lessons: [
+    "To create a lesson: Go to 'My Lessons' and click 'Create New Lesson'. Add a title, description, video URL (YouTube/Vimeo), and set a duration. Your lesson will be available to enrolled students immediately!",
+    "Managing lessons is easy! In the 'My Lessons' section, you can create, edit, or delete lessons. Each lesson can include video content, descriptions, and estimated completion time."
+  ],
+  
+  students: [
+    "To view your students: Go to the 'Students' section to see all enrolled learners. You can track their progress, completion rates, and engagement with your courses.",
+    "Student management tools let you see who's enrolled in your courses, monitor their progress, and identify students who may need additional support."
+  ],
+  
+  analytics: [
+    "Your analytics dashboard shows: total enrolled students, lessons completed, average engagement metrics, and course performance trends. Access it from the 'Analytics' tab!",
+    "Track your teaching impact with real-time analytics! See student enrollment trends, lesson completion rates, and overall course performance metrics."
+  ],
+  
+  attendance: [
+    "Attendance tracking helps you monitor student engagement. View attendance records to see which students are actively participating in your courses and completing lessons regularly.",
+    "Check the 'Attendance' section to see student activity patterns, identify inactive students, and track overall course engagement over time."
+  ],
+  
+  course: [
+    "Courses contain multiple lessons organized by topic. Create a course structure, add individual lessons, and students can enroll to access all content at their own pace.",
+    "To organize content effectively: Group related lessons into courses, set clear learning objectives, and provide estimated completion times for each lesson."
+  ],
+  
+  reminders: [
+    "Students can set up their own reminder preferences! They'll receive email notifications based on their chosen frequency (daily, twice weekly, or weekly) to stay engaged with courses.",
+    "Reminder system helps with student retention. Students who set reminders are more likely to complete courses and stay engaged with learning materials."
+  ],
+  
+  technical: [
+    "If you're experiencing technical issues: Try refreshing the page, clearing browser cache, or using a different browser. For persistent problems, contact support@orahschools.com",
+    "For video upload issues: Make sure you're using valid YouTube or Vimeo URLs. Direct video uploads aren't supported yet - use video hosting platforms instead."
+  ],
+  
+  help: [
+    "I can help you with:\n• Creating and managing lessons\n• Tracking student progress\n• Viewing analytics\n• Monitoring attendance\n• Organizing courses\n• Understanding reminders\n• Technical issues\n\nWhat would you like to know?",
+    "Need help with something? I can assist with lesson creation, student management, analytics, attendance tracking, and more. Just ask!"
+  ],
+  
+  default: [
+    "I'm here to help with your teaching! You can ask me about creating lessons, managing students, viewing analytics, or tracking attendance.",
+    "That's a great question! For detailed information, you might want to check the instructor guide or contact our support team at support@orahschools.com",
+    "I'm still learning! For specific questions, try browsing our instructor documentation or reach out to support@orahschools.com"
+  ]
 };
+
+/**
+ * Pattern matching rules for identifying instructor intent
+ */
+const PATTERNS = {
+  greeting: /(^|\s)(hi|hello|hey|greetings|good morning|good afternoon|good evening)/i,
+  lessons: /(lesson|create|video|upload|content|add lesson|new lesson|edit lesson)/i,
+  students: /(student|learner|enrolled|enrollment|who.*taking|view student)/i,
+  analytics: /(analytics|stats|statistics|metrics|performance|report|dashboard|data)/i,
+  attendance: /(attendance|present|absent|participation|engagement|active|inactive)/i,
+  course: /(course|curriculum|organize|structure|module|program)/i,
+  reminders: /(reminder|notify|notification|alert|email)/i,
+  technical: /(error|bug|broken|not working|issue|problem|help|fix|crash|upload issue)/i,
+  help: /(help|what can you|what do you|how does|guide|assist|support)/i
+};
+
+/**
+ * Get chatbot response based on pattern matching
+ * @param {string} userInput - User's message
+ * @returns {string} Bot response text
+ */
+function getBotResponse(userInput) {
+  const input = userInput.toLowerCase().trim();
+  
+  // Check each pattern and return appropriate response
+  for (const [category, pattern] of Object.entries(PATTERNS)) {
+    if (pattern.test(input)) {
+      const responses = CHATBOT_RESPONSES[category];
+      // Return random response from category
+      return responses[Math.floor(Math.random() * responses.length)];
+    }
+  }
+  
+  // Default response if no pattern matches
+  const defaultResponses = CHATBOT_RESPONSES.default;
+  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+}
 
 // XSS Prevention - Escape HTML in user input
 function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
-}
-
-// Get chatbot response based on user input
-function getBotResponse(userInput) {
-  const input = userInput.toLowerCase().trim();
-
-  // Check each pattern category
-  for (const category in CHATBOT_RESPONSES) {
-    if (category === 'default') continue;
-    
-    const { patterns, responses } = CHATBOT_RESPONSES[category];
-    for (const pattern of patterns) {
-      if (pattern.test(input)) {
-        // Return random response from category
-        return responses[Math.floor(Math.random() * responses.length)];
-      }
-    }
-  }
-
-  // Return default response if no pattern matches
-  const defaultResponses = CHATBOT_RESPONSES.default.responses;
-  return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
 }
 
 // Add message to chat
@@ -162,7 +119,32 @@ function addMessage(message, isUser = false) {
   messagesContainer.scrollTop = messagesContainer.scrollHeight;
 }
 
-// Send message handler
+/**
+ * Add typing indicator to chat
+ * @returns {HTMLElement} Typing indicator element
+ */
+function addTypingIndicator() {
+  const messagesContainer = document.getElementById('chatbot-messages');
+  const typingDiv = document.createElement('div');
+  typingDiv.className = 'bot-message typing-indicator';
+  typingDiv.id = 'typing-indicator';
+  typingDiv.innerHTML = '<strong>Instructor Assistant:</strong> <span class="typing-dots">Typing<span>.</span><span>.</span><span>.</span></span>';
+  messagesContainer.appendChild(typingDiv);
+  messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  return typingDiv;
+}
+
+/**
+ * Remove typing indicator from chat
+ */
+function removeTypingIndicator() {
+  const typingIndicator = document.getElementById('typing-indicator');
+  if (typingIndicator) {
+    typingIndicator.remove();
+  }
+}
+
+// Send message handler (synchronous rule-based responses)
 function sendMessage() {
   const inputField = document.getElementById('chatbot-input');
   const userMessage = inputField.value.trim();
@@ -175,15 +157,24 @@ function sendMessage() {
   // Clear input
   inputField.value = '';
 
-  // Get and add bot response after short delay (simulate thinking)
+  // Show typing indicator briefly for natural feel
+  addTypingIndicator();
+
+  // Get instant rule-based response after brief delay (natural typing effect)
   setTimeout(() => {
+    // Get bot response using pattern matching
     const botResponse = getBotResponse(userMessage);
+    
+    // Remove typing indicator
+    removeTypingIndicator();
+    
+    // Add bot response
     addMessage(botResponse, false);
-  }, 500);
+  }, 600); // 600ms delay for natural conversation feel
 }
 
-// Initialize chatbot functionality
-function initChatbot() {
+// Initialize instructor chatbot functionality
+function initInstructorChatbot() {
   const chatbotContainer = document.getElementById('chatbot-container');
   const chatbotBtn = document.getElementById('instructor-chatbot-btn');
   const closeBtn = document.getElementById('chatbot-close-btn');
@@ -226,7 +217,7 @@ function initChatbot() {
 
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initChatbot);
+  document.addEventListener('DOMContentLoaded', initInstructorChatbot);
 } else {
-  initChatbot();
+  initInstructorChatbot();
 }

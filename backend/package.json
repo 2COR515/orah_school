@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/2COR515/orah_school#readme",
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "bcrypt": "^6.0.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",

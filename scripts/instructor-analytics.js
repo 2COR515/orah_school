@@ -380,7 +380,7 @@ async function renderStudentProgress(enrollments, container, filterLessonId = nu
     
     // Fetch user details
     const token = localStorage.getItem('token');
-    const usersResponse = await fetch(`${API_BASE_URL}/auth/users`, {
+    const usersResponse = await fetch(`${API_BASE_URL}/users`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
     

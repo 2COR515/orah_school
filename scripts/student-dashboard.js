@@ -37,16 +37,53 @@ async function loadDashboard() {
   console.log('🔄 Loading dashboard data...');
   const token = localStorage.getItem('token');
   
+  // Check if token exists
+  if (!token) {
+    console.error('❌ No token found');
+    alert('Please log in to continue');
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  console.log('🔑 Using token:', token.substring(0, 20) + '...');
+  console.log('👤 Fetching data for user:', CURRENT_USER_ID);
+  
   try {
     // Fetch lessons and enrollments in parallel with authentication
     const [lessonsResponse, enrollmentsResponse] = await Promise.all([
       fetch(`${API_BASE_URL}/lessons`, {
         headers: { 'Authorization': `Bearer ${token}` }
-      }).catch(() => ({ ok: false })),
+      }).catch(err => {
+        console.error('❌ Lessons fetch error:', err);
+        return { ok: false };
+      }),
       fetch(`${API_BASE_URL}/enrollments/user/${CURRENT_USER_ID}`, {
         headers: { 'Authorization': `Bearer ${token}` }
-      }).catch(() => ({ ok: false }))
+      }).catch(err => {
+        console.error('❌ Enrollments fetch error:', err);
+        return { ok: false };
+      })
     ]);
+    
+    // Check for auth errors (403)
+    if (lessonsResponse.status === 403 || enrollmentsResponse.status === 403) {
+      console.error('❌ Authentication failed (403 Forbidden)');
+      const errorData = await (enrollmentsResponse.status === 403 ? enrollmentsResponse : lessonsResponse).json();
+      console.error('Error details:', errorData);
+      alert('Your session has expired. Please log in again.');
+      localStorage.clear();
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // Check for other auth errors (401)
+    if (lessonsResponse.status === 401 || enrollmentsResponse.status === 401) {
+      console.error('❌ Authentication required (401 Unauthorized)');
+      alert('Please log in to continue');
+      localStorage.clear();
+      window.location.href = 'login.html';
+      return;
+    }
 
     let allLessons = [];
     let myEnrollments = [];

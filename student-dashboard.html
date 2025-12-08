@@ -75,17 +75,67 @@
 
   <script src="scripts/student-dashboard.js"></script>
   <script>
-    // Update welcome message with user name
+    // ========== TOKEN VALIDATION AND DEBUG ==========
+    console.log('🔐 Checking authentication...');
+    
+    // Get token from localStorage
+    const token = localStorage.getItem('token');
+    const userId = localStorage.getItem('userId');
+    const role = localStorage.getItem('role');
+    
+    console.log('Token exists:', !!token);
+    console.log('User ID:', userId);
+    console.log('Role:', role);
+    
+    if (!token) {
+      console.error('❌ No token found - redirecting to login');
+      alert('Your session has expired. Please log in again.');
+      window.location.href = 'login.html';
+    } else {
+      // Decode JWT to check expiration (without verification)
+      try {
+        const tokenParts = token.split('.');
+        if (tokenParts.length === 3) {
+          const payload = JSON.parse(atob(tokenParts[1]));
+          const exp = payload.exp * 1000; // Convert to milliseconds
+          const now = Date.now();
+          const timeLeft = exp - now;
+          
+          console.log('Token payload:', payload);
+          console.log('Token expires:', new Date(exp).toLocaleString());
+          console.log('Time left:', Math.floor(timeLeft / 1000 / 60), 'minutes');
+          
+          if (timeLeft <= 0) {
+            console.error('❌ Token expired - redirecting to login');
+            alert('Your session has expired. Please log in again.');
+            localStorage.clear();
+            window.location.href = 'login.html';
+          } else if (timeLeft < 5 * 60 * 1000) {
+            console.warn('⚠️ Token expires soon (less than 5 minutes)');
+          } else {
+            console.log('✅ Token is valid');
+          }
+        }
+      } catch (e) {
+        console.error('❌ Error parsing token:', e);
+        alert('Invalid authentication token. Please log in again.');
+        localStorage.clear();
+        window.location.href = 'login.html';
+      }
+    }
+    
+    // ========== UPDATE WELCOME MESSAGE ==========
     const USER_NAME = localStorage.getItem('userName') || localStorage.getItem('userFirstName') || 'Student';
     const welcomeMsg = document.getElementById('welcome-message');
     if (welcomeMsg) {
       welcomeMsg.textContent = `Welcome, ${USER_NAME}`;
     }
 
-    // Logout handler
+    // ========== LOGOUT HANDLER ==========
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
       logoutBtn.addEventListener('click', () => {
+        console.log('🚪 Logging out...');
         localStorage.clear();
         window.location.href = 'login.html';
       });

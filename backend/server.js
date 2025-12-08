@@ -89,6 +89,10 @@ app.use('/api/admin', adminRouter);
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 app.use('/api/analytics', analyticsRoutes);
 
+// Mount Chat API routes (LLM-powered chatbot)
+const chatRoutes = require('./src/routes/chatRoutes');
+app.use('/api/chat', chatRoutes);
+
 // Upload endpoint (single file). Field name: uploaded_file
 // Accepts video (mp4, mkv) and PDF files. Returns public URL.
 app.post('/api/upload', (req, res, next) => {
