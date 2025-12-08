@@ -68,8 +68,8 @@ router.get('/:id', getLessonById);
 // PATCH /:id - Update a lesson by ID (protected: instructor only)
 router.patch('/:id', authenticateToken, authorizeRole('instructor'), updateLesson);
 
-// DELETE /:id - Delete a lesson by ID (protected: instructor only)
-router.delete('/:id', authenticateToken, authorizeRole('instructor'), deleteLesson);
+// DELETE /:id - Delete a lesson by ID (protected: instructor and admin only)
+router.delete('/:id', authenticateToken, authorizeRole('instructor', 'admin'), deleteLesson);
 
 // POST /:id/resources - Add resource to lesson (protected: instructor only)
 router.post('/:id/resources', authenticateToken, authorizeRole('instructor'), addLessonResource);

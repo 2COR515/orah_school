@@ -275,6 +275,43 @@ async function updateEnrollment(id, updateData) {
 }
 
 /**
+ * Delete an enrollment by ID
+ * @param {string} id - The enrollment ID
+ * @returns {Promise<boolean>} True if deleted, false if not found
+ */
+async function deleteEnrollment(id) {
+  await initDb();
+  
+  const enrollments = await storage.getItem('enrollments') || [];
+  const index = enrollments.findIndex(e => e.id === id);
+  
+  if (index === -1) return false;
+  
+  enrollments.splice(index, 1);
+  await storage.setItem('enrollments', enrollments);
+  
+  return true;
+}
+
+/**
+ * Delete all enrollments for a specific lesson
+ * Used when deleting a lesson to maintain database integrity
+ * @param {string} lessonId - The lesson ID
+ * @returns {Promise<number>} Number of enrollments deleted
+ */
+async function deleteEnrollmentsByLesson(lessonId) {
+  await initDb();
+  
+  const enrollments = await storage.getItem('enrollments') || [];
+  const filtered = enrollments.filter(e => e.lessonId !== lessonId);
+  const deletedCount = enrollments.length - filtered.length;
+  
+  await storage.setItem('enrollments', filtered);
+  
+  return deletedCount;
+}
+
+/**
  * List all enrollments (raw access for cron jobs)
  * @returns {Promise<Array>} Array of all enrollment objects
  */
@@ -550,6 +587,8 @@ module.exports = {
   listEnrollmentsByLesson,
   listEnrollmentsByUser,
   updateEnrollment,
+  deleteEnrollment,
+  deleteEnrollmentsByLesson,
   listAllEnrollments,
   // User CRUD
   findUserByEmail,

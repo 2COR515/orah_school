@@ -5,7 +5,8 @@ const {
   getEnrollmentByLessonAndUser,
   listEnrollmentsByLesson,
   listEnrollmentsByUser,
-  updateEnrollment
+  updateEnrollment,
+  deleteEnrollment: deleteEnrollmentDb
 } = require('../../db');
 
 /**
@@ -279,9 +280,77 @@ const listLessonEnrollments = async (req, res) => {
   }
 };
 
+/**
+ * Delete an enrollment (unenroll a student from a lesson)
+ * @param {Object} req - Express request object
+ * @param {Object} res - Express response object
+ */
+const deleteEnrollment = async (req, res) => {
+  try {
+    const { enrollmentId } = req.params;
+    
+    console.log(`🗑️ Delete enrollment request for ID: ${enrollmentId}`);
+    console.log('Authenticated user:', req.user);
+    
+    // Input validation
+    if (!enrollmentId) {
+      return res.status(400).json({
+        ok: false,
+        error: 'enrollmentId parameter is required'
+      });
+    }
+    
+    // Fetch the enrollment to verify ownership
+    const enrollment = await getEnrollment(enrollmentId);
+    
+    if (!enrollment) {
+      return res.status(404).json({
+        ok: false,
+        error: 'Enrollment not found'
+      });
+    }
+    
+    // CRITICAL: Self-authorization check
+    // User can only delete their own enrollment
+    if (req.user && req.user.id !== enrollment.userId) {
+      console.error(`❌ Authorization failed: User ${req.user.id} tried to delete enrollment owned by ${enrollment.userId}`);
+      return res.status(403).json({
+        ok: false,
+        error: 'You can only delete your own enrollments'
+      });
+    }
+    
+    console.log(`✅ Authorization passed: User ${req.user.id} owns enrollment ${enrollmentId}`);
+    
+    // Delete the enrollment
+    const deleted = await deleteEnrollmentDb(enrollmentId);
+    
+    if (!deleted) {
+      return res.status(404).json({
+        ok: false,
+        error: 'Enrollment not found or already deleted'
+      });
+    }
+    
+    console.log(`✅ Successfully deleted enrollment ${enrollmentId}`);
+    
+    // Return 204 No Content on successful deletion
+    return res.status(204).send();
+    
+  } catch (error) {
+    console.error('❌ Error deleting enrollment:', error);
+    console.error('Error stack:', error.stack);
+    return res.status(500).json({
+      ok: false,
+      error: 'Internal server error'
+    });
+  }
+};
+
 module.exports = {
   enrollUser,
   listUserEnrollments,
   updateProgress,
-  listLessonEnrollments
+  listLessonEnrollments,
+  deleteEnrollment
 };

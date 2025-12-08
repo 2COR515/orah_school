@@ -1,5 +1,5 @@
 // lessonController.js - Controller functions for Lesson operations
-const { addLesson, getLesson, updateLesson: dbUpdateLesson, deleteLesson: dbDeleteLesson, listLessons } = require('../../db');
+const { addLesson, getLesson, updateLesson: dbUpdateLesson, deleteLesson: dbDeleteLesson, listLessons, deleteEnrollmentsByLesson } = require('../../db');
 
 /**
  * Create a new lesson
@@ -316,7 +316,13 @@ const deleteLesson = async (req, res) => {
       });
     }
 
-    // 4. Deletion: Remove the lesson from database
+    console.log(`🗑️ Deleting lesson ${id} and all related enrollments...`);
+
+    // 4. Delete all enrollments for this lesson (maintain database integrity)
+    const deletedEnrollmentsCount = await deleteEnrollmentsByLesson(id);
+    console.log(`✅ Deleted ${deletedEnrollmentsCount} enrollment(s) for lesson ${id}`);
+
+    // 5. Deletion: Remove the lesson from database
     const deleted = await dbDeleteLesson(id);
 
     if (!deleted) {
@@ -326,11 +332,10 @@ const deleteLesson = async (req, res) => {
       });
     }
 
-    // 5. Response: Return success status
-    return res.status(200).json({
-      ok: true,
-      message: 'Lesson deleted successfully'
-    });
+    console.log(`✅ Successfully deleted lesson ${id}`);
+
+    // 6. Response: Return 204 No Content on successful deletion
+    return res.status(204).send();
 
   } catch (error) {
     console.error('Error deleting lesson:', error);

@@ -4,7 +4,8 @@ const {
   enrollUser,
   listUserEnrollments,
   updateProgress,
-  listLessonEnrollments
+  listLessonEnrollments,
+  deleteEnrollment
 } = require('../controllers/enrollmentController');
 const { authenticateToken, authorizeRole } = require('../middleware/authMiddleware');
 
@@ -19,6 +20,9 @@ router.get('/user/:userId', authenticateToken, listUserEnrollments);
 
 // PATCH /:enrollmentId/progress - Update enrollment progress and status (protected: requires ownership)
 router.patch('/:enrollmentId/progress', authenticateToken, updateProgress);
+
+// DELETE /:enrollmentId - Delete an enrollment (unenroll) (protected: requires ownership)
+router.delete('/:enrollmentId', authenticateToken, deleteEnrollment);
 
 // GET /lesson/:lessonId - List all enrollments for a specific lesson (protected: instructor only)
 router.get('/lesson/:lessonId', authenticateToken, authorizeRole('instructor'), listLessonEnrollments);

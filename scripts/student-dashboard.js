@@ -171,11 +171,29 @@ function renderMyLessons(lessons, enrollmentsByLessonId) {
           Progress: ${progress}%
         </div>
       </div>
-      <a href="lesson-player.html?id=${lessonId}&enrollmentId=${enrollment ? enrollment.id : ''}"
-         style="margin-top: 1rem; padding: 0.75rem; background: #6F00FF; color: white; text-decoration: none; display: block; text-align: center; border-radius: 4px; font-weight: 600;">
-        ${progress === 100 ? 'Review Lesson' : 'Watch Now →'}
-      </a>
+      <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+        <a href="lesson-player.html?id=${lessonId}&enrollmentId=${enrollment ? enrollment.id : ''}"
+           style="flex: 1; padding: 0.75rem; background: #6F00FF; color: white; text-decoration: none; display: block; text-align: center; border-radius: 4px; font-weight: 600;">
+          ${progress === 100 ? 'Review Lesson' : 'Watch Now →'}
+        </a>
+        <button class="unenroll-btn" data-enrollment-id="${enrollment ? enrollment.id : ''}" data-lesson-title="${escapeHtml(lesson.title)}"
+                style="padding: 0.75rem 1rem; background: #ff3b3b; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;"
+                onmouseover="this.style.background='#cc0000'" onmouseout="this.style.background='#ff3b3b'">
+          Unenroll
+        </button>
+      </div>
     `;
+    
+    // Add event listener for unenroll button
+    const unenrollBtn = card.querySelector('.unenroll-btn');
+    if (unenrollBtn) {
+      unenrollBtn.addEventListener('click', () => {
+        const enrollmentId = unenrollBtn.getAttribute('data-enrollment-id');
+        const lessonTitle = unenrollBtn.getAttribute('data-lesson-title');
+        handleUnenrollment(enrollmentId, lessonTitle);
+      });
+    }
+    
     grid.appendChild(card);
   });
 
@@ -355,6 +373,53 @@ async function enrollInLesson(lessonId, lessonTitle) {
   } catch (error) {
     console.error('Enrollment error:', error);
     showError(`Failed to enroll: ${error.message}`);
+  }
+}
+
+/**
+ * Handle unenrollment from a lesson
+ * @param {string} enrollmentId - The enrollment ID to delete
+ * @param {string} lessonTitle - The lesson title for confirmation message
+ */
+async function handleUnenrollment(enrollmentId, lessonTitle) {
+  try {
+    // Confirm with user before deleting
+    const confirmed = confirm(`Are you sure you want to unenroll from "${lessonTitle}"?\n\nYour progress will be lost.`);
+    
+    if (!confirmed) {
+      console.log('Unenrollment cancelled by user');
+      return;
+    }
+
+    console.log(`🗑️ Unenrolling from lesson: ${lessonTitle} (enrollment ID: ${enrollmentId})`);
+
+    const response = await fetch(`${API_BASE_URL}/enrollments/${enrollmentId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Enrollment not found or already deleted');
+      } else if (response.status === 403) {
+        throw new Error('You do not have permission to delete this enrollment');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Unenrollment failed');
+      }
+    }
+
+    console.log('✅ Successfully unenrolled');
+    showSuccess(`Successfully unenrolled from "${lessonTitle}"`);
+    
+    // Reload dashboard to reflect changes
+    await loadDashboard();
+
+  } catch (error) {
+    console.error('❌ Unenrollment error:', error);
+    showError(`Failed to unenroll: ${error.message}`);
   }
 }
 

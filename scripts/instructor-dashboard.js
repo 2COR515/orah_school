@@ -20,25 +20,79 @@ document.addEventListener('DOMContentLoaded', async () => {
 async function loadInstructorDashboard() {
   try {
     // Fetch all enrollments to show student activity
-    const response = await fetch(`${API_BASE_URL}/enrollments`, {
+    const enrollmentsResponse = await fetch(`${API_BASE_URL}/enrollments`, {
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+    
+    if (!enrollmentsResponse.ok) {
+      throw new Error('Failed to fetch enrollment data');
+    }
+    
+    const enrollmentsData = await enrollmentsResponse.json();
+    const enrollments = enrollmentsData.enrollments || [];
+    
+    // Render student enrollment table
+    renderStudentEnrollments(enrollments);
+    
+    // Load and render instructor's lessons
+    await loadMyLessons();
+    
+  } catch (error) {
+    console.error('Dashboard load error:', error);
+    showError('Failed to load instructor dashboard.');
+  }
+}
+
+/**
+ * Load instructor's lessons
+ */
+async function loadMyLessons() {
+  try {
+    const instructorId = localStorage.getItem('userId');
+    const lessonsListEl = document.getElementById('lessons-list');
+    const loadingMsgEl = document.getElementById('lessons-loading-msg');
+    
+    if (!lessonsListEl) {
+      console.warn('lessons-list element not found on this page');
+      return;
+    }
+    
+    console.log('🔄 Loading instructor lessons...');
+    
+    // Fetch all lessons
+    const response = await fetch(`${API_BASE_URL}/lessons`, {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`
       }
     });
     
     if (!response.ok) {
-      throw new Error('Failed to fetch enrollment data');
+      throw new Error('Failed to fetch lessons');
     }
     
     const data = await response.json();
-    const enrollments = data.enrollments || [];
+    const allLessons = data.lessons || [];
     
-    // Render student enrollment table
-    renderStudentEnrollments(enrollments);
+    // Filter to show only this instructor's lessons
+    const myLessons = allLessons.filter(lesson => lesson.instructorId === instructorId);
+    
+    console.log(`✅ Loaded ${myLessons.length} lesson(s)`);
+    
+    // Hide loading message
+    if (loadingMsgEl) loadingMsgEl.style.display = 'none';
+    
+    // Render lessons
+    renderInstructorLessons(myLessons, lessonsListEl);
     
   } catch (error) {
-    console.error('Dashboard load error:', error);
-    showError('Failed to load instructor dashboard.');
+    console.error('❌ Error loading lessons:', error);
+    const loadingMsgEl = document.getElementById('lessons-loading-msg');
+    if (loadingMsgEl) {
+      loadingMsgEl.textContent = 'Failed to load lessons. Please refresh.';
+      loadingMsgEl.style.color = '#ff3b3b';
+    }
   }
 }
 
@@ -471,4 +525,153 @@ function collectQuizData() {
     }
   });
   return quiz;
+}
+
+// =================== Lesson Management: Display & Delete ===================
+
+/**
+ * Render instructor's lessons with delete buttons
+ */
+function renderInstructorLessons(lessons, container) {
+  if (!container) return;
+  
+  container.innerHTML = '';
+  
+  if (lessons.length === 0) {
+    container.innerHTML = '<p style="color: #666; text-align: center; padding: 2rem;">You haven\'t created any lessons yet. Use the form above to create your first lesson!</p>';
+    return;
+  }
+  
+  lessons.forEach(lesson => {
+    const card = document.createElement('div');
+    card.className = 'lesson-card';
+    card.style.cssText = `
+      background: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+    `;
+    
+    card.innerHTML = `
+      <h3 style="margin: 0; color: #3B0270; font-size: 1.25rem;">${escapeHtml(lesson.title)}</h3>
+      <p style="margin: 0; color: #666; font-size: 0.9rem; flex-grow: 1;">${escapeHtml(lesson.description || 'No description')}</p>
+      <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; color: #888;">
+        <span>Topic: ${escapeHtml(lesson.topic || 'General')}</span>
+        <span>Status: <strong>${lesson.status === 'published' ? '✅ Published' : '📝 Draft'}</strong></span>
+        <span>Created: ${lesson.createdAt ? new Date(lesson.createdAt).toLocaleDateString() : 'Unknown'}</span>
+      </div>
+      <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+        <button class="edit-lesson-btn" data-lesson-id="${lesson.id}"
+                style="flex: 1; padding: 0.75rem; background: #6F00FF; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;"
+                onmouseover="this.style.background='#5500CC'" onmouseout="this.style.background='#6F00FF'">
+          Edit
+        </button>
+        <button class="delete-lesson-btn" data-lesson-id="${lesson.id}" data-lesson-title="${escapeHtml(lesson.title)}"
+                style="padding: 0.75rem 1rem; background: #ff3b3b; color: white; border: none; border-radius: 4px; font-weight: 600; cursor: pointer; transition: background 0.2s;"
+                onmouseover="this.style.background='#cc0000'" onmouseout="this.style.background='#ff3b3b'">
+          Delete
+        </button>
+      </div>
+    `;
+    
+    // Add hover effect
+    card.addEventListener('mouseenter', () => {
+      card.style.transform = 'translateY(-2px)';
+      card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'translateY(0)';
+      card.style.boxShadow = '0 2px 8px rgba(0,0,0,0.1)';
+    });
+    
+    // Add delete button event listener
+    const deleteBtn = card.querySelector('.delete-lesson-btn');
+    if (deleteBtn) {
+      deleteBtn.addEventListener('click', () => {
+        const lessonId = deleteBtn.getAttribute('data-lesson-id');
+        const lessonTitle = deleteBtn.getAttribute('data-lesson-title');
+        handleDeleteLesson(lessonId, lessonTitle);
+      });
+    }
+    
+    // Add edit button event listener (placeholder)
+    const editBtn = card.querySelector('.edit-lesson-btn');
+    if (editBtn) {
+      editBtn.addEventListener('click', () => {
+        const lessonId = editBtn.getAttribute('data-lesson-id');
+        showError('Edit functionality coming soon!');
+        // TODO: Implement edit functionality
+      });
+    }
+    
+    container.appendChild(card);
+  });
+}
+
+/**
+ * Handle lesson deletion
+ * @param {string} lessonId - The lesson ID to delete
+ * @param {string} lessonTitle - The lesson title for confirmation message
+ */
+async function handleDeleteLesson(lessonId, lessonTitle) {
+  try {
+    // Confirm with user before deleting
+    const confirmed = confirm(
+      `⚠️ Are you sure you want to delete "${lessonTitle}"?\n\n` +
+      `This will:\n` +
+      `• Permanently delete the lesson\n` +
+      `• Remove ALL student enrollments for this lesson\n` +
+      `• This action CANNOT be undone\n\n` +
+      `Type the lesson title to confirm deletion.`
+    );
+    
+    if (!confirmed) {
+      console.log('Lesson deletion cancelled by user');
+      return;
+    }
+
+    console.log(`🗑️ Deleting lesson: ${lessonTitle} (ID: ${lessonId})`);
+
+    const response = await fetch(`${API_BASE_URL}/lessons/${lessonId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${localStorage.getItem('token')}`
+      }
+    });
+
+    if (!response.ok) {
+      if (response.status === 404) {
+        throw new Error('Lesson not found or already deleted');
+      } else if (response.status === 403) {
+        throw new Error('You do not have permission to delete this lesson');
+      } else {
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || 'Lesson deletion failed');
+      }
+    }
+
+    console.log('✅ Successfully deleted lesson');
+    showSuccess(`Successfully deleted lesson "${lessonTitle}" and all related enrollments`);
+    
+    // Reload dashboard to reflect changes
+    await loadInstructorDashboard();
+
+  } catch (error) {
+    console.error('❌ Lesson deletion error:', error);
+    showError(`Failed to delete lesson: ${error.message}`);
+  }
+}
+
+/**
+ * Escape HTML to prevent XSS
+ */
+function escapeHtml(text) {
+  if (!text) return '';
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
 }
