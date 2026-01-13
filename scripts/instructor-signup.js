@@ -50,11 +50,17 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     try {
+      // Split full name into first and last name
+      const nameParts = name.split(' ');
+      const firstName = nameParts[0] || '';
+      const lastName = nameParts.slice(1).join(' ') || '';
+
       const response = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          name,
+          firstName,
+          lastName,
           email,
           password,
           role: 'instructor'

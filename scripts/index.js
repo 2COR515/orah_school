@@ -130,6 +130,9 @@ function renderFeaturedLessons(lessons) {
       card.style.boxShadow = '0 4px 16px rgba(0, 0, 0, 0.08)';
     };
     
+    // Event delegation for Read More button
+    card.addEventListener('click', handleReadMoreClick);
+    
     // Badge for featured lesson
     const badges = ['🌟 Most Popular', '🔥 Trending', '✨ New'];
     const badge = badges[index] || '📚 Featured';
@@ -160,14 +163,16 @@ function renderFeaturedLessons(lessons) {
           ${escapeHtml(lesson.title)}
         </h3>
         
-        <p style="
+        <div class="course-description" style="
           color: #666;
           line-height: 1.6;
-          margin-bottom: 1.5rem;
+          margin-bottom: 0.5rem;
           min-height: 60px;
         ">
           ${escapeHtml(lesson.description || 'Comprehensive data science lesson covering essential concepts and practical applications.')}
-        </p>
+        </div>
+        
+        <button class="read-more-btn" style="margin-bottom: 1rem;">Read More</button>
         
         <div style="
           display: flex;
@@ -221,4 +226,167 @@ function escapeHtml(text) {
   const div = document.createElement('div');
   div.textContent = text;
   return div.innerHTML;
+}
+
+/* -----------------------
+   Live Search (Navbar)
+   ----------------------- */
+(() => {
+  const MIN_QUERY_LENGTH = 2;
+  const DEBOUNCE_MS = 300;
+  let debounceTimer = null;
+  let dropdownEl = null;
+  let latestResults = [];
+
+  function createDropdown() {
+    if (dropdownEl) return dropdownEl;
+    dropdownEl = document.createElement('div');
+    dropdownEl.className = 'search-results-dropdown';
+    dropdownEl.style.display = 'none';
+    document.body.appendChild(dropdownEl);
+    return dropdownEl;
+  }
+
+  function positionDropdown(inputEl, dropdown) {
+    const rect = inputEl.getBoundingClientRect();
+    dropdown.style.minWidth = rect.width + 'px';
+    dropdown.style.left = (window.scrollX + rect.left) + 'px';
+    dropdown.style.top = (window.scrollY + rect.bottom + 6) + 'px';
+  }
+
+  function hideDropdown() {
+    if (!dropdownEl) return;
+    dropdownEl.style.display = 'none';
+    dropdownEl.innerHTML = '';
+    latestResults = [];
+  }
+
+  function showResults(inputEl, results) {
+    const dd = createDropdown();
+    const ul = document.createElement('ul');
+
+    if (!results || results.length === 0) {
+      const li = document.createElement('li');
+      li.className = 'no-results';
+      li.textContent = 'No results found';
+      li.style.padding = '10px 12px';
+      ul.appendChild(li);
+      latestResults = [];
+    } else {
+      results.forEach(r => {
+        const li = document.createElement('li');
+        li.tabIndex = 0;
+        li.innerHTML = `
+          <div class="result-title">${escapeHtml(r.title)}</div>
+          <div class="result-desc">${escapeHtml((r.description||'').slice(0, 100))}</div>
+        `;
+        li.addEventListener('click', () => {
+          window.location.href = r.url || `/lesson.html?id=${encodeURIComponent(r.id)}`;
+        });
+        li.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter') li.click();
+        });
+        ul.appendChild(li);
+      });
+      latestResults = results;
+    }
+
+    dd.innerHTML = '';
+    dd.appendChild(ul);
+    positionDropdown(inputEl, dd);
+    dd.style.display = 'block';
+  }
+
+  function fetchSearch(query, inputEl) {
+    fetch(`${API_BASE_URL}/courses/search?q=${encodeURIComponent(query)}`)
+      .then(r => r.json())
+      .then(data => {
+        if (!data || !Array.isArray(data.courses)) return showResults(inputEl, []);
+        showResults(inputEl, data.courses);
+      })
+      .catch(err => {
+        console.error('Search error', err);
+        showResults(inputEl, []);
+      });
+  }
+
+  function init() {
+    const input = document.getElementById('nav-search-input');
+    if (!input) return;
+
+    // Close dropdown on outside click
+    document.addEventListener('click', (e) => {
+      const target = e.target;
+      if (!dropdownEl) return;
+      if (target === input) return;
+      if (dropdownEl.contains(target)) return;
+      hideDropdown();
+    });
+
+    // Hide when input cleared; debounce searches when typing
+    input.addEventListener('input', () => {
+      const q = input.value.trim();
+      if (q.length < MIN_QUERY_LENGTH) {
+        hideDropdown();
+        return;
+      }
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => fetchSearch(q, input), DEBOUNCE_MS);
+    });
+
+    // Enter selects first result if available
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        if (latestResults && latestResults.length > 0) {
+          const r = latestResults[0];
+          e.preventDefault();
+          window.location.href = r.url || `/lesson.html?id=${encodeURIComponent(r.id)}`;
+        }
+      }
+    });
+
+    // reposition dropdown on resize/scroll
+    window.addEventListener('resize', () => { if (dropdownEl && dropdownEl.style.display === 'block') positionDropdown(input, dropdownEl); });
+    window.addEventListener('scroll', () => { if (dropdownEl && dropdownEl.style.display === 'block') positionDropdown(input, dropdownEl); });
+  }
+
+  // init when DOM ready (file already runs on load earlier)
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+
+/**
+ * Handle Read More / Read Less button clicks
+ * Uses event delegation for dynamically created cards
+ */
+function handleReadMoreClick(e) {
+  if (!e.target.classList.contains('read-more-btn')) {
+    return; // Not a read-more button
+  }
+
+  e.preventDefault();
+  e.stopPropagation();
+
+  const btn = e.target;
+  const descEl = btn.previousElementSibling; // .course-description should be the previous sibling
+
+  if (!descEl || !descEl.classList.contains('course-description')) {
+    console.warn('Could not find course-description element');
+    return;
+  }
+
+  // Toggle expanded state
+  const isExpanded = descEl.classList.contains('expanded');
+
+  if (isExpanded) {
+    descEl.classList.remove('expanded');
+    btn.textContent = 'Read More';
+  } else {
+    descEl.classList.add('expanded');
+    btn.textContent = 'Read Less';
+  }
 }

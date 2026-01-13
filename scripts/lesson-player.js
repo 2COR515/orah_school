@@ -69,9 +69,24 @@ async function loadLesson(lessonId) {
         });
 
         if (!response.ok) {
-            if (response.status === 401 || response.status === 403) {
+            // Handle locked lesson response specially
+            if (response.status === 403) {
+                try {
+                    const body = await response.json();
+                    if (body && body.code === 'LESSON_LOCKED') {
+                        // Show locked overlay and stop
+                        showLockedOverlay();
+                        return;
+                    }
+                } catch (e) {
+                    // fallthrough to generic error
+                }
+            }
+
+            if (response.status === 401) {
                 throw new Error('Unauthorized. Please log in again.');
             }
+
             throw new Error(`Failed to load lesson: ${response.status}`);
         }
 
@@ -176,8 +191,8 @@ function renderLesson(lesson) {
         videoElement.parentElement.style.display = 'none';
     }
 
-    // Render resources
-    renderResources(lesson.files);
+    // Render resources (from files array and resourceZipUrl)
+    renderResources(lesson.files, lesson.resourceZipUrl);
 }
 
 /**
@@ -245,6 +260,21 @@ async function updateVideoProgress(progress) {
                 }
             }
         } else {
+            if (response.status === 403) {
+                try {
+                    const body = await response.json();
+                    if (body && body.code === 'LESSON_LOCKED') {
+                        showLockedOverlay();
+                        // Pause video if playing
+                        const video = document.getElementById('lesson-video');
+                        if (video && !video.paused) video.pause();
+                        return;
+                    }
+                } catch (e) {
+                    // ignore
+                }
+            }
+
             console.error('Failed to update progress:', response.status);
         }
     } catch (error) {
@@ -423,34 +453,85 @@ function sendFinalTimeUpdate() {
 
 /**
  * Render downloadable resources
+ * @param {Array} files - Array of file objects (legacy)
+ * @param {String} resourceZipUrl - URL to resource ZIP file
  */
-function renderResources(files) {
+function renderResources(files, resourceZipUrl) {
     const resourcesList = document.getElementById('resources-list');
     if (!resourcesList) return;
 
-    if (!files || files.length === 0) {
-        resourcesList.innerHTML = '<li class="no-resources">No additional resources</li>';
+    // Check if we have any resources to display
+    const hasFiles = files && files.length > 0;
+    const hasResourceZip = resourceZipUrl && resourceZipUrl.trim() !== '';
+
+    if (!hasFiles && !hasResourceZip) {
+        resourcesList.innerHTML = '<li class="text-tertiary">No additional resources available.</li>';
         return;
     }
 
     resourcesList.innerHTML = '';
-    files.forEach(file => {
+
+    // Add resource ZIP file if available
+    if (hasResourceZip) {
         const li = document.createElement('li');
+        li.style.marginBottom = '1rem';
+        li.style.padding = '1rem';
+        li.style.background = 'var(--color-bg-secondary)';
+        li.style.border = '1px solid var(--color-border-primary)';
+        li.style.borderRadius = 'var(--radius-md)';
+        
         const link = document.createElement('a');
         
-        let href = file.url || file.filename || '';
+        let href = resourceZipUrl;
         if (!/^https?:\/\//.test(href)) {
             href = `${UPLOADS_BASE_URL}${href}`;
         }
         
         link.href = href;
         link.target = '_blank';
-        link.download = file.originalname || file.filename || 'download';
-        link.textContent = file.originalname || file.filename || 'Download Resource';
+        link.download = 'lesson-resources.zip';
+        link.className = 'btn-primary btn-sm';
+        link.style.textDecoration = 'none';
+        link.style.display = 'inline-flex';
+        link.style.alignItems = 'center';
+        link.style.gap = '0.5rem';
+        link.innerHTML = '<span>📦</span><span>Download Lesson Resources (ZIP)</span>';
         
         li.appendChild(link);
         resourcesList.appendChild(li);
-    });
+    }
+
+    // Add individual files if available (legacy support)
+    if (hasFiles) {
+        files.forEach(file => {
+            const li = document.createElement('li');
+            li.style.marginBottom = '0.75rem';
+            li.style.padding = '0.75rem';
+            li.style.background = 'var(--color-bg-secondary)';
+            li.style.border = '1px solid var(--color-border-primary)';
+            li.style.borderRadius = 'var(--radius-md)';
+            
+            const link = document.createElement('a');
+            
+            let href = file.url || file.filename || '';
+            if (!/^https?:\/\//.test(href)) {
+                href = `${UPLOADS_BASE_URL}${href}`;
+            }
+            
+            link.href = href;
+            link.target = '_blank';
+            link.download = file.originalname || file.filename || 'download';
+            link.className = 'btn-secondary btn-sm';
+            link.style.textDecoration = 'none';
+            link.style.display = 'inline-flex';
+            link.style.alignItems = 'center';
+            link.style.gap = '0.5rem';
+            link.innerHTML = `<span>📄</span><span>${file.originalname || file.filename || 'Download Resource'}</span>`;
+            
+            li.appendChild(link);
+            resourcesList.appendChild(li);
+        });
+    }
 }
 
 /**
@@ -485,9 +566,88 @@ async function loadProgress(enrollmentId) {
                 }
             }
         }
+        else if (response.status === 403) {
+            try {
+                const body = await response.json();
+                if (body && body.code === 'LESSON_LOCKED') {
+                    showLockedOverlay();
+                }
+            } catch (e) {
+                // ignore
+            }
+        }
     } catch (error) {
         console.error('Error loading progress:', error);
     }
+}
+
+/**
+ * Show a locked UI overlay over the lesson area and provide a "Request Redo" button
+ */
+function showLockedOverlay() {
+    // Hide video player and show a friendly locked message
+    const videoContainer = document.getElementById('lesson-video')?.parentElement;
+    if (videoContainer) videoContainer.style.display = 'none';
+
+    // If overlay already exists, do nothing
+    if (document.getElementById('lesson-lock-overlay')) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'lesson-lock-overlay';
+    overlay.style.cssText = `
+        position: relative;
+        margin: 1rem 0;
+        padding: 2rem;
+        background: linear-gradient(135deg,#fff,#f8f9fa);
+        border: 1px solid #e9ecef;
+        border-radius: 8px;
+        text-align: center;
+    `;
+
+    overlay.innerHTML = `
+        <h3 style="margin-top:0;">🔒 Lesson Locked</h3>
+        <p>You missed the deadline for this lesson. If you need another attempt, request a redo from your instructor.</p>
+    `;
+
+    const btn = document.createElement('button');
+    btn.className = 'btn-primary';
+    btn.textContent = 'Request Redo';
+    btn.style.marginTop = '1rem';
+    btn.onclick = async () => {
+        if (!currentEnrollmentId) return showError('No enrollment found to request redo.');
+        const token = localStorage.getItem('token');
+        if (!token) return showError('You must be logged in to request a redo.');
+
+        btn.disabled = true;
+        btn.textContent = 'Sending...';
+
+        try {
+            const resp = await fetch(`${API_BASE_URL}/enrollments/${currentEnrollmentId}/request-redo`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
+
+            if (resp.ok) {
+                btn.textContent = 'Request Sent';
+                showSuccess('Redo request sent to your instructor.');
+            } else {
+                btn.disabled = false;
+                btn.textContent = 'Request Redo';
+                const body = await resp.json().catch(() => ({}));
+                showError(body && body.error ? body.error : 'Failed to send redo request');
+            }
+        } catch (err) {
+            console.error('Request redo error:', err);
+            btn.disabled = false;
+            btn.textContent = 'Request Redo';
+            showError('Failed to send redo request');
+        }
+    };
+
+    overlay.appendChild(btn);
+
+    const container = document.getElementById('lesson-main') || document.body;
+    container.insertBefore(overlay, container.firstChild);
 }
 
 /**
@@ -699,9 +859,96 @@ document.addEventListener('DOMContentLoaded', async () => {
         completeBtn.addEventListener('click', markAsCompleted);
     }
     
+    // Setup prev/next lesson buttons
+    setupLessonNavigation(lessonId);
+    
     // ✨ Setup beforeunload event to capture final time spent
     window.addEventListener('beforeunload', sendFinalTimeUpdate);
     
     // ✨ Also capture time when navigating away (SPA-style navigation)
     window.addEventListener('pagehide', sendFinalTimeUpdate);
 });
+
+/**
+ * Setup lesson navigation (prev/next buttons)
+ */
+async function setupLessonNavigation(currentLessonId) {
+    const prevBtn = document.getElementById('prev-lesson-btn');
+    const nextBtn = document.getElementById('next-lesson-btn');
+    
+    if (!prevBtn || !nextBtn) {
+        console.warn('Navigation buttons not found');
+        return;
+    }
+    
+    try {
+        const token = localStorage.getItem('token');
+        const userId = localStorage.getItem('userId');
+        
+        if (!token || !userId) {
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+            return;
+        }
+        
+        // Fetch user's enrollments to get all available lessons
+        const enrollmentsResponse = await fetch(`${API_BASE_URL}/enrollments/user/${userId}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!enrollmentsResponse.ok) {
+            throw new Error('Failed to fetch enrollments');
+        }
+        
+        const enrollmentsData = await enrollmentsResponse.json();
+        const enrollments = enrollmentsData.enrollments || [];
+        
+        // Get lesson IDs sorted by enrollment date
+        const lessonIds = enrollments
+            .sort((a, b) => new Date(a.enrolledAt) - new Date(b.enrolledAt))
+            .map(e => e.lessonId);
+        
+        const currentIndex = lessonIds.indexOf(currentLessonId);
+        
+        if (currentIndex === -1) {
+            prevBtn.disabled = true;
+            nextBtn.disabled = true;
+            return;
+        }
+        
+        // Setup previous button
+        if (currentIndex > 0) {
+            const prevLessonId = lessonIds[currentIndex - 1];
+            prevBtn.disabled = false;
+            prevBtn.onclick = () => {
+                // Save current progress before navigating
+                sendFinalTimeUpdate();
+                window.location.href = `lesson-player.html?lessonId=${prevLessonId}`;
+            };
+        } else {
+            prevBtn.disabled = true;
+            prevBtn.style.opacity = '0.5';
+            prevBtn.style.cursor = 'not-allowed';
+        }
+        
+        // Setup next button
+        if (currentIndex < lessonIds.length - 1) {
+            const nextLessonId = lessonIds[currentIndex + 1];
+            nextBtn.disabled = false;
+            nextBtn.onclick = () => {
+                // Save current progress before navigating
+                sendFinalTimeUpdate();
+                window.location.href = `lesson-player.html?lessonId=${nextLessonId}`;
+            };
+        } else {
+            nextBtn.disabled = true;
+            nextBtn.style.opacity = '0.5';
+            nextBtn.style.cursor = 'not-allowed';
+        }
+        
+    } catch (error) {
+        console.error('Error setting up lesson navigation:', error);
+        prevBtn.disabled = true;
+        nextBtn.disabled = true;
+    }
+}

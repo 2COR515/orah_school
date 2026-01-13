@@ -1,0 +1,208 @@
+/* ========================================
+   LIGHT MODE THEME
+   Override dark-industrial.css variables
+   ======================================== */
+
+:root {
+  /* ===== COLORS ===== */
+  /* Backgrounds */
+  --color-bg-primary: #FFFFFF;
+  --color-bg-secondary: #F8F9FA;
+  --color-bg-tertiary: #E9ECEF;
+  
+  /* Text Colors */
+  --color-text-primary: #212529;
+  --color-text-secondary: #495057;
+  --color-text-tertiary: #6C757D;
+  --color-text-muted: #ADB5BD;
+  
+  /* Brand Colors (keep purple but adjust) */
+  --color-brand-purple: #6F00FF;
+  --color-brand-purple-light: #8B33FF;
+  --color-brand-purple-dark: #5500CC;
+  
+  /* Borders */
+  --color-border-primary: #DEE2E6;
+  --color-border-secondary: #CED4DA;
+  --color-border-tertiary: #E9ECEF;
+  
+  /* Semantic Colors */
+  --color-success: #28A745;
+  --color-success-light: #D4EDDA;
+  --color-error: #DC3545;
+  --color-error-light: #F8D7DA;
+  --color-warning: #FFC107;
+  --color-warning-light: #FFF3CD;
+  --color-info: #17A2B8;
+  --color-info-light: #D1ECF1;
+  
+  /* Shadows - More prominent in light mode */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.12);
+  --shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.15);
+  
+  /* Brand Glow (lighter for light mode) */
+  --glow-brand: 0 0 20px rgba(111, 0, 255, 0.2);
+  --glow-success: 0 0 20px rgba(40, 167, 69, 0.2);
+  --glow-error: 0 0 20px rgba(220, 53, 69, 0.2);
+  --glow-warning: 0 0 20px rgba(255, 193, 7, 0.2);
+  --glow-info: 0 0 20px rgba(23, 162, 184, 0.2);
+}
+
+/* ===== BASE STYLES ===== */
+body {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+/* ===== BUTTONS ===== */
+.btn-primary,
+.btn-brand {
+  background: var(--color-brand-purple);
+  color: #FFFFFF;
+  border-color: var(--color-brand-purple);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover,
+.btn-brand:hover {
+  background: var(--color-brand-purple-dark);
+  box-shadow: var(--shadow-md), var(--glow-brand);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--color-text-primary);
+  border-color: var(--color-border-primary);
+}
+
+.btn-secondary:hover {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-brand-purple);
+}
+
+.btn-ghost {
+  color: var(--color-text-secondary);
+}
+
+.btn-ghost:hover {
+  background: var(--color-bg-secondary);
+  color: var(--color-brand-purple);
+}
+
+/* ===== CARDS ===== */
+.card {
+  background: var(--color-bg-primary);
+  border-color: var(--color-border-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-elevated {
+  box-shadow: var(--shadow-md);
+}
+
+.card-interactive:hover {
+  box-shadow: var(--shadow-lg);
+  border-color: var(--color-brand-purple);
+}
+
+.card-brand {
+  border-color: var(--color-brand-purple);
+  box-shadow: var(--shadow-sm), var(--glow-brand);
+}
+
+/* ===== FORMS ===== */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="search"],
+input[type="number"],
+input[type="tel"],
+input[type="url"],
+input[type="date"],
+textarea,
+select {
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  border-color: var(--color-border-primary);
+}
+
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: var(--color-border-secondary);
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-brand-purple);
+  box-shadow: 0 0 0 3px rgba(111, 0, 255, 0.15);
+}
+
+input.error,
+textarea.error,
+select.error {
+  border-color: var(--color-error);
+  box-shadow: 0 0 0 3px var(--color-error-light);
+}
+
+input.success,
+textarea.success,
+select.success {
+  border-color: var(--color-success);
+  box-shadow: 0 0 0 3px var(--color-success-light);
+}
+
+/* ===== GLASSMORPHISM - Adjusted for light mode ===== */
+.glass {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border-color: var(--color-border-primary);
+  box-shadow: var(--shadow-sm);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-color: var(--color-border-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.glass-subtle {
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border-color: var(--color-border-tertiary);
+}
+
+/* ===== LINKS ===== */
+a {
+  color: var(--color-brand-purple);
+}
+
+a:hover {
+  color: var(--color-brand-purple-dark);
+}
+
+/* ===== HOVER EFFECTS ===== */
+.hover-glow:hover {
+  box-shadow: var(--shadow-lg), var(--glow-brand);
+}
+
+/* ===== CODE BLOCKS ===== */
+code {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-primary);
+}
+
+pre {
+  background: var(--color-bg-secondary);
+  border-color: var(--color-border-primary);
+}
+
+/* ===== SELECTION ===== */
+::selection {
+  background: rgba(111, 0, 255, 0.2);
+  color: var(--color-text-primary);
+}

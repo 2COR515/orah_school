@@ -6,7 +6,13 @@ const {
   listEnrollmentsByLesson,
   listEnrollmentsByUser,
   updateEnrollment,
-  deleteEnrollment: deleteEnrollmentDb
+  deleteEnrollment: deleteEnrollmentDb,
+  // attendance helpers
+  saveAttendanceRecord,
+  getAttendanceRecords,
+  listAllEnrollments,
+  getAllUsers,
+  getLesson
 } = require('../../db');
 
 /**
@@ -112,6 +118,29 @@ const listUserEnrollments = async (req, res) => {
       ok: false,
       error: 'Internal server error'
     });
+  }
+};
+
+/**
+ * Get a single enrollment by ID
+ */
+const getEnrollmentById = async (req, res) => {
+  try {
+    const { enrollmentId } = req.params;
+    if (!enrollmentId) return res.status(400).json({ ok: false, error: 'enrollmentId is required' });
+
+    const enrollment = await getEnrollment(enrollmentId);
+    if (!enrollment) return res.status(404).json({ ok: false, error: 'Enrollment not found' });
+
+    // Authorization: student may view own enrollment; instructors/admins may view others
+    if (req.user && req.user.role === 'student' && req.user.id !== enrollment.userId) {
+      return res.status(403).json({ ok: false, error: 'You can only view your own enrollment' });
+    }
+
+    return res.status(200).json({ ok: true, enrollment });
+  } catch (err) {
+    console.error('Error getting enrollment:', err);
+    return res.status(500).json({ ok: false, error: 'Internal server error' });
   }
 };
 
@@ -225,6 +254,39 @@ const updateProgress = async (req, res) => {
     }
     
     // Send success response
+    // Auto-Attendance: if progress reached 100 and enrollment is now completed, create attendance record
+    try {
+      const reachedComplete = (updateData.progress === 100) || (updatedEnrollment.progress === 100);
+      const isCompleted = updatedEnrollment.status === 'completed';
+
+      if (reachedComplete && isCompleted) {
+        // Prevent duplicate attendance records for same day
+        const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+        const existing = await getAttendanceRecords({ studentId: existingEnrollment.userId, lessonId: existingEnrollment.lessonId, date: today }).catch(() => []);
+        if (!existing || existing.length === 0) {
+          await saveAttendanceRecord({
+            studentId: existingEnrollment.userId,
+            lessonId: existingEnrollment.lessonId,
+            date: today,
+            status: 'present',
+            markedBy: req.user ? req.user.id : null
+          }).catch(err => console.error('Error saving auto-attendance:', err));
+        }
+
+        // Auto-Relock: if redoGranted was true before completion, reset it to false
+        if (existingEnrollment.redoGranted) {
+          try {
+            await updateEnrollment(enrollmentId, { redoGranted: false });
+            console.log(`Auto-relocked enrollment ${enrollmentId} (redoGranted -> false)`);
+          } catch (err) {
+            console.error('Error auto-resetting redoGranted:', err);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error in post-progress hooks:', err);
+    }
+
     return res.status(200).json({
       ok: true,
       enrollment: updatedEnrollment
@@ -277,6 +339,69 @@ const listLessonEnrollments = async (req, res) => {
       ok: false,
       error: 'Internal server error'
     });
+  }
+};
+
+/**
+ * Student requests a redo for their enrollment. Marks redoRequested = true
+ */
+const requestRedo = async (req, res) => {
+  try {
+    const { enrollmentId } = req.params;
+
+    if (!enrollmentId) {
+      return res.status(400).json({ ok: false, error: 'enrollmentId parameter is required' });
+    }
+
+    const enrollment = await getEnrollment(enrollmentId);
+    if (!enrollment) {
+      return res.status(404).json({ ok: false, error: 'Enrollment not found' });
+    }
+
+    // Only the enrolled student may request a redo
+    if (!req.user || req.user.id !== enrollment.userId) {
+      return res.status(403).json({ ok: false, error: 'You can only request a redo for your own enrollment' });
+    }
+
+    const updated = await updateEnrollment(enrollmentId, { redoRequested: true });
+    return res.status(200).json({ ok: true, enrollment: updated });
+  } catch (err) {
+    console.error('Error requesting redo:', err);
+    return res.status(500).json({ ok: false, error: 'Internal server error' });
+  }
+};
+
+/**
+ * Instructor grants a redo for a given enrollment. Sets redoGranted = true and clears redoRequested
+ */
+const grantRedo = async (req, res) => {
+  try {
+    const { enrollmentId } = req.params;
+
+    if (!enrollmentId) {
+      return res.status(400).json({ ok: false, error: 'enrollmentId parameter is required' });
+    }
+
+    const enrollment = await getEnrollment(enrollmentId);
+    if (!enrollment) {
+      return res.status(404).json({ ok: false, error: 'Enrollment not found' });
+    }
+
+    const lesson = await getLesson(enrollment.lessonId);
+    if (!lesson) {
+      return res.status(404).json({ ok: false, error: 'Lesson not found' });
+    }
+
+    // Only the lesson instructor or admin may grant a redo
+    if (!req.user || (req.user.id !== lesson.instructorId && req.user.role !== 'admin')) {
+      return res.status(403).json({ ok: false, error: 'Only the lesson instructor or an admin may grant a redo' });
+    }
+
+    const updated = await updateEnrollment(enrollmentId, { redoGranted: true, redoRequested: false });
+    return res.status(200).json({ ok: true, enrollment: updated });
+  } catch (err) {
+    console.error('Error granting redo:', err);
+    return res.status(500).json({ ok: false, error: 'Internal server error' });
   }
 };
 
@@ -347,10 +472,56 @@ const deleteEnrollment = async (req, res) => {
   }
 };
 
+/**
+ * Get pending redo requests for the current instructor
+ */
+const getPendingRedoRequests = async (req, res) => {
+  try {
+    // Ensure authenticated instructor
+    if (!req.user) return res.status(401).json({ ok: false, error: 'Authentication required' });
+    if (req.user.role !== 'instructor' && req.user.role !== 'admin') {
+      return res.status(403).json({ ok: false, error: 'Access denied' });
+    }
+
+    const all = await listAllEnrollments();
+    const users = await getAllUsers();
+
+    const pending = [];
+
+    for (const e of all) {
+      if (!e.redoRequested) continue;
+
+      // Fetch lesson to verify instructor owns it
+      const lesson = await getLesson(e.lessonId).catch(() => null);
+      if (!lesson) continue;
+      if (lesson.instructorId !== req.user.id && req.user.role !== 'admin') continue;
+
+      const student = (users || []).find(u => u.userId === e.userId) || null;
+      const studentName = student ? ((student.firstName || '') + ' ' + (student.lastName || '')).trim() || student.name || student.userId : e.userId;
+
+      pending.push({
+        enrollmentId: e.id,
+        studentName,
+        lessonTitle: lesson.title || 'Untitled Lesson'
+      });
+    }
+
+    return res.status(200).json({ ok: true, requests: pending });
+  } catch (err) {
+    console.error('Error getting pending redo requests:', err);
+    return res.status(500).json({ ok: false, error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   enrollUser,
   listUserEnrollments,
+  getEnrollmentById,
   updateProgress,
   listLessonEnrollments,
-  deleteEnrollment
+  deleteEnrollment,
+  requestRedo,
+  grantRedo
+  ,
+  getPendingRedoRequests
 };

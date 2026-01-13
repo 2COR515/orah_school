@@ -89,9 +89,45 @@ app.use('/api/admin', adminRouter);
 const analyticsRoutes = require('./src/routes/analyticsRoutes');
 app.use('/api/analytics', analyticsRoutes);
 
+// Mount Users API route (public endpoint for name resolution)
+const { authenticateToken } = require('./src/middleware/authMiddleware');
+const db = require('./db');
+
+/**
+ * GET /api/users
+ * Get all users (name resolution for analytics/attendance)
+ * Available to: Any authenticated user (instructors need this for name lookups)
+ */
+app.get('/api/users', authenticateToken, async (req, res) => {
+  try {
+    const users = await db.getAllUsers();
+    
+    // Remove passwords before sending
+    const sanitizedUsers = users.map(user => {
+      const { password, passwordHash, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    });
+    
+    return res.status(200).json({
+      ok: true,
+      users: sanitizedUsers
+    });
+  } catch (error) {
+    console.error('❌ Error fetching users:', error);
+    return res.status(500).json({
+      ok: false,
+      error: 'Internal server error'
+    });
+  }
+});
+
 // Mount Chat API routes (LLM-powered chatbot)
 const chatRoutes = require('./src/routes/chatRoutes');
 app.use('/api/chat', chatRoutes);
+
+// Mount Courses API routes (search)
+const courseRoutes = require('./src/routes/courseRoutes');
+app.use('/api/courses', courseRoutes);
 
 // Upload endpoint (single file). Field name: uploaded_file
 // Accepts video (mp4, mkv) and PDF files. Returns public URL.

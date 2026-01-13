@@ -5,124 +5,141 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Instructor Hub — Orah School</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="styles/instructor-hub.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
-  <!-- Modern Header with Logo and Logout -->
-  <header id="instructor-header" class="hub-header">
-    <div class="header-container">
-      <div class="logo-brand">
-        <span class="logo-text">Orah School</span>
-        <span class="role-badge">Instructor Hub</span>
-      </div>
-      <div class="header-actions">
-        <span id="instructor-name" class="instructor-greeting">Welcome, Instructor</span>
-        <button id="logout-btn" class="btn-logout">Logout</button>
+  <!-- Glassmorphic Header -->
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <a href="instructor-hub.html" aria-label="Orah Schools Instructor Hub" class="flex items-center gap-2">
+          <img src="assets/orahlogo.png" alt="Orah Schools logo" width="60" height="40">
+          <span class="text-xl font-bold">Orah Schools</span>
+          <span class="badge-brand">🎓 Hub</span>
+        </a>
+        
+        <nav class="flex items-center gap-4">
+          <a class="btn-ghost btn-sm" href="instructor-hub.html">Dashboard</a>
+          <a class="btn-ghost btn-sm" href="instructor-analytics.html">Analytics</a>
+          <a class="btn-ghost btn-sm" href="instructor-lessons.html">Lessons</a>
+        </nav>
+        
+        <div class="flex items-center gap-3">
+          <span id="instructor-name" class="hidden md:inline text-sm text-secondary">Welcome, Instructor</span>
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <button id="logout-btn" class="btn-secondary btn-sm">Logout</button>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- Main Hub Content -->
-  <main class="hub-main">
-    <div class="hub-container">
-      <!-- Welcome Section -->
-      <section class="hub-welcome">
-        <h1>Instructor Dashboard</h1>
-        <p>Manage your lessons, track attendance, and view analytics from one central hub.</p>
-      </section>
+  <main class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-8);">
+    <!-- Welcome Section -->
+    <section class="mb-8 text-center">
+      <h1 class="mb-3">Instructor Hub</h1>
+      <p class="text-secondary text-lg">Manage your lessons, track attendance, and view analytics from one central hub.</p>
+    </section>
 
-      <!-- Feature Cards Grid -->
-      <section class="feature-cards-grid">
+    <!-- Feature Cards Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-8">
         
         <!-- Lessons Card -->
-        <article class="feature-card lessons-card">
-          <div class="card-icon">📚</div>
-          <div class="card-content">
+        <article class="card card-hover">
+          <div class="card-header flex items-center gap-3">
+            <span style="font-size: 2rem;">📚</span>
             <h2>Lessons</h2>
-            <p>Create new lessons with videos and quizzes. Manage and edit your existing lesson content.</p>
-            <ul class="feature-list">
-              <li>Upload video lessons</li>
-              <li>Create interactive quizzes</li>
-              <li>Manage lesson library</li>
-              <li>Edit and delete lessons</li>
-            </ul>
           </div>
-          <a href="instructor-lessons.html" class="card-action-btn">Manage Lessons →</a>
+          <div class="card-body">
+            <p class="text-secondary mb-4">Create new lessons with videos and quizzes. Manage and edit your existing lesson content.</p>
+            <ul class="space-y-2 mb-4">
+              <li class="text-sm">✓ Upload video lessons</li>
+              <li class="text-sm">✓ Create interactive quizzes</li>
+              <li class="text-sm">✓ Manage lesson library</li>
+              <li class="text-sm">✓ Edit and delete lessons</li>
+            </ul>
+            <a href="instructor-lessons.html" class="btn-primary btn-full">Manage Lessons →</a>
+          </div>
         </article>
 
         <!-- Attendance Card -->
-        <article class="feature-card attendance-card">
-          <div class="card-icon">📋</div>
-          <div class="card-content">
+        <article class="card card-hover">
+          <div class="card-header flex items-center gap-3">
+            <span style="font-size: 2rem;">📋</span>
             <h2>Attendance</h2>
-            <p>Track student attendance, view attendance reports, and manage class rosters.</p>
-            <ul class="feature-list">
-              <li>Mark daily attendance</li>
-              <li>View attendance history</li>
-              <li>Generate reports</li>
-              <li>Track patterns</li>
-            </ul>
           </div>
-          <a href="instructor-attendance.html" class="card-action-btn">Track Attendance →</a>
+          <div class="card-body">
+            <p class="text-secondary mb-4">Track student attendance, view attendance reports, and manage class rosters.</p>
+            <ul class="space-y-2 mb-4">
+              <li class="text-sm">✓ Mark daily attendance</li>
+              <li class="text-sm">✓ View attendance history</li>
+              <li class="text-sm">✓ Generate reports</li>
+              <li class="text-sm">✓ Track patterns</li>
+            </ul>
+            <a href="instructor-attendance.html" class="btn-primary btn-full">Track Attendance →</a>
+          </div>
         </article>
 
         <!-- Analytics Card -->
-        <article class="feature-card analytics-card">
-          <div class="card-icon">📊</div>
-          <div class="card-content">
+        <article class="card card-hover">
+          <div class="card-header flex items-center gap-3">
+            <span style="font-size: 2rem;">📊</span>
             <h2>Analytics</h2>
-            <p>View detailed analytics on student performance, engagement, and lesson completion rates.</p>
-            <ul class="feature-list">
-              <li>Student progress tracking</li>
-              <li>Completion statistics</li>
-              <li>Performance insights</li>
-              <li>Engagement metrics</li>
-            </ul>
           </div>
-          <a href="instructor-analytics.html" class="card-action-btn">View Analytics →</a>
+          <div class="card-body">
+            <p class="text-secondary mb-4">View detailed analytics on student performance, engagement, and lesson completion rates.</p>
+            <ul class="space-y-2 mb-4">
+              <li class="text-sm">✓ Student progress tracking</li>
+              <li class="text-sm">✓ Completion statistics</li>
+              <li class="text-sm">✓ Performance insights</li>
+              <li class="text-sm">✓ Engagement metrics</li>
+            </ul>
+            <a href="instructor-analytics.html" class="btn-primary btn-full">View Analytics →</a>
+          </div>
         </article>
 
         <!-- Quick Stats Card -->
-        <article class="feature-card stats-card">
-          <div class="card-icon">⚡</div>
-          <div class="card-content">
+        <article class="card card-brand">
+          <div class="card-header flex items-center gap-3">
+            <span style="font-size: 2rem;">⚡</span>
             <h2>Quick Stats</h2>
-            <div class="stats-grid">
-              <div class="stat-item">
-                <span class="stat-value" id="total-lessons">0</span>
-                <span class="stat-label">Total Lessons</span>
+          </div>
+          <div class="card-body">
+            <div class="grid grid-cols-2 gap-4">
+              <div class="text-center p-3 rounded-lg" style="background: var(--color-bg-tertiary);">
+                <div class="text-3xl font-bold text-brand mb-1" id="total-lessons">0</div>
+                <div class="text-xs text-secondary">Total Lessons</div>
               </div>
-              <div class="stat-item">
-                <span class="stat-value" id="total-students">0</span>
-                <span class="stat-label">Active Students</span>
+              <div class="text-center p-3 rounded-lg" style="background: var(--color-bg-tertiary);">
+                <div class="text-3xl font-bold text-brand mb-1" id="total-students">0</div>
+                <div class="text-xs text-secondary">Active Students</div>
               </div>
-              <div class="stat-item">
-                <span class="stat-value" id="avg-completion">0%</span>
-                <span class="stat-label">Avg Completion</span>
+              <div class="text-center p-3 rounded-lg" style="background: var(--color-bg-tertiary);">
+                <div class="text-3xl font-bold text-brand mb-1" id="avg-completion">0%</div>
+                <div class="text-xs text-secondary">Avg Completion</div>
               </div>
-              <div class="stat-item">
-                <span class="stat-value" id="missed-classes">0</span>
-                <span class="stat-label">Missed Classes</span>
+              <div class="text-center p-3 rounded-lg" style="background: var(--color-bg-tertiary);">
+                <div class="text-3xl font-bold text-brand mb-1" id="missed-classes">0</div>
+                <div class="text-xs text-secondary">Missed Classes</div>
               </div>
             </div>
           </div>
         </article>
 
-      </section>
-    </div>
+    </section>
   </main>
 
-  <!-- Footer -->
-  <footer class="hub-footer">
-    <p>Orah School &copy; 2025 | Empowering Education</p>
-  </footer>
-
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
   <script>
     // Load instructor name
     const firstName = localStorage.getItem('userFirstName') || 'Instructor';
     const lastName = localStorage.getItem('userLastName') || '';
-    document.getElementById('instructor-name').textContent = `Welcome, ${firstName}`;
+    const instructorNameEl = document.getElementById('instructor-name');
+    if (instructorNameEl) {
+      instructorNameEl.textContent = `Welcome, ${firstName}`;
+    }
 
     // Logout handler
     document.getElementById('logout-btn').addEventListener('click', () => {
@@ -237,33 +254,5 @@
       loadQuickStats();
     }, 30000);
   </script>
-
-  <!-- Floating Chatbot Button -->
-  <button class="chatbot-btn" id="instructor-chatbot-btn" aria-label="Open Instructor Support Chat">💬</button>
-
-  <!-- Chatbot Container -->
-  <div id="chatbot-container" class="chatbot-container">
-    <div class="chatbot-header">
-      <h3>Instructor Assistant</h3>
-      <button id="chatbot-close-btn" class="chatbot-close-btn">&times;</button>
-    </div>
-    <div id="chatbot-messages" class="chatbot-messages">
-      <div class="bot-message">
-        <strong>Instructor Assistant:</strong> Hello! I'm here to help you with lessons, attendance, analytics, and more. What do you need assistance with?
-      </div>
-    </div>
-    <div class="chatbot-input-area">
-      <input 
-        type="text" 
-        id="chatbot-input" 
-        class="chatbot-input" 
-        placeholder="Type your message..."
-        autocomplete="off"
-      />
-      <button id="chatbot-send-btn" class="chatbot-send-btn">Send</button>
-    </div>
-  </div>
-
-  <script src="scripts/instructor-chatbot.js"></script>
 </body>
 </html>

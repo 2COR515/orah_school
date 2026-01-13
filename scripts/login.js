@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function(){
   form.addEventListener('submit', async function(e){
     e.preventDefault();
     errorBox.textContent = '';
-    errorBox.style.color = 'red';
+    errorBox.style.display = 'none';
 
     const email = form.email.value.trim();
     const password = form.password.value.trim();
@@ -20,10 +20,12 @@ document.addEventListener('DOMContentLoaded', function(){
     // Simple validation
     if(!email){
       errorBox.textContent = 'Email is required';
+      errorBox.style.display = 'block';
       return;
     }
     if(!password){
       errorBox.textContent = 'Password is required';
+      errorBox.style.display = 'block';
       return;
     }
 
@@ -56,13 +58,16 @@ document.addEventListener('DOMContentLoaded', function(){
           window.location.href = 'admin-dashboard.html';
         } else {
           errorBox.textContent = 'Unknown user role. Please contact support.';
+          errorBox.style.display = 'block';
         }
       } else {
         errorBox.textContent = data.error || 'Login failed. Please check your credentials.';
+        errorBox.style.display = 'block';
       }
     } catch (error) {
       console.error('Login error:', error);
       errorBox.textContent = 'Network error. Please try again.';
+      errorBox.style.display = 'block';
     }
   });
 });

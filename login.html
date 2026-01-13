@@ -4,54 +4,68 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Login — Orah Schools</title>
-  <!-- Link to page-specific CSS -->
-  <link rel="stylesheet" href="./styles/login.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
   <!-- HEADER: site header reused across pages -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="index.html" aria-label="Orah Schools home"></a>
-        <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="60" height="40">
-      <nav class="main-nav">
-        <a class="tech-button" href="index.html#topics" id="explore-btn">Explore</a>
-        <div class="search"><input type="search" placeholder="Search courses..." aria-label="Search" /></div>
-        <a class="nav-cta tech-button" href="instructor-signup.html">Teach</a>
-      </nav>
-      <div class="auth">
-        <!-- Login is active on this page: render as plain text / highlighted -->
-        <span class="active">Login</span>
-        <a class="primary" href="signup.html">Signup</a>
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+          <img src="assets/orahlogo.png" alt="Orah Schools logo" width="60" height="40">
+          <span class="text-xl font-bold">Orah Schools</span>
+        </a>
+        
+        <nav class="flex items-center gap-4">
+          <a class="btn-ghost btn-sm" href="index.html#topics" id="explore-btn">Explore</a>
+          <input type="search" placeholder="Search courses..." aria-label="Search" class="hidden md:block" style="padding: var(--space-2) var(--space-3); background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); color: var(--color-text-primary); width: 200px;" />
+          <a class="btn-ghost btn-sm" href="instructor-signup.html">Teach</a>
+        </nav>
+        
+        <div class="flex items-center gap-3">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <!-- Login is active on this page -->
+          <span class="text-brand font-semibold">Login</span>
+          <a class="btn-primary btn-sm" href="signup.html">Signup</a>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- MAIN: Login form card -->
-  <main class="main">
-    <div class="card">
-      <h1>Welcome back</h1>
-      <p class="sub">Sign in to your account</p>
+  <main class="flex items-center justify-center" style="min-height: calc(100vh - 80px); padding: var(--space-8) var(--space-4);">
+    <div class="glass-strong rounded-xl p-8 w-full" style="max-width: 450px;">
+      <div class="text-center mb-6">
+        <h1 class="mb-2">Welcome back</h1>
+        <p class="text-secondary">Sign in to your account</p>
+      </div>
 
-      <form id="login-form" class="form" novalidate>
-        <label>
-          <span>Email</span>
-          <input type="email" name="email" required />
-        </label>
-
-        <label>
-          <span>Password</span>
-          <input type="password" name="password" required />
-        </label>
-
-        <div class="form-row">
-          <button class="btn primary" type="submit">Log in</button>
+      <form id="login-form" novalidate>
+        <div class="form-group">
+          <label for="email-input">Email</label>
+          <input type="email" name="email" id="email-input" placeholder="you@example.com" required />
         </div>
 
-        <div id="login-error" class="error" aria-live="polite"></div>
+        <div class="form-group">
+          <label for="password-input">Password</label>
+          <input type="password" name="password" id="password-input" placeholder="••••••••" required />
+        </div>
+
+        <button class="btn-primary btn-full mb-4" type="submit">Log in</button>
+
+        <div id="login-error" class="form-error" style="display: none;" aria-live="polite"></div>
       </form>
+
+      <div class="text-center mt-6 pt-6" style="border-top: 1px solid var(--color-border-primary);">
+        <p class="text-sm text-tertiary">Don't have an account? <a href="signup.html" class="text-brand">Sign up</a></p>
+      </div>
     </div>
   </main>
 
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
   <!-- Page scripts -->
   <script src="./scripts/login.js"></script>
 </body>

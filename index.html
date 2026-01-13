@@ -4,117 +4,142 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Orah Schools — Home</title>
-  <!-- Homepage styles -->
-  <link rel="stylesheet" href="./styles/home.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
   <!-- HEADER: logo, navigation, search, auth actions -->
-  <header class="site-header">
-    <div class="container header-inner">
-      <!-- Logo: replaced placeholder with real asset and wrapped in link to homepage -->
-      <a href="index.html" aria-label="Orah Schools home">
-        <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="60" height="40">
-      </a>
-      <nav class="main-nav">
-        <!-- Explore: anchors to the topics section on the homepage -->
-        <a class="tech-button" href="index.html#topics" id="explore-btn">Explore</a>
-        <div class="search"><input type="search" placeholder="Search courses..." aria-label="Search" /></div>
-        <!-- Teach links to instructor signup page -->
-        <a class="nav-cta tech-button" href="instructor-signup.html" id="teach-link">Teach</a>
-      </nav>
-      <div class="auth">
-        <a class="ghost tech-button" href="login.html">Login</a>
-        <a class="primary tech-button" href="signup.html">Signup</a>
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <!-- Logo -->
+        <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+          <img src="assets/orahlogo.png" alt="Orah Schools logo" width="60" height="40">
+          <span class="text-xl font-bold">Orah Schools</span>
+        </a>
+        
+        <!-- Navigation -->
+        <nav class="flex items-center gap-4">
+          <a class="btn-ghost btn-sm" href="index.html#topics" id="explore-btn">Explore</a>
+          <input id="nav-search-input" type="search" placeholder="Search courses..." aria-label="Search courses" autocomplete="off" class="hidden md:block" style="padding: var(--space-2) var(--space-3); background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); color: var(--color-text-primary); width: 200px;" />
+          <a class="btn-ghost btn-sm" href="instructor-signup.html" id="teach-link">Teach</a>
+        </nav>
+        
+        <!-- Auth -->
+        <div class="flex items-center gap-3">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <a class="btn-ghost btn-sm" href="login.html">Login</a>
+          <a class="btn-primary btn-sm" href="signup.html">Signup</a>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- WHY CHOOSE ORAH: features grid -->
-  <section id="features" class="section features">
+  <section id="features" class="py-16">
     <div class="container">
-      <h2>Why Choose Orah Schools</h2>
-      <p class="subtitle">Modern tools to help educators and learners succeed.</p>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="icon">
-            <svg aria-hidden="true" focusable="false"><use href="#icon-bell"/></svg>
-          </div>
-          <h3>Automated Reminders</h3>
-          <p>Never miss an important date — reminders for students and staff.</p>
+      <div class="text-center mb-12">
+        <h2 class="mb-3">Why Choose Orah Schools</h2>
+        <p class="text-lg text-secondary">Modern tools to help educators and learners succeed.</p>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="card card-interactive hover-lift text-center">
+          <div class="mb-4 text-brand" style="font-size: 48px;">🔔</div>
+          <h3 class="mb-2">Automated Reminders</h3>
+          <p class="text-sm text-secondary">Never miss an important date — reminders for students and staff.</p>
         </div>
-        <div class="feature-card">
-          <div class="icon">
-            <svg aria-hidden="true" focusable="false"><use href="#icon-robot"/></svg>
-          </div>
-          <h3>Chatbots</h3>
-          <p>AI assistants for common questions and quick support.</p>
+        
+        <div class="card card-interactive hover-lift text-center">
+          <div class="mb-4 text-brand" style="font-size: 48px;">🤖</div>
+          <h3 class="mb-2">Chatbots</h3>
+          <p class="text-sm text-secondary">AI assistants for common questions and quick support.</p>
         </div>
-        <div class="feature-card">
-          <div class="icon">
-            <svg aria-hidden="true" focusable="false"><use href="#icon-attendance"/></svg>
-          </div>
-          <h3>Attendance Tracking</h3>
-          <p>Simplified roll-call and automated attendance reports.</p>
+        
+        <div class="card card-interactive hover-lift text-center">
+          <div class="mb-4 text-brand" style="font-size: 48px;">✓</div>
+          <h3 class="mb-2">Attendance Tracking</h3>
+          <p class="text-sm text-secondary">Simplified roll-call and automated attendance reports.</p>
         </div>
-        <div class="feature-card">
-          <div class="icon">
-            <svg aria-hidden="true" focusable="false"><use href="#icon-analytics"/></svg>
-          </div>
-          <h3>Analytics</h3>
-          <p>Insights into student progress and activity trends.</p>
+        
+        <div class="card card-interactive hover-lift text-center">
+          <div class="mb-4 text-brand" style="font-size: 48px;">📊</div>
+          <h3 class="mb-2">Analytics</h3>
+          <p class="text-sm text-secondary">Insights into student progress and activity trends.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <section id="featured-lessons-section" class="section" style="background: linear-gradient(135deg, #f5eaff 0%, #fff 100%); padding: 4rem 0;">
+  <section id="featured-lessons-section" class="py-16" style="background: var(--color-bg-secondary);">
     <!-- Populated by scripts/index.js -->
   </section>
   <script src="scripts/index.js"></script>
 
   <!-- TEACH WITH US: CTA -->
-  <section id="teach" class="section cta">
+  <section id="teach" class="py-20">
     <div class="container">
-      <div class="cta-card">
-        <h2>Teach With Us</h2>
-        <p>Share your knowledge, create courses, and reach learners everywhere.</p>
-  <a class="btn primary tech-button" href="instructor-signup.html">Get Started</a>
+      <div class="glass-strong rounded-2xl p-12 text-center hover-glow" style="max-width: 800px; margin: 0 auto;">
+        <h2 class="mb-4">Teach With Us</h2>
+        <p class="text-lg text-secondary mb-6">Share your knowledge, create courses, and reach learners everywhere.</p>
+        <a class="btn-primary btn-lg" href="instructor-signup.html">Get Started</a>
       </div>
     </div>
   </section>
 
   <!-- ABOUT / CONTACT -->
-  <section id="about" class="section about">
-    <div class="container about-grid">
-      <div>
-        <h3>About Orah Schools</h3>
-        <p>Orah Schools delivers modern tools for educators — from reminders to analytics — built to scale with your institution.</p>
-      </div>
-      <div>
-        <h3>Contact</h3>
-        <p>Email: <a href="mailto:hello@orahschools.example">hello@orahschools.example</a></p>
-        <p>Phone: +(254)796449372 </p>
-        <form id="contact-form" class="contact-form" novalidate>
-          <label>Name<input type="text" name="name" required /></label>
-          <label>Email<input type="email" name="email" required /></label>
-          <label>Message<textarea name="message" rows="4" required></textarea></label>
-          <button class="btn primary tech-button" type="submit">Send</button>
-        </form>
+  <section id="about" class="py-16" style="background: var(--color-bg-secondary);">
+    <div class="container">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div>
+          <h3 class="mb-4">About Orah Schools</h3>
+          <p class="text-secondary">Orah Schools delivers modern tools for educators — from reminders to analytics — built to scale with your institution.</p>
+        </div>
+        
+        <div>
+          <h3 class="mb-4">Contact</h3>
+          <p class="text-secondary mb-2">Email: <a href="mailto:hello@orahschools.example" class="text-brand">hello@orahschools.example</a></p>
+          <p class="text-secondary mb-6">Phone: +(254)796449372</p>
+          
+          <form id="contact-form" class="card" novalidate>
+            <div class="form-group">
+              <label for="contact-name">Name</label>
+              <input type="text" id="contact-name" name="name" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="contact-email">Email</label>
+              <input type="email" id="contact-email" name="email" required />
+            </div>
+            
+            <div class="form-group">
+              <label for="contact-message">Message</label>
+              <textarea id="contact-message" name="message" rows="4" required></textarea>
+            </div>
+            
+            <button class="btn-primary btn-full" type="submit">Send</button>
+          </form>
+        </div>
       </div>
     </div>
   </section>
 
   <!-- FOOTER -->
-  <footer class="site-footer">
-    <div class="container footer-inner">
-      <!-- Footer logo: match header logo (image wrapped in link) -->
-      <a href="index.html" aria-label="Orah Schools home">
-  <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="60" height="40">
-      </a>
-      <div>Orah Schools © 2025</div>
+  <footer class="py-8" style="border-top: 1px solid var(--color-border-primary);">
+    <div class="container">
+      <div class="flex items-center justify-between">
+        <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+          <img src="assets/orahlogo.png" alt="Orah Schools logo" width="60" height="40">
+          <span class="font-bold">Orah Schools</span>
+        </a>
+        <div class="text-sm text-tertiary">Orah Schools © 2025</div>
+      </div>
     </div>
   </footer>
 
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
   <!-- Homepage script -->
   <script src="./scripts/home.js"></script>
   <script src="./scripts/index.js"></script>

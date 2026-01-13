@@ -5,6 +5,77 @@ let currentInstructorId = null;
 let allLessons = [];
 let allEnrollments = [];
 
+// ========================================
+// CENTRAL USER DATA SERVICE (Shared Utility)
+// ========================================
+
+/**
+ * Fetch all users and create a lookup map (userId -> user object)
+ * This is a reusable utility for displaying user names across the application
+ * @returns {Promise<Map>} Map with userId as key and user object as value
+ */
+async function fetchUserMap() {
+  const userMap = new Map();
+  
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('⚠️ No authentication token found');
+      return userMap;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      console.warn(`⚠️ Failed to fetch users: ${response.status} ${response.statusText}`);
+      return userMap;
+    }
+
+    const data = await response.json();
+    const users = data.users || [];
+
+    console.log('📋 API Response:', { totalUsers: users.length, sampleUser: users[0] });
+
+    // Create lookup map: userId -> user object
+    users.forEach(user => {
+      const displayName = user.name || user.username || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.userId;
+      userMap.set(user.userId, {
+        id: user.userId,
+        name: displayName,
+        email: user.email || `${user.userId}@example.com`,
+        role: user.role || 'unknown',
+        firstName: user.firstName || '',
+        lastName: user.lastName || ''
+      });
+    });
+
+    console.log(`✓ Loaded ${userMap.size} users into lookup map`);
+    console.log('🗂️ User Map Keys:', Array.from(userMap.keys()));
+    return userMap;
+
+  } catch (error) {
+    console.error('❌ Error fetching user map:', error);
+    return userMap; // Return empty map on error
+  }
+}
+
+/**
+ * Get user display name from the user map
+ * @param {Map} userMap - The user lookup map
+ * @param {string} userId - The user ID to lookup
+ * @param {string} fallback - Fallback text if user not found
+ * @returns {string} User's display name or fallback
+ */
+function getUserDisplayName(userMap, userId, fallback = 'Unknown User') {
+  const user = userMap.get(userId);
+  return user ? user.name : fallback;
+}
+
 /**
  * Initialize the analytics dashboard
  */
@@ -34,6 +105,8 @@ async function initAnalyticsDashboard() {
     await loadLessonPerformanceTable();
     await loadStudentProgressTracking();
     await loadEngagementInsights();
+    // Load pending redo requests widget
+    await loadRedoRequests();
 }
 
 /**
@@ -210,6 +283,92 @@ function renderLessonPerformanceTable(performanceData, container) {
 }
 
 /**
+ * Load pending redo requests for instructor and render widget
+ */
+async function loadRedoRequests() {
+    const token = localStorage.getItem('token');
+    const container = document.getElementById('redo-requests-list');
+    if (!container) return;
+
+    try {
+        const resp = await fetch(`${API_BASE_URL}/enrollments/pending-redo-requests`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!resp.ok) {
+            container.innerHTML = '<p style="color:#666;">Failed to load redo requests.</p>';
+            return;
+        }
+
+        const data = await resp.json();
+        const requests = data.requests || [];
+
+        if (requests.length === 0) {
+            container.innerHTML = '<p style="color:#666;">No pending redo requests.</p>';
+            return;
+        }
+
+        const list = document.createElement('ul');
+        list.style.listStyle = 'none';
+        list.style.padding = '0';
+        list.style.margin = '0';
+
+        requests.forEach(r => {
+            const li = document.createElement('li');
+            li.style.display = 'flex';
+            li.style.justifyContent = 'space-between';
+            li.style.alignItems = 'center';
+            li.style.padding = '0.5rem 0';
+            li.style.borderBottom = '1px solid #eee';
+
+            const left = document.createElement('div');
+            left.innerHTML = `<strong>${escapeHtml(r.studentName)}</strong><div style="font-size:0.9rem;color:#666;">${escapeHtml(r.lessonTitle)}</div>`;
+
+            const btn = document.createElement('button');
+            btn.className = 'btn-primary btn-sm';
+            btn.textContent = 'Approve';
+            btn.onclick = async () => {
+                btn.disabled = true;
+                btn.textContent = 'Processing...';
+                try {
+                    const grantResp = await fetch(`${API_BASE_URL}/enrollments/${r.enrollmentId}/grant-redo`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!grantResp.ok) {
+                        const body = await grantResp.json().catch(() => ({}));
+                        showMessage(body.error || 'Failed to grant redo', 'error');
+                        btn.disabled = false;
+                        btn.textContent = 'Approve';
+                        return;
+                    }
+
+                    showMessage('Redo granted', 'success');
+                    li.remove();
+                } catch (err) {
+                    console.error('Approve redo error:', err);
+                    showMessage('Failed to grant redo', 'error');
+                    btn.disabled = false;
+                    btn.textContent = 'Approve';
+                }
+            };
+
+            li.appendChild(left);
+            li.appendChild(btn);
+            list.appendChild(li);
+        });
+
+        container.innerHTML = '';
+        container.appendChild(list);
+
+    } catch (err) {
+        console.error('Error loading redo requests:', err);
+        container.innerHTML = '<p style="color:#d32f2f;">Error loading redo requests.</p>';
+    }
+}
+
+/**
  * Show detailed lesson analytics in a modal/expanded view
  */
 function showLessonDetails(lesson, performance) {
@@ -286,6 +445,9 @@ function showLessonDetails(lesson, performance) {
             <div>Completions: <strong>${performance.recentActivity.completionsLast7Days}</strong></div>
         </div>
         
+        <h3 style="margin: 1.5rem 0 0.75rem 0;">Lesson Roster</h3>
+        <div id="lesson-stats-lists" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;"></div>
+
         <button id="close-modal-btn" style="margin-top: 2rem; padding: 0.75rem 1.5rem; background: var(--color-primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 1rem;">Close</button>
     `;
     
@@ -296,18 +458,75 @@ function showLessonDetails(lesson, performance) {
     modal.onclick = (e) => {
         if (e.target === modal) modal.remove();
     };
+
+    // Fetch lesson stats and render completed/missed/active lists
+    (async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const resp = await fetch(`${API_BASE_URL}/lessons/${lesson.id}/stats`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!resp.ok) {
+                console.warn('Failed to load lesson stats:', resp.status);
+                return;
+            }
+
+            const data = await resp.json();
+            const stats = data.stats || { completed: [], missed: [], active: [] };
+            const container = document.getElementById('lesson-stats-lists');
+            if (!container) return;
+
+            function makeList(title, items) {
+                const box = document.createElement('div');
+                box.style.background = 'var(--color-bg-soft)';
+                box.style.padding = '1rem';
+                box.style.borderRadius = '8px';
+                box.style.maxHeight = '40vh';
+                box.style.overflow = 'auto';
+                box.innerHTML = `<h4 style="margin-top:0;">${escapeHtml(title)} (${items.length})</h4>`;
+
+                if (items.length === 0) {
+                    box.innerHTML += '<p style="color:#666;">None</p>';
+                    return box;
+                }
+
+                const ul = document.createElement('ul');
+                ul.style.listStyle = 'none';
+                ul.style.padding = '0';
+                items.forEach(it => {
+                    const li = document.createElement('li');
+                    li.style.padding = '0.5rem 0';
+                    li.style.borderBottom = '1px solid #eee';
+                    li.textContent = it.studentName || it.userId || 'Unknown';
+                    ul.appendChild(li);
+                });
+                box.appendChild(ul);
+                return box;
+            }
+
+            container.innerHTML = '';
+            container.appendChild(makeList('Completed', stats.completed));
+            container.appendChild(makeList('Missed', stats.missed));
+            container.appendChild(makeList('Active', stats.active));
+
+        } catch (err) {
+            console.error('Error fetching lesson stats:', err);
+        }
+    })();
 }
 
 /**
  * ✨ Load student progress tracking
- * Shows individual student performance with Topics Finished, Enrolled, Remaining, Missed, and Time Spent
+ * Shows individual student performance in a spreadsheet-style data table
  */
 async function loadStudentProgressTracking() {
     const token = localStorage.getItem('token');
-    const container = document.getElementById('student-progress-list');
+    const tableBody = document.getElementById('progress-table-body');
     const lessonFilter = document.getElementById('lesson-filter');
+    const downloadBtn = document.getElementById('download-csv-btn');
     
-    if (!container) return;
+    if (!tableBody) return;
     
     try {
         // Fetch all enrollments
@@ -339,24 +558,30 @@ async function loadStudentProgressTracking() {
                 lessonFilter.appendChild(option);
             });
             
-            lessonFilter.onchange = () => renderStudentProgress(allEnrollments, container, lessonFilter.value);
+            lessonFilter.onchange = () => renderStudentProgress(allEnrollments, tableBody, lessonFilter.value);
+        }
+        
+        // Attach CSV download button
+        if (downloadBtn) {
+            downloadBtn.addEventListener('click', () => downloadCSV(allEnrollments, lessonFilter.value));
         }
         
         // Render student progress
-        renderStudentProgress(allEnrollments, container);
+        renderStudentProgress(allEnrollments, tableBody);
         
         console.log('✅ Student progress tracking loaded');
         
     } catch (error) {
         console.error('❌ Error loading student progress:', error);
-        container.innerHTML = '<p style="color: #d32f2f;">Failed to load student progress data.</p>';
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #d32f2f; padding: 2rem;">Failed to load student progress data.</td></tr>';
     }
 }
 
 /**
- * Render student progress with detailed metrics
+ * Render student progress in a spreadsheet-style table
+ * ✨ Flattens completed/missed/active arrays into one sorted list with proper names
  */
-async function renderStudentProgress(enrollments, container, filterLessonId = null) {
+async function renderStudentProgress(enrollments, tableBody, filterLessonId = null) {
     // Filter by lesson if specified
     let filteredEnrollments = enrollments;
     if (filterLessonId) {
@@ -364,92 +589,181 @@ async function renderStudentProgress(enrollments, container, filterLessonId = nu
     }
     
     if (filteredEnrollments.length === 0) {
-        container.innerHTML = '<p style="color: #666;">No student enrollments found.</p>';
+        tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #999; padding: 2rem;">No student enrollments found.</td></tr>';
         return;
     }
     
-    // Group enrollments by student
-    const studentMap = new Map();
+    // ✨ Use central user map utility for consistent name lookup
+    const userMap = await fetchUserMap();
     
-    filteredEnrollments.forEach(enrollment => {
-        if (!studentMap.has(enrollment.userId)) {
-            studentMap.set(enrollment.userId, []);
+    console.log('🔍 Rendering progress for enrollments:', {
+      totalEnrollments: filteredEnrollments.length,
+      sampleEnrollment: filteredEnrollments[0],
+      userMapSize: userMap.size
+    });
+    
+    // Flatten enrollments into a single array with status and date info
+    const progressRows = filteredEnrollments.map(enrollment => {
+        // Determine status
+        let status = 'In Progress';
+        let statusClass = 'in-progress';
+        let dateDisplay = new Date(enrollment.enrolledAt).toLocaleDateString();
+        
+        if (enrollment.progress === 100) {
+            status = 'Completed';
+            statusClass = 'completed';
+            dateDisplay = enrollment.completedAt ? new Date(enrollment.completedAt).toLocaleDateString() : dateDisplay;
+        } else if (enrollment.status === 'missed') {
+            status = 'Missed';
+            statusClass = 'missed';
         }
-        studentMap.get(enrollment.userId).push(enrollment);
+        
+        // Get student name from user map
+        const user = userMap.get(enrollment.userId);
+        const studentName = user ? user.name : 'No Name';
+        
+        console.log(`📌 Enrollment ${enrollment.userId}:`, { 
+          found: !!user, 
+          name: studentName,
+          mapHas: userMap.has(enrollment.userId)
+        });
+        
+        return {
+            enrollment,
+            studentName,
+            status,
+            statusClass,
+            date: dateDisplay,
+            userId: enrollment.userId,
+            lessonId: enrollment.lessonId
+        };
     });
     
-    // Fetch user details
-    const token = localStorage.getItem('token');
-    const usersResponse = await fetch(`${API_BASE_URL}/users`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+    // Sort by student name
+    progressRows.sort((a, b) => a.studentName.localeCompare(b.studentName));
+    
+    // Clear table and render rows
+    tableBody.innerHTML = '';
+    
+    progressRows.forEach(row => {
+        const tr = document.createElement('tr');
+        
+        // Name cell
+        const nameCell = document.createElement('td');
+        nameCell.textContent = row.studentName;
+        
+        // Status cell with badge
+        const statusCell = document.createElement('td');
+        const badge = document.createElement('span');
+        badge.className = `status-badge ${row.statusClass}`;
+        badge.textContent = row.status;
+        statusCell.appendChild(badge);
+        
+        // Date cell
+        const dateCell = document.createElement('td');
+        dateCell.textContent = row.date;
+        
+        // Action cell
+        const actionCell = document.createElement('td');
+        
+        // Show action button only for Missed or In Progress with redoRequested=true
+        if (row.status === 'Missed' || (row.status === 'In Progress' && row.enrollment.redoRequested)) {
+            const approveBtn = document.createElement('button');
+            approveBtn.className = 'btn-redo';
+            approveBtn.textContent = 'Approve Redo';
+            approveBtn.addEventListener('click', () => handleApproveRedo(row.enrollment));
+            actionCell.appendChild(approveBtn);
+        }
+        
+        tr.appendChild(nameCell);
+        tr.appendChild(statusCell);
+        tr.appendChild(dateCell);
+        tr.appendChild(actionCell);
+        
+        tableBody.appendChild(tr);
     });
     
-    let users = [];
-    if (usersResponse.ok) {
-        const usersData = await usersResponse.json();
-        users = usersData.users || [];
+    // Store current rows for CSV export
+    window.currentProgressRows = progressRows;
+}
+
+/**
+ * Handle approval of redo request
+ */
+async function handleApproveRedo(enrollment) {
+    if (!confirm(`Approve redo for this student?`)) return;
+    
+    try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_BASE_URL}/enrollments/${enrollment.id}/grant-redo`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (!response.ok) {
+            const error = await response.json();
+            throw new Error(error.error || 'Failed to grant redo');
+        }
+        
+        alert('✅ Redo granted! Student can now retake the lesson.');
+        
+        // Reload the progress tracking
+        await loadStudentProgressTracking();
+        
+    } catch (error) {
+        console.error('❌ Error granting redo:', error);
+        alert(`❌ Error: ${error.message}`);
+    }
+}
+
+/**
+ * Download current progress table as CSV
+ */
+function downloadCSV(enrollments, filterLessonId = null) {
+    if (!window.currentProgressRows || window.currentProgressRows.length === 0) {
+        alert('No data to export');
+        return;
     }
     
-    // Render student cards
-    container.innerHTML = '';
-    
-    for (const [userId, studentEnrollments] of studentMap) {
-        const user = users.find(u => u.userId === userId);
-        const studentName = user ? `${user.firstName} ${user.lastName}` : 'Unknown Student';
-        const studentEmail = user ? user.email : '';
-        
-        // Calculate metrics
-        const topicsEnrolled = studentEnrollments.length;
-        const topicsFinished = studentEnrollments.filter(e => e.progress === 100).length;
-        const topicsActive = studentEnrollments.filter(e => e.status === 'active' && e.progress < 100).length;
-        const topicsMissed = studentEnrollments.filter(e => e.status === 'missed').length;
-        const totalTimeSpent = studentEnrollments.reduce((sum, e) => sum + (e.timeSpentSeconds || 0), 0);
-        const timeSpentMinutes = Math.floor(totalTimeSpent / 60);
-        
-        const card = document.createElement('div');
-        card.style.cssText = `
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-bottom: 1rem;
-            transition: box-shadow 0.2s;
-        `;
-        card.onmouseenter = () => card.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)';
-        card.onmouseleave = () => card.style.boxShadow = 'none';
-        
-        card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                <div>
-                    <h4 style="margin: 0 0 0.25rem 0;">${escapeHtml(studentName)}</h4>
-                    <p style="margin: 0; color: #666; font-size: 0.9rem;">${escapeHtml(studentEmail)}</p>
-                </div>
-                <div style="text-align: right; font-size: 0.9rem; color: #666;">
-                    <div>⏱️ ${timeSpentMinutes} min</div>
-                </div>
-            </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 0.75rem;">
-                <div style="background: #e8f5e9; padding: 0.75rem; border-radius: 6px; text-align: center;">
-                    <div style="font-size: 1.5rem; font-weight: bold; color: #388e3c;">${topicsFinished}</div>
-                    <div style="font-size: 0.8rem; color: #666;">Finished</div>
-                </div>
-                <div style="background: #e3f2fd; padding: 0.75rem; border-radius: 6px; text-align: center;">
-                    <div style="font-size: 1.5rem; font-weight: bold; color: #1976d2;">${topicsEnrolled}</div>
-                    <div style="font-size: 0.8rem; color: #666;">Enrolled</div>
-                </div>
-                <div style="background: #fff3e0; padding: 0.75rem; border-radius: 6px; text-align: center;">
-                    <div style="font-size: 1.5rem; font-weight: bold; color: #f57c00;">${topicsActive}</div>
-                    <div style="font-size: 0.8rem; color: #666;">In Progress</div>
-                </div>
-                <div style="background: #ffebee; padding: 0.75rem; border-radius: 6px; text-align: center;">
-                    <div style="font-size: 1.5rem; font-weight: bold; color: #d32f2f;">${topicsMissed}</div>
-                    <div style="font-size: 0.8rem; color: #666;">Missed</div>
-                </div>
-            </div>
-        `;
-        
-        container.appendChild(card);
+    // Filter by lesson if needed
+    let rows = window.currentProgressRows;
+    if (filterLessonId) {
+        rows = rows.filter(r => r.lessonId === filterLessonId);
     }
+    
+    if (rows.length === 0) {
+        alert('No data to export for selected lesson');
+        return;
+    }
+    
+    // Build CSV
+    const headers = ['Name', 'Status', 'Date'];
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(row => [
+            `"${row.studentName.replace(/"/g, '""')}"`,  // Escape quotes
+            `"${row.status}"`,
+            `"${row.date}"`
+        ].join(','))
+    ].join('\n');
+    
+    // Trigger download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    
+    link.setAttribute('href', url);
+    link.setAttribute('download', `class_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    console.log('✅ CSV downloaded successfully');
 }
 
 /**

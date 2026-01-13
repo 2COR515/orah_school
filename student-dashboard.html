@@ -4,75 +4,102 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Student Dashboard — Orah School</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="styles/student-dashboard.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
   <!-- Top Dashboard Header -->
-  <header id="dashboard-header" class="dashboard-header">
-    <div class="header-content container">
-      <div class="welcome-section">
-        <h1 id="welcome-message">Welcome, Student</h1>
-        <p>Ready to continue your learning journey?</p>
-      </div>
-      <div class="header-actions">
-        <button id="logout-btn" class="tech-button secondary-btn">Logout</button>
-      </div>
-    </div>
-    
-    <!-- Quick Stats -->
-    <div class="quick-stats container">
-      <div class="stat-card">
-        <div id="enrolled-count" class="stat-number">0</div>
-        <div class="stat-label">Enrolled Lessons</div>
-      </div>
-      <div class="stat-card">
-        <div id="completed-count" class="stat-number">0</div>
-        <div class="stat-label">Completed</div>
-      </div>
-      <div class="stat-card">
-        <div id="completion-rate" class="stat-number">0%</div>
-        <div class="stat-label">Completion Rate</div>
+  <header id="dashboard-header" class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <!-- Logo & Welcome -->
+        <div class="flex items-center gap-4">
+          <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+            <img src="assets/orahlogo.png" alt="Orah Schools logo" width="50" height="33">
+            <span class="text-lg font-bold">Orah Schools</span>
+          </a>
+          <div class="hidden md:block">
+            <h1 class="text-xl font-bold m-0" id="welcome-message">Welcome, Student</h1>
+            <p class="text-sm text-tertiary m-0">Ready to continue your learning journey?</p>
+          </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <button id="logout-btn" class="btn-secondary btn-sm">Logout</button>
+        </div>
       </div>
     </div>
   </header>
 
-  <!-- Main Dashboard Content -->
-  <main id="dashboard-content" class="dashboard-main container">
-    <!-- Reminder Settings Section -->
-    <section id="reminder-settings" class="dashboard-card">
-      <h2>📧 Reminder Preferences</h2>
-      <p class="card-description">Choose how often you'd like to receive learning reminders</p>
-      
-      <div class="settings-form">
-        <div class="form-group">
-          <label for="frequency-select">Reminder Frequency:</label>
-          <select id="frequency-select" class="form-control">
-            <option value="daily">Daily - Every day</option>
-            <option value="twice-weekly">Twice Weekly - Monday & Thursday</option>
-            <option value="weekly" selected>Weekly - Monday only</option>
-            <option value="never">Never - No reminders</option>
-          </select>
+  <!-- Quick Stats -->
+  <section class="py-6" style="background: var(--color-bg-secondary);">
+    <div class="container">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="card card-brand text-center">
+          <div id="enrolled-count" class="text-4xl font-bold mb-2">0</div>
+          <div class="text-sm text-tertiary">Enrolled Lessons</div>
         </div>
-        
-        <button id="save-frequency-btn" class="tech-button primary-btn">
-          Save Preferences
-        </button>
-        
-        <div id="frequency-message" class="message-box" style="display: none;"></div>
+        <div class="card card-brand text-center">
+          <div id="completed-count" class="text-4xl font-bold mb-2">0</div>
+          <div class="text-sm text-tertiary">Completed</div>
+        </div>
+        <div class="card card-brand text-center">
+          <div id="completion-rate" class="text-4xl font-bold mb-2">0%</div>
+          <div class="text-sm text-tertiary">Completion Rate</div>
+        </div>
       </div>
-    </section>
+    </div>
+  </section>
 
-    <!-- My Enrolled Lessons Section -->
-    
+  <!-- Main Dashboard Content -->
+  <main id="dashboard-content" class="py-8">
+    <div class="container">
+      <!-- Reminder Settings Section -->
+      <section id="reminder-settings" class="card mb-6">
+        <div class="card-header">
+          <h2 class="m-0">📧 Reminder Preferences</h2>
+        </div>
+        <div class="card-body">
+          <p class="text-secondary mb-4">Choose how often you'd like to receive learning reminders</p>
+          
+          <div class="form-group">
+            <label for="frequency-select">Reminder Frequency:</label>
+            <select id="frequency-select">
+              <option value="daily">Daily - Every day</option>
+              <option value="twice-weekly">Twice Weekly - Monday & Thursday</option>
+              <option value="weekly" selected>Weekly - Monday only</option>
+              <option value="never">Never - No reminders</option>
+            </select>
+          </div>
+          
+          <button id="save-frequency-btn" class="btn-primary">
+            Save Preferences
+          </button>
+          
+          <div id="frequency-message" style="display: none; margin-top: 1rem;"></div>
+        </div>
+      </section>
 
-    <!-- Available Lessons Section -->
-    
+      <!-- My Enrolled Lessons Section -->
+      <section id="enrolled-lessons-section" class="mb-6">
+        <!-- Dynamically populated by JS -->
+      </section>
+
+      <!-- Available Lessons Section -->
+      <section id="available-lessons-section">
+        <!-- Dynamically populated by JS -->
+      </section>
+    </div>
   </main>
 
   <!-- Floating Chatbot Button -->
-  <button class="chatbot-btn" id="student-chatbot-btn" aria-label="Open Support Chat">💬</button>
+  <button id="student-chatbot-btn" class="btn-primary" style="position: fixed; bottom: 2rem; right: 2rem; border-radius: 50%; width: 60px; height: 60px; font-size: 1.5rem; box-shadow: var(--shadow-xl), var(--glow-brand); z-index: 999;" aria-label="Open Support Chat">💬</button>
 
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
   <script src="scripts/student-dashboard.js"></script>
   <script>
     // ========== TOKEN VALIDATION AND DEBUG ==========
@@ -143,27 +170,88 @@
   </script>
 
   <!-- Chatbot Container -->
-  <div id="chatbot-container" class="chatbot-container">
-    <div class="chatbot-header">
-      <h3>Orah Assistant</h3>
-      <button id="chatbot-close-btn" class="chatbot-close-btn">&times;</button>
+  <div id="chatbot-container" class="card" style="position: fixed; bottom: 6rem; right: 2rem; width: 350px; max-width: calc(100vw - 4rem); height: 500px; max-height: 60vh; z-index: 1000; box-shadow: var(--shadow-xl); display: none; flex-direction: column;">
+    <div class="card-header flex items-center justify-between">
+      <h3 class="m-0">Orah Assistant</h3>
+      <button id="chatbot-close-btn" class="btn-ghost btn-sm" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
     </div>
-    <div id="chatbot-messages" class="chatbot-messages">
-      <div class="bot-message">
-        <strong>Orah Assistant:</strong> Hi! How can I help you today? You can ask me about your courses, progress, or technical issues.
+    <div id="chatbot-messages" class="card-body" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+      <div style="background: var(--color-bg-secondary); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-primary);">
+        <strong class="text-brand">Orah Assistant:</strong>
+        <p class="m-0 mt-1 text-sm">Hi! How can I help you today? You can ask me about your courses, progress, or technical issues.</p>
       </div>
     </div>
-    <div class="chatbot-input-area">
+    <div class="card-footer" style="display: flex; gap: 0.5rem;">
       <input 
         type="text" 
         id="chatbot-input" 
-        class="chatbot-input" 
         placeholder="Type your message..."
         autocomplete="off"
+        style="flex: 1;"
       />
-      <button id="chatbot-send-btn" class="chatbot-send-btn">Send</button>
+      <button id="chatbot-send-btn" class="btn-primary btn-sm">Send</button>
     </div>
   </div>
+
+  <style>
+    /* Chatbot Toggle Animations */
+    #chatbot-container.open {
+      display: flex !important;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* User and Bot Message Styles */
+    .user-message, .bot-message {
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-primary);
+    }
+
+    .user-message {
+      background: var(--color-brand-purple);
+      color: white;
+      align-self: flex-end;
+      max-width: 80%;
+    }
+
+    .bot-message {
+      background: var(--color-bg-secondary);
+      align-self: flex-start;
+      max-width: 90%;
+    }
+
+    .typing-indicator {
+      opacity: 0.7;
+    }
+
+    .typing-dots span {
+      animation: blink 1.4s infinite;
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes blink {
+      0%, 60%, 100% { opacity: 1; }
+      30% { opacity: 0.3; }
+    }
+  </style>
 
   <script src="scripts/student-chatbot.js"></script>
 </body>

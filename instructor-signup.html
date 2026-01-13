@@ -4,37 +4,72 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Instructor Signup — Orah School</title>
-  <link rel="stylesheet" href="styles.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
-  <main style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f4f7f6;">
-    <section style="background: #fff; border-radius: 12px; box-shadow: 0 2px 16px rgba(59,2,112,0.07); padding: 2.5rem 2rem; min-width: 340px;">
-      <h1 style="text-align:center; color:#3B0270; margin-bottom:1.5rem;">Become an Instructor</h1>
-      <form id="instructor-form" autocomplete="off">
-        <label for="name" style="display:block; margin-bottom:0.7rem;">
-          Full Name
-          <input id="name" type="text" required style="width:100%;padding:8px;margin-top:4px;border-radius:6px;border:1.5px solid #e9b3fb;" />
-        </label>
-        <label for="email" style="display:block; margin-bottom:0.7rem;">
-          Email
-          <input id="email" type="email" required style="width:100%;padding:8px;margin-top:4px;border-radius:6px;border:1.5px solid #e9b3fb;" />
-        </label>
-        <label for="password" style="display:block; margin-bottom:0.7rem;">
-          Password
-          <input id="password" type="password" required minlength="6" style="width:100%;padding:8px;margin-top:4px;border-radius:6px;border:1.5px solid #e9b3fb;" />
-        </label>
-        <label for="confirm-password" style="display:block; margin-bottom:1.2rem;">
-          Confirm Password
-          <input id="confirm-password" type="password" required minlength="6" style="width:100%;padding:8px;margin-top:4px;border-radius:6px;border:1.5px solid #e9b3fb;" />
-        </label>
-        <button type="submit" id="signup-btn" style="width:100%;color:white;background-color:#6F00FF;padding:10px;border:none;border-radius:6px;font-size:1.1rem;font-weight:600;cursor:pointer;">Sign Up</button>
-        <div id="instructor-signup-error" style="margin-top:1rem;color:#c00;min-height:1.5em;"></div>
-      </form>
-      <div style="text-align:center;margin-top:1.2rem;">
-        <a href="login.html" style="color:#6F00FF;text-decoration:none;font-weight:600;">Already have an account? Login</a>
+  <!-- HEADER -->
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+          <img src="assets/orahlogo.png" alt="Orah Schools logo" width="60" height="40">
+          <span class="text-xl font-bold">Orah Schools</span>
+        </a>
+        
+        <div class="flex items-center gap-3">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <a class="btn-ghost btn-sm" href="login.html">Login</a>
+          <a class="btn-ghost btn-sm" href="signup.html">Student Signup</a>
+        </div>
       </div>
-    </section>
+    </div>
+  </header>
+
+  <main class="flex items-center justify-center" style="min-height: calc(100vh - 80px); padding: var(--space-8) var(--space-4);">
+    <div class="glass-strong rounded-xl p-8 w-full" style="max-width: 500px;">
+      <div class="text-center mb-6">
+        <div class="text-brand mb-3" style="font-size: 64px;">🎓</div>
+        <h1 class="mb-2">Become an Instructor</h1>
+        <p class="text-secondary">Share your knowledge and teach on Orah Schools</p>
+      </div>
+      
+      <form id="instructor-form" autocomplete="off">
+        <div class="form-group">
+          <label for="name">Full Name</label>
+          <input id="name" type="text" placeholder="John Doe" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input id="email" type="email" placeholder="instructor@example.com" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input id="password" type="password" placeholder="••••••••" required minlength="6" />
+          <span class="form-help">At least 6 characters</span>
+        </div>
+        
+        <div class="form-group">
+          <label for="confirm-password">Confirm Password</label>
+          <input id="confirm-password" type="password" placeholder="••••••••" required minlength="6" />
+        </div>
+        
+        <button type="submit" id="signup-btn" class="btn-primary btn-full mb-4">Sign Up as Instructor</button>
+        
+        <div id="instructor-signup-error" class="form-error" style="display: none;"></div>
+      </form>
+      
+      <div class="text-center mt-6 pt-6" style="border-top: 1px solid var(--color-border-primary);">
+        <p class="text-sm text-tertiary">Already have an account? <a href="login.html" class="text-brand">Login</a></p>
+      </div>
+    </div>
   </main>
+  
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
   <script src="scripts/instructor-signup.js"></script>
 </body>
 </html>

@@ -4,63 +4,79 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Signup — Orah Schools</title>
-  <!-- Link to page-specific CSS -->
-  <link rel="stylesheet" href="./styles/signup.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
   <!-- HEADER: same site header; signup highlighted -->
-  <header class="site-header">
-    <div class="container header-inner">
-  <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="60" height="40">
-      <nav class="main-nav">
-        <a class="tech-button" href="index.html#topics" id="explore-btn">Explore</a>
-        <div class="search"><input type="search" placeholder="Search courses..." aria-label="Search" /></div>
-        <a class="nav-cta tech-button" href="instructor-signup.html">Teach</a>
-      </nav>
-      <div class="auth">
-        <a class="ghost" href="login.html">Login</a>
-        <!-- Signup is active on this page -->
-        <span class="active">Signup</span>
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+          <img src="assets/orahlogo.png" alt="Orah Schools logo" width="60" height="40">
+          <span class="text-xl font-bold">Orah Schools</span>
+        </a>
+        
+        <nav class="flex items-center gap-4">
+          <a class="btn-ghost btn-sm" href="index.html#topics" id="explore-btn">Explore</a>
+          <input type="search" placeholder="Search courses..." aria-label="Search" class="hidden md:block" style="padding: var(--space-2) var(--space-3); background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); color: var(--color-text-primary); width: 200px;" />
+          <a class="btn-ghost btn-sm" href="instructor-signup.html">Teach</a>
+        </nav>
+        
+        <div class="flex items-center gap-3">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <a class="btn-ghost btn-sm" href="login.html">Login</a>
+          <!-- Signup is active on this page -->
+          <span class="text-brand font-semibold">Signup</span>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- MAIN: Signup form card -->
-  <main class="main">
-    <div class="card">
-      <h1>Create an account</h1>
-      <p class="sub">Sign up as a student to get started</p>
+  <main class="flex items-center justify-center" style="min-height: calc(100vh - 80px); padding: var(--space-8) var(--space-4);">
+    <div class="glass-strong rounded-xl p-8 w-full" style="max-width: 500px;">
+      <div class="text-center mb-6">
+        <h1 class="mb-2">Create an account</h1>
+        <p class="text-secondary">Sign up as a student to get started</p>
+      </div>
 
-      <form id="signup-form" class="form" novalidate>
-        <label>
-          <span>Full name</span>
-          <input type="text" name="name" required />
-        </label>
-
-        <label>
-          <span>Email</span>
-          <input type="email" name="email" required />
-        </label>
-
-        <label>
-          <span>Password</span>
-          <input type="password" name="password" required />
-        </label>
-
-        <label>
-          <span>Confirm password</span>
-          <input type="password" name="confirm" required />
-        </label>
-
-        <div class="form-row">
-          <button class="btn primary" type="submit">Create account</button>
+      <form id="signup-form" novalidate>
+        <div class="form-group">
+          <label for="name-input">Full name</label>
+          <input type="text" id="name-input" name="name" placeholder="John Doe" required />
         </div>
 
-        <div id="signup-error" class="error" aria-live="polite"></div>
+        <div class="form-group">
+          <label for="email-input">Email</label>
+          <input type="email" id="email-input" name="email" placeholder="you@example.com" required />
+        </div>
+
+        <div class="form-group">
+          <label for="password-input">Password</label>
+          <input type="password" id="password-input" name="password" placeholder="••••••••" required />
+          <span class="form-help">At least 8 characters</span>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm-input">Confirm password</label>
+          <input type="password" id="confirm-input" name="confirm" placeholder="••••••••" required />
+        </div>
+
+        <button class="btn-primary btn-full mb-4" type="submit">Create account</button>
+
+        <div id="signup-error" class="form-error" style="display: none;" aria-live="polite"></div>
       </form>
+
+      <div class="text-center mt-6 pt-6" style="border-top: 1px solid var(--color-border-primary);">
+        <p class="text-sm text-tertiary">Already have an account? <a href="login.html" class="text-brand">Log in</a></p>
+      </div>
     </div>
   </main>
 
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
   <script src="./scripts/signup.js"></script>
 </body>
 </html>

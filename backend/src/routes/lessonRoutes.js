@@ -10,6 +10,7 @@ const {
   deleteLesson,
   addLessonResource
 } = require('../controllers/lessonController');
+const { getLessonStats } = require('../controllers/lessonController');
 const { authenticateToken, authorizeRole } = require('../middleware/authMiddleware');
 
 // Create router instance
@@ -64,6 +65,9 @@ router.get('/', listPublishedLessons);
 
 // GET /:id - Get a single lesson by ID (public access)
 router.get('/:id', getLessonById);
+
+// GET /:id/stats - Get lesson stats (instructor only)
+router.get('/:id/stats', authenticateToken, authorizeRole('instructor'), getLessonStats);
 
 // PATCH /:id - Update a lesson by ID (protected: instructor only)
 router.patch('/:id', authenticateToken, authorizeRole('instructor'), updateLesson);

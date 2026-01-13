@@ -12,6 +12,73 @@ let currentEnrollments = [];
 let studentsData = {};
 
 // ========================================
+// CENTRAL USER DATA SERVICE (Shared Utility)
+// ========================================
+
+/**
+ * Fetch all users and create a lookup map (userId -> user object)
+ * This is a reusable utility for displaying user names across the application
+ * @returns {Promise<Map>} Map with userId as key and user object as value
+ */
+async function fetchUserMap() {
+  const userMap = new Map();
+  
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('⚠️ No authentication token found');
+      return userMap;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      console.warn(`⚠️ Failed to fetch users: ${response.status} ${response.statusText}`);
+      return userMap;
+    }
+
+    const data = await response.json();
+    const users = data.users || [];
+
+    // Create lookup map: userId -> user object
+    users.forEach(user => {
+      userMap.set(user.userId, {
+        id: user.userId,
+        name: user.name || user.username || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.userId,
+        email: user.email || `${user.userId}@example.com`,
+        role: user.role || 'unknown',
+        firstName: user.firstName || '',
+        lastName: user.lastName || ''
+      });
+    });
+
+    console.log(`✓ Loaded ${userMap.size} users into lookup map`);
+    return userMap;
+
+  } catch (error) {
+    console.error('❌ Error fetching user map:', error);
+    return userMap; // Return empty map on error
+  }
+}
+
+/**
+ * Get user display name from the user map
+ * @param {Map} userMap - The user lookup map
+ * @param {string} userId - The user ID to lookup
+ * @param {string} fallback - Fallback text if user not found
+ * @returns {string} User's display name or fallback
+ */
+function getUserDisplayName(userMap, userId, fallback = 'Unknown User') {
+  const user = userMap.get(userId);
+  return user ? user.name : fallback;
+}
+
+// ========================================
 // INITIALIZATION
 // ========================================
 
@@ -26,9 +93,9 @@ async function init() {
     return;
   }
 
-  // Set today's date as default
+  // Set today's date as default if the date input exists (backwards compatibility)
   const dateInput = document.getElementById('attendance-date');
-  dateInput.valueAsDate = new Date();
+  if (dateInput) dateInput.valueAsDate = new Date();
 
   // Set up event listeners
   setupEventListeners();
@@ -42,9 +109,8 @@ async function init() {
  */
 function setupEventListeners() {
   // Back to Hub button
-  document.getElementById('back-to-hub-btn').addEventListener('click', () => {
-    window.location.href = 'instructor-hub.html';
-  });
+  const backBtn = document.getElementById('back-to-hub-btn');
+  if (backBtn) backBtn.addEventListener('click', () => { window.location.href = 'instructor-hub.html'; });
 
   // Logout button
   document.getElementById('logout-btn').addEventListener('click', () => {
@@ -53,13 +119,128 @@ function setupEventListeners() {
   });
 
   // Lesson selection
-  document.getElementById('lesson-select').addEventListener('change', handleLessonChange);
+  const lessonSelectEl = document.getElementById('lesson-select');
+  if (lessonSelectEl) lessonSelectEl.addEventListener('change', async (e) => {
+    // Only call legacy roster loading if the roster container exists
+    if (document.getElementById('student-roster')) {
+      await handleLessonChange(e);
+    }
+    // Also fetch and render progress stats into the new view
+    if (e.target && e.target.value) {
+      fetchAndRenderLessonStats(e.target.value);
+    } else {
+      clearAttendanceStatsView();
+    }
+  });
 
-  // Save attendance button
-  document.getElementById('save-attendance-btn').addEventListener('click', saveAttendance);
+  // Save attendance button (only if present)
+  const saveBtn = document.getElementById('save-attendance-btn');
+  if (saveBtn) saveBtn.addEventListener('click', saveAttendance);
 
   // Generate report button
-  document.getElementById('generate-report-btn').addEventListener('click', generateReport);
+  const genBtn = document.getElementById('generate-report-btn');
+  if (genBtn) genBtn.addEventListener('click', generateReport);
+}
+
+/**
+ * Clear the attendance stats view
+ */
+function clearAttendanceStatsView() {
+  const container = document.getElementById('attendance-stats-view');
+  if (!container) return;
+  container.innerHTML = '<p class="text-secondary" style="padding:2rem; text-align:center;">Select a lesson to view progress</p>';
+}
+
+/**
+ * Fetch lesson stats from API and render into the attendance-stats-view
+ */
+async function fetchAndRenderLessonStats(lessonId) {
+  const container = document.getElementById('attendance-stats-view');
+  if (!container) return;
+  container.innerHTML = '<p style="text-align:center; color:#999; padding:2rem;">Loading progress...</p>';
+
+  try {
+    const resp = await fetch(`${API_BASE_URL}/lessons/${lessonId}/stats`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!resp.ok) {
+      container.innerHTML = '<p style="text-align:center; color:#ff6b6b; padding:2rem;">Failed to load stats</p>';
+      return;
+    }
+
+    const data = await resp.json();
+    const stats = data.stats || { completed: [], missed: [], active: [] };
+    renderAttendanceStats(stats);
+  } catch (err) {
+    console.error('Error fetching lesson stats:', err);
+    container.innerHTML = '<p style="text-align:center; color:#ff6b6b; padding:2rem;">Error loading stats</p>';
+  }
+}
+
+/**
+ * Render attendance/progress stats into the 3-column grid
+ */
+function renderAttendanceStats(stats) {
+  const container = document.getElementById('attendance-stats-view');
+  if (!container) return;
+
+  const completed = stats.completed || [];
+  const missed = stats.missed || [];
+  const active = stats.active || [];
+
+  container.innerHTML = `
+    <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap: 1rem;">
+      <div class="stat-column" style="border-top: 4px solid var(--color-success);">
+        <h4 style="margin:0 0 0.5rem 0;">✅ Completed (${completed.length})</h4>
+        <div class="stat-list" style="max-height:360px; overflow:auto; padding-right:0.5rem;"></div>
+      </div>
+      <div class="stat-column" style="border-top: 4px solid var(--color-error);">
+        <h4 style="margin:0 0 0.5rem 0;">❌ Missed (${missed.length})</h4>
+        <div class="stat-list" style="max-height:360px; overflow:auto; padding-right:0.5rem;"></div>
+      </div>
+      <div class="stat-column" style="border-top: 4px solid var(--color-info);">
+        <h4 style="margin:0 0 0.5rem 0;">⏳ In Progress (${active.length})</h4>
+        <div class="stat-list" style="max-height:360px; overflow:auto; padding-right:0.5rem;"></div>
+      </div>
+    </div>
+  `;
+
+  const lists = container.querySelectorAll('.stat-list');
+
+  function populate(listEl, items) {
+    if (!items || items.length === 0) {
+      listEl.innerHTML = '<p style="color:#888; font-style:italic; padding:1rem;">No students</p>';
+      return;
+    }
+
+    const frag = document.createDocumentFragment();
+    items.forEach(it => {
+      const div = document.createElement('div');
+      div.className = 'student-item';
+      div.style.padding = '0.5rem 0';
+      div.style.borderBottom = '1px dashed rgba(255,255,255,0.03)';
+      const name = document.createElement('div');
+      name.style.fontWeight = '600';
+      name.textContent = it.studentName || it.userId || 'Unknown';
+
+      const meta = document.createElement('div');
+      meta.style.fontSize = '0.85rem';
+      meta.style.color = '#999';
+      meta.textContent = it.enrolledAt ? new Date(it.enrolledAt).toLocaleDateString() : '';
+
+      div.appendChild(name);
+      div.appendChild(meta);
+      frag.appendChild(div);
+    });
+
+    listEl.innerHTML = '';
+    listEl.appendChild(frag);
+  }
+
+  populate(lists[0], completed);
+  populate(lists[1], missed);
+  populate(lists[2], active);
 }
 
 // ========================================
@@ -169,22 +350,51 @@ async function loadStudentRoster(lessonId) {
 
 /**
  * Fetch student details for display names
+ * ✨ Now uses the central fetchUserMap() utility for consistent name display
  */
 async function fetchStudentDetails(enrollments) {
   studentsData = {};
 
-  // Get unique student IDs
-  const studentIds = [...new Set(enrollments.map(e => e.userId))];
+  try {
+    // ✨ Use central user map utility for consistent name lookup
+    const userMap = await fetchUserMap();
 
-  // For now, we'll use the userId as the display name
-  // In a real system, you'd fetch from a users API endpoint
-  studentIds.forEach(id => {
-    studentsData[id] = {
-      id: id,
-      name: `Student ${id.substring(0, 8)}`, // Use first 8 chars of ID
-      email: `student-${id.substring(0, 8)}@example.com`
-    };
-  });
+    if (userMap.size === 0) {
+      console.warn('⚠️ User map is empty, using IDs only');
+      // Fallback to using IDs
+      const studentIds = [...new Set(enrollments.map(e => e.userId))];
+      studentIds.forEach(id => {
+        studentsData[id] = {
+          id: id,
+          name: id,
+          email: `${id}@example.com`
+        };
+      });
+      return;
+    }
+
+    // Convert Map to studentsData object for backward compatibility
+    userMap.forEach((user, userId) => {
+      studentsData[userId] = {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      };
+    });
+
+    console.log(`✓ Loaded ${Object.keys(studentsData).length} user details`);
+  } catch (error) {
+    console.error('❌ Error fetching student details:', error);
+    // Fallback to using IDs
+    const studentIds = [...new Set(enrollments.map(e => e.userId))];
+    studentIds.forEach(id => {
+      studentsData[id] = {
+        id: id,
+        name: id,
+        email: `${id}@example.com`
+      };
+    });
+  }
 }
 
 /**
@@ -396,6 +606,9 @@ async function generateReport() {
     const absentCount = records.filter(r => r.status === 'absent').length;
     const attendanceRate = totalRecords > 0 ? ((presentCount / totalRecords) * 100).toFixed(1) : 0;
 
+    // Fetch student details for name display
+    await fetchStudentDetailsForReport(records);
+
     // Render report
     renderReport({
       totalRecords,
@@ -403,7 +616,8 @@ async function generateReport() {
       absentCount,
       attendanceRate,
       period: reportPeriod,
-      lessonId: reportLessonId
+      lessonId: reportLessonId,
+      records: records
     });
 
   } catch (error) {
@@ -413,7 +627,31 @@ async function generateReport() {
 }
 
 /**
- * Render the attendance report
+ * Fetch student details specifically for report display
+ * ✨ Now uses the central fetchUserMap() utility for consistent name display
+ */
+async function fetchStudentDetailsForReport(records) {
+  try {
+    // ✨ Use central user map utility for consistent name lookup
+    const userMap = await fetchUserMap();
+
+    // Convert Map to studentsData object for backward compatibility
+    userMap.forEach((user, userId) => {
+      studentsData[userId] = {
+        id: user.id,
+        name: user.name,
+        email: user.email
+      };
+    });
+
+    console.log(`✓ Loaded ${Object.keys(studentsData).length} user details for report`);
+  } catch (error) {
+    console.warn('⚠️ Could not fetch user details for report:', error);
+  }
+}
+
+/**
+ * Render the attendance report with individual student records
  */
 function renderReport(stats) {
   const reportContainer = document.getElementById('attendance-report');
@@ -424,7 +662,7 @@ function renderReport(stats) {
     'all': 'All Time'
   }[stats.period] || stats.period;
 
-  const reportHTML = `
+  let reportHTML = `
     <div style="background: white; padding: 2rem; border-radius: 12px; border: 1px solid var(--color-border);">
       <h3 style="margin-top: 0; color: var(--color-text-dark);">Attendance Summary - ${periodText}</h3>
       
@@ -449,7 +687,63 @@ function renderReport(stats) {
           <div style="color: #666; font-size: 0.875rem; margin-top: 0.5rem;">Total Records</div>
         </div>
       </div>
+  `;
+
+  // Add individual attendance records with visual highlights
+  if (stats.records && stats.records.length > 0) {
+    reportHTML += `
+      <div style="margin-top: 2rem;">
+        <h4 style="color: var(--color-text-dark); margin-bottom: 1rem;">Individual Records</h4>
+        <div style="max-height: 400px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: 8px;">
+          <table style="width: 100%; border-collapse: collapse;">
+            <thead style="position: sticky; top: 0; background: var(--color-bg-soft); z-index: 1;">
+              <tr>
+                <th style="text-align: left; padding: 0.75rem; border-bottom: 2px solid var(--color-border);">Student</th>
+                <th style="text-align: center; padding: 0.75rem; border-bottom: 2px solid var(--color-border);">Date</th>
+                <th style="text-align: center; padding: 0.75rem; border-bottom: 2px solid var(--color-border);">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+    `;
+
+    stats.records.forEach((record, index) => {
+      const student = studentsData[record.studentId] || { name: record.studentId, id: record.studentId };
+      const formattedDate = new Date(record.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      const isAbsent = record.status === 'absent';
       
+      // Visual highlighting for absent records
+      const rowStyle = isAbsent 
+        ? 'background: #ffe6e6; border-left: 4px solid #dc3545;'
+        : index % 2 === 0 ? 'background: white;' : 'background: #fafafa;';
+      
+      const statusBadge = isAbsent
+        ? '<span style="background: #dc3545; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">❌ Absent</span>'
+        : '<span style="background: #28a745; color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem;">✓ Present</span>';
+      
+      const alertText = isAbsent ? `<div style="color: #dc3545; font-size: 0.85rem; margin-top: 0.25rem; font-style: italic;">${student.name} missed this class</div>` : '';
+
+      reportHTML += `
+        <tr style="${rowStyle} transition: background 0.2s;">
+          <td style="padding: 0.75rem; border-bottom: 1px solid #f0f0f0;">
+            <div style="font-weight: 600;">${student.name}</div>
+            <div style="font-size: 0.85rem; color: #666;">${student.id}</div>
+            ${alertText}
+          </td>
+          <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #f0f0f0;">${formattedDate}</td>
+          <td style="padding: 0.75rem; text-align: center; border-bottom: 1px solid #f0f0f0;">${statusBadge}</td>
+        </tr>
+      `;
+    });
+
+    reportHTML += `
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  reportHTML += `
       ${stats.totalRecords === 0 ? '<p style="margin-top: 1.5rem; color: #666; font-style: italic; text-align: center;">No attendance records found for this period.</p>' : ''}
     </div>
   `;

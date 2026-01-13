@@ -83,29 +83,32 @@ async function loadUsers() {
         data.users.forEach(user => {
             const isCurrentUser = user.userId === currentUserId;
             const row = document.createElement('tr');
+            row.style.borderBottom = '1px solid var(--color-border-primary)';
             row.innerHTML = `
-                <td>
-                    <div class="user-name">
+                <td style="padding: var(--space-4);">
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
                         ${user.firstName || 'N/A'} ${user.lastName || ''}
-                        ${isCurrentUser ? '<span class="badge badge-info">You</span>' : ''}
+                        ${isCurrentUser ? '<span class="badge-info">You</span>' : ''}
                     </div>
                 </td>
-                <td>${user.email}</td>
-                <td>
-                    <select class="role-select" data-user-id="${user.userId}" ${isCurrentUser ? 'disabled' : ''}>
+                <td style="padding: var(--space-4); color: var(--color-text-secondary);">${user.email}</td>
+                <td style="padding: var(--space-4);">
+                    <select class="role-select" data-user-id="${user.userId}" ${isCurrentUser ? 'disabled' : ''} style="padding: 0.5rem; background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); color: var(--color-text-primary);">
                         <option value="student" ${user.role === 'student' ? 'selected' : ''}>Student</option>
                         <option value="instructor" ${user.role === 'instructor' ? 'selected' : ''}>Instructor</option>
                         <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
                     </select>
                 </td>
-                <td>${new Date(user.createdAt).toLocaleDateString()}</td>
-                <td class="action-buttons">
-                    <button class="btn-update-role btn-primary" data-user-id="${user.userId}" ${isCurrentUser ? 'disabled' : ''}>
-                        Update Role
-                    </button>
-                    <button class="btn-delete-user btn-danger" data-user-id="${user.userId}" ${isCurrentUser ? 'disabled' : ''}>
-                        Delete
-                    </button>
+                <td style="padding: var(--space-4); color: var(--color-text-secondary);">${new Date(user.createdAt).toLocaleDateString()}</td>
+                <td style="padding: var(--space-4); text-align: center;">
+                    <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                        <button class="btn-update-role btn-primary btn-sm" data-user-id="${user.userId}" ${isCurrentUser ? 'disabled' : ''}>
+                            Update Role
+                        </button>
+                        <button class="btn-delete-user btn-secondary btn-sm" data-user-id="${user.userId}" ${isCurrentUser ? 'disabled' : ''} style="color: #ff4444;">
+                            Delete
+                        </button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(row);
@@ -242,22 +245,27 @@ async function loadLessons() {
 
         data.lessons.forEach(lesson => {
             const row = document.createElement('tr');
+            row.style.borderBottom = '1px solid var(--color-border-primary)';
             row.innerHTML = `
-                <td>
-                    <div class="lesson-title">${lesson.title}</div>
-                    ${lesson.topic ? `<div class="lesson-topic">${lesson.topic}</div>` : ''}
+                <td style="padding: var(--space-4);">
+                    <div style="font-weight: 600; margin-bottom: 0.25rem;">${lesson.title}</div>
+                    ${lesson.topic ? `<div style="font-size: 0.875rem; color: var(--color-text-secondary);">${lesson.topic}</div>` : ''}
                 </td>
-                <td>${lesson.instructorId ? lesson.instructorId.substring(0, 8) + '...' : 'N/A'}</td>
-                <td><span class="badge badge-${lesson.status === 'published' ? 'success' : 'warning'}">${lesson.status || 'draft'}</span></td>
-                <td>${enrollmentCounts[lesson.id] || 0}</td>
-                <td>${new Date(lesson.createdAt).toLocaleDateString()}</td>
-                <td class="action-buttons">
-                    <button class="btn-view-lesson btn-secondary" data-lesson-id="${lesson.id}">
-                        View
-                    </button>
-                    <button class="btn-delete-lesson btn-danger" data-lesson-id="${lesson.id}">
-                        Delete
-                    </button>
+                <td style="padding: var(--space-4); color: var(--color-text-secondary);">${lesson.instructorId ? lesson.instructorId.substring(0, 8) + '...' : 'N/A'}</td>
+                <td style="padding: var(--space-4); text-align: center;">
+                    <span class="badge-${lesson.status === 'published' ? 'success' : 'warning'}">${lesson.status || 'draft'}</span>
+                </td>
+                <td style="padding: var(--space-4); text-align: center; font-weight: 600; color: var(--color-brand);">${enrollmentCounts[lesson.id] || 0}</td>
+                <td style="padding: var(--space-4); color: var(--color-text-secondary);">${new Date(lesson.createdAt).toLocaleDateString()}</td>
+                <td style="padding: var(--space-4); text-align: center;">
+                    <div style="display: flex; gap: 0.5rem; justify-content: center;">
+                        <button class="btn-view-lesson btn-secondary btn-sm" data-lesson-id="${lesson.id}">
+                            View
+                        </button>
+                        <button class="btn-delete-lesson btn-secondary btn-sm" data-lesson-id="${lesson.id}" style="color: #ff4444;">
+                            Delete
+                        </button>
+                    </div>
                 </td>
             `;
             tbody.appendChild(row);
@@ -308,19 +316,24 @@ async function deleteLesson(lessonId) {
             headers: getAuthHeaders()
         });
 
-        const data = await response.json();
+        // Backend returns 204 No Content on success
+        if (response.status === 204) {
+            showToast('Lesson deleted successfully', 'success');
+            await loadLessons(); // Reload the table
+            await loadSystemStats(); // Update stats
+            return;
+        }
 
+        // If not 204, try to parse error response
+        const data = await response.json();
+        
         if (!response.ok) {
             throw new Error(data.error || 'Failed to delete lesson');
         }
 
-        showToast('Lesson deleted successfully', 'success');
-        await loadLessons(); // Reload the table
-        await loadSystemStats(); // Update stats
-
     } catch (error) {
         console.error('Error deleting lesson:', error);
-        showToast(error.message, 'error');
+        showToast(error.message || 'Failed to delete lesson', 'error');
     }
 }
 
@@ -330,11 +343,35 @@ async function deleteLesson(lessonId) {
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
     toast.textContent = message;
-    toast.className = `toast toast-${type} show`;
+    
+    // Set colors based on type
+    let bgColor, borderColor, textColor;
+    if (type === 'success') {
+        bgColor = 'var(--color-success)';
+        borderColor = 'var(--color-success)';
+        textColor = '#fff';
+    } else if (type === 'error') {
+        bgColor = '#ff4444';
+        borderColor = '#ff4444';
+        textColor = '#fff';
+    } else {
+        bgColor = 'var(--color-bg-secondary)';
+        borderColor = 'var(--color-border-primary)';
+        textColor = 'var(--color-text-primary)';
+    }
+    
+    toast.style.background = bgColor;
+    toast.style.borderColor = borderColor;
+    toast.style.color = textColor;
+    toast.style.display = 'block';
+    toast.style.animation = 'slideIn 0.3s ease-out';
     
     setTimeout(() => {
-        toast.className = 'toast';
-    }, 5000);
+        toast.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => {
+            toast.style.display = 'none';
+        }, 300);
+    }, 3000);
 }
 
 // Initialize dashboard
@@ -348,18 +385,6 @@ document.addEventListener('DOMContentLoaded', () => {
     loadSystemStats();
     loadUsers();
     loadLessons();
-
-    // Navigation buttons
-    document.getElementById('back-btn').addEventListener('click', () => {
-        window.location.href = 'instructor-hub.html';
-    });
-
-    document.getElementById('logout-btn').addEventListener('click', () => {
-        if (confirm('Are you sure you want to logout?')) {
-            localStorage.clear();
-            window.location.href = 'login.html';
-        }
-    });
 
     // Refresh buttons
     document.getElementById('refresh-users-btn').addEventListener('click', () => {

@@ -48,15 +48,15 @@ function authenticateToken(req, res, next) {
 }
 
 /**
- * Middleware generator to authorize access based on user role.
- * @param {string} requiredRole - The role required to access the route
+ * Middleware generator to authorize access based on user role(s).
+ * @param {...string} allowedRoles - One or more roles allowed to access the route
  * @returns {Function} Middleware function
  */
-function authorizeRole(requiredRole) {
+function authorizeRole(...allowedRoles) {
   // 1. Returns a middleware function (req, res, next)
   return (req, res, next) => {
     try {
-      // 2. Checks if req.user (set by authenticateToken) exists and req.user.role matches requiredRole
+      // 2. Checks if req.user (set by authenticateToken) exists
       if (!req.user) {
         return res.status(401).json({
           ok: false,
@@ -64,15 +64,16 @@ function authorizeRole(requiredRole) {
         });
       }
 
-      if (req.user.role !== requiredRole) {
-        // 3. If unauthorized, return 403 Forbidden
+      // 3. Check if user's role is in the list of allowed roles
+      if (!allowedRoles.includes(req.user.role)) {
+        // 4. If unauthorized, return 403 Forbidden
         return res.status(403).json({
           ok: false,
-          error: `Access denied. ${requiredRole} role required.`
+          error: `Access denied. Only ${allowedRoles.join(' or ')} role${allowedRoles.length > 1 ? 's are' : ' is'} allowed.`
         });
       }
 
-      // 4. If authorized, call next()
+      // 5. If authorized, call next()
       next();
 
     } catch (error) {

@@ -5,137 +5,153 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Analytics — Orah School</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="styles/instructor-dashboard.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
-  <!-- Modern Header with Logo and Navigation -->
-  <header id="instructor-header" class="dashboard-header">
-    <div class="header-container">
-      <div class="logo-brand">
-        <button id="back-to-hub-btn" class="btn-back">← Back to Hub</button>
-        <span class="logo-text">Analytics Dashboard</span>
+  <!-- Glassmorphic Header -->
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <div class="flex items-center gap-4">
+          <a href="instructor-hub.html" class="btn-ghost btn-sm">← Back to Hub</a>
+          <span class="text-xl font-bold">Analytics Dashboard</span>
+        </div>
+        
+        <nav class="flex items-center gap-4">
+          <a class="btn-ghost btn-sm" href="instructor-hub.html">Dashboard</a>
+          <a class="btn-ghost btn-sm" href="instructor-lessons.html">Lessons</a>
+        </nav>
+        
+        <div class="flex items-center gap-3">
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <button id="logout-btn" class="btn-secondary btn-sm">Logout</button>
+        </div>
       </div>
-      <nav class="header-nav">
-        <a class="nav-link" href="instructor-hub.html">Hub</a>
-        <a class="nav-link" href="instructor-lessons.html">Lessons</a>
-        <button id="logout-btn" class="btn-logout">Logout</button>
-      </nav>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main id="dashboard-main" class="dashboard-main" style="grid-template-columns: 1fr;">
+  <main class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-8);">
     
     <!-- Overview Stats -->
-    <section class="dashboard-card">
-      <h2>Overview Statistics</h2>
-      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
-        <div class="stat-box">
-          <div class="stat-value" id="total-lessons-count">0</div>
-          <div class="stat-label">Total Lessons</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="total-enrollments-count">0</div>
-          <div class="stat-label">Total Enrollments</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="avg-completion-rate">0%</div>
-          <div class="stat-label">Avg Completion Rate</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="digital-attendance-rate">0%</div>
-          <div class="stat-label">Digital Attendance Rate</div>
-        </div>
-        <div class="stat-box">
-          <div class="stat-value" id="active-students-count">0</div>
-          <div class="stat-label">Active Students</div>
+    <section class="card mb-8">
+      <div class="card-header">
+        <h2>Overview Statistics</h2>
+      </div>
+      <div class="card-body">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div class="text-center p-4 rounded-lg" style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border-primary);">
+            <div class="text-3xl font-bold text-brand mb-2" id="total-lessons-count">0</div>
+            <div class="text-sm text-secondary">Total Lessons</div>
+          </div>
+          <div class="text-center p-4 rounded-lg" style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border-primary);">
+            <div class="text-3xl font-bold text-brand mb-2" id="total-enrollments-count">0</div>
+            <div class="text-sm text-secondary">Total Enrollments</div>
+          </div>
+          <div class="text-center p-4 rounded-lg" style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border-primary);">
+            <div class="text-3xl font-bold text-brand mb-2" id="avg-completion-rate">0%</div>
+            <div class="text-sm text-secondary">Avg Completion Rate</div>
+          </div>
+          <div class="text-center p-4 rounded-lg" style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border-primary);">
+            <div class="text-3xl font-bold text-brand mb-2" id="digital-attendance-rate">0%</div>
+            <div class="text-sm text-secondary">Digital Attendance</div>
+          </div>
+          <div class="text-center p-4 rounded-lg" style="background: var(--color-bg-tertiary); border: 1px solid var(--color-border-primary);">
+            <div class="text-3xl font-bold text-brand mb-2" id="active-students-count">0</div>
+            <div class="text-sm text-secondary">Active Students</div>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- Lesson Performance -->
-    <section class="dashboard-card">
-      <h2>Lesson Performance</h2>
-      <div id="lesson-performance-list" class="performance-list">
-        <p style="color: #666;">Loading lesson data...</p>
+    <section class="card mb-8">
+      <div class="card-header">
+        <h2>Lesson Performance</h2>
+      </div>
+      <div class="card-body">
+        <div id="lesson-performance-list" class="space-y-3">
+          <p class="text-secondary">Loading lesson data...</p>
+        </div>
       </div>
     </section>
 
     <!-- Student Progress -->
-    <section class="dashboard-card">
-      <h2>Student Progress Tracking</h2>
-      <div class="form-group">
-        <label for="lesson-filter">Filter by Lesson</label>
-        <select id="lesson-filter" class="form-control">
-          <option value="">All Lessons</option>
-        </select>
+    <section class="card mb-8">
+      <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 style="margin: 0;">Student Progress Tracking</h2>
+        <button id="download-csv-btn" class="btn-secondary btn-sm" style="gap: 0.5rem; display: flex; align-items: center;">
+          📥 Download Report
+        </button>
       </div>
-      <div id="student-progress-list" class="progress-list">
-        <p style="color: #666;">Loading student progress...</p>
+      <div class="card-body">
+        <div class="form-group">
+          <label for="lesson-filter">Filter by Lesson</label>
+          <select id="lesson-filter">
+            <option value="">All Lessons</option>
+          </select>
+        </div>
+        
+        <!-- Spreadsheet-style Data Table -->
+        <table id="progress-table" class="data-table" style="width: 100%; margin-top: 1.5rem;">
+          <thead>
+            <tr>
+              <th>Student Name</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="progress-table-body">
+            <tr>
+              <td colspan="4" style="text-align: center; padding: 2rem; color: #999;">Loading student progress...</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </section>
 
     <!-- Engagement Metrics -->
-    <section class="dashboard-card">
-      <h2>Engagement Insights</h2>
-      <div style="background: var(--color-bg-soft); padding: 2rem; border-radius: 12px; margin-top: 1rem;">
-        <div style="margin-bottom: 1.5rem;">
-          <h3 style="margin: 0 0 0.5rem 0; color: var(--color-text-dark); font-size: 1.1rem;">Most Popular Lessons</h3>
-          <div id="popular-lessons" style="color: #666;">
-            <p>Loading...</p>
+    <section class="card mb-8">
+      <div class="card-header">
+        <h2>Engagement Insights</h2>
+      </div>
+      <div class="card-body">
+        <div class="space-y-6">
+          <div>
+            <h3 class="text-lg font-semibold mb-3">Most Popular Lessons</h3>
+            <div id="popular-lessons" class="text-secondary">
+              <p>Loading...</p>
+            </div>
           </div>
-        </div>
-        <div style="margin-bottom: 1.5rem;">
-          <h3 style="margin: 0 0 0.5rem 0; color: var(--color-text-dark); font-size: 1.1rem;">Recent Activity</h3>
-          <div id="recent-activity" style="color: #666;">
-            <p>Loading...</p>
+          <div>
+            <h3 class="text-lg font-semibold mb-3">Recent Activity</h3>
+            <div id="recent-activity" class="text-secondary">
+              <p>Loading...</p>
+            </div>
           </div>
-        </div>
-        <div>
-          <h3 style="margin: 0 0 0.5rem 0; color: var(--color-text-dark); font-size: 1.1rem;">Completion Trends</h3>
-          <div id="completion-trends" style="color: #666;">
-            <p>Analyzing trends...</p>
+          <div>
+            <h3 class="text-lg font-semibold mb-3">Completion Trends</h3>
+            <div id="completion-trends" class="text-secondary">
+              <p>Analyzing trends...</p>
+            </div>
           </div>
-        </div>
       </div>
     </section>
 
   </main>
 
   <style>
-    .stat-box {
-      text-align: center;
-      padding: 1.5rem;
-      background: var(--color-bg-soft);
-      border-radius: 12px;
-      border: 2px solid var(--color-border);
-    }
-
-    .stat-value {
-      font-size: 2.5rem;
-      font-weight: 900;
-      color: var(--color-primary);
-      margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-      font-size: 0.875rem;
-      color: var(--color-text-light);
-      font-weight: 600;
-    }
-
     .performance-item {
-      background: var(--color-bg-soft);
+      background: var(--color-bg-tertiary);
       padding: 1.25rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      border-left: 4px solid var(--color-primary);
+      border-radius: var(--radius-md);
+      border-left: 4px solid var(--color-brand-purple);
     }
 
     .performance-item h3 {
       margin: 0 0 0.75rem 0;
-      color: var(--color-text-dark);
       font-size: 1.1rem;
     }
 
@@ -154,21 +170,20 @@
     .metric-value {
       font-size: 1.5rem;
       font-weight: 700;
-      color: var(--color-primary);
+      color: var(--color-brand-purple);
     }
 
     .metric-label {
       font-size: 0.75rem;
-      color: var(--color-text-light);
+      color: var(--color-text-secondary);
       text-transform: uppercase;
     }
 
     .progress-item {
-      background: white;
+      background: var(--color-bg-tertiary);
       padding: 1rem;
-      border-radius: 8px;
-      margin-bottom: 0.75rem;
-      border: 1px solid var(--color-border);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-primary);
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -177,20 +192,31 @@
     .progress-bar-container {
       width: 200px;
       height: 8px;
-      background: var(--color-bg-soft);
-      border-radius: 4px;
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-full);
       overflow: hidden;
     }
 
     .progress-bar-fill {
       height: 100%;
-      background: var(--color-primary);
+      background: var(--color-brand-purple);
       transition: width 0.3s;
     }
   </style>
 
-  <!-- ✨ Load new Analytics Dashboard Script -->
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
+  
+  <!-- Load Analytics Dashboard Script -->
   <script src="scripts/instructor-analytics.js"></script>
+  
+  <!-- Logout Handler -->
+  <script>
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    });
+  </script>
   
   <!-- OLD CODE REPLACED - Keeping for reference if needed
   <script>

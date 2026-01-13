@@ -4,26 +4,269 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Student Analytics — Orah School</title>
-  <link rel="stylesheet" href="styles/student-analytics.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
-  <main class="analytics-main">
-    <!-- Progress/attendance charts -->
-    <section class="analytics-charts">
-      <div class="chart-placeholder">[Progress Chart]</div>
-      <div class="chart-placeholder">[Attendance Chart]</div>
-    </section>
-    <!-- Summary cards -->
-    <section class="summary-cards">
-      <div class="summary-card">Lessons Completed: 8</div>
-      <div class="summary-card">Attendance: 95%</div>
-    </section>
-    <!-- Insight/CTA -->
-    <section class="analytics-cta">
-      <h2>Insight</h2>
-      <p>Complete more lessons to boost your progress!</p>
-    </section>
+  <!-- Header -->
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <!-- Logo & Navigation -->
+        <div class="flex items-center gap-4">
+          <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+            <img src="assets/orahlogo.png" alt="Orah Schools logo" width="50" height="33">
+            <span class="text-lg font-bold">Orah Schools</span>
+          </a>
+          <nav class="hidden md:flex items-center gap-2">
+            <a href="student-dashboard.html" class="btn-ghost btn-sm">Dashboard</a>
+            <span class="text-brand font-semibold">Analytics</span>
+          </nav>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <button id="logout-btn" class="btn-secondary btn-sm">Logout</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="py-8">
+    <div class="container">
+      <!-- Page Title -->
+      <div class="mb-6">
+        <h1 class="mb-2">📊 My Analytics</h1>
+        <p class="text-secondary">Track your learning progress and performance</p>
+      </div>
+
+      <!-- Summary Cards -->
+      <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div class="card card-brand text-center">
+          <div class="text-3xl font-bold mb-1" id="lessons-completed">8</div>
+          <div class="text-sm text-tertiary">Lessons Completed</div>
+        </div>
+        
+        <div class="card card-brand text-center">
+          <div class="text-3xl font-bold mb-1" id="attendance-rate">95%</div>
+          <div class="text-sm text-tertiary">Attendance Rate</div>
+        </div>
+        
+        <div class="card card-brand text-center">
+          <div class="text-3xl font-bold mb-1" id="total-hours">24h</div>
+          <div class="text-sm text-tertiary">Learning Time</div>
+        </div>
+        
+        <div class="card card-brand text-center">
+          <div class="text-3xl font-bold mb-1" id="avg-score">87%</div>
+          <div class="text-sm text-tertiary">Average Score</div>
+        </div>
+      </section>
+
+      <!-- Charts Section -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        <!-- Progress Chart -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="m-0">📈 Progress Over Time</h2>
+          </div>
+          <div class="card-body">
+            <div class="chart-placeholder" style="height: 300px; display: flex; align-items: center; justify-content: center; background: var(--color-bg-secondary); border-radius: var(--radius-md); cursor: pointer;">
+              <div class="text-center">
+                <div class="text-6xl mb-3">📊</div>
+                <p class="text-secondary mb-2">Progress Chart</p>
+                <p class="text-sm text-tertiary">Click to view detailed analytics</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendance Chart -->
+        <div class="card">
+          <div class="card-header">
+            <h2 class="m-0">📅 Attendance History</h2>
+          </div>
+          <div class="card-body">
+            <div class="chart-placeholder" style="height: 300px; display: flex; align-items: center; justify-center; background: var(--color-bg-secondary); border-radius: var(--radius-md); cursor: pointer;">
+              <div class="text-center">
+                <div class="text-6xl mb-3">📅</div>
+                <p class="text-secondary mb-2">Attendance Chart</p>
+                <p class="text-sm text-tertiary">Click to view detailed attendance</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Course Breakdown -->
+      <section class="card mb-8">
+        <div class="card-header">
+          <h2 class="m-0">📚 Course Performance</h2>
+        </div>
+        <div class="card-body">
+          <div class="flex flex-col gap-4">
+            <!-- Course 1 -->
+            <div class="p-4 rounded-lg" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary);">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-semibold m-0">Introduction to Programming</h3>
+                <span class="text-brand font-bold">85%</span>
+              </div>
+              <div style="background: var(--color-bg-tertiary); height: 8px; border-radius: 999px; overflow: hidden;">
+                <div style="background: var(--color-brand-purple); height: 100%; width: 85%; border-radius: 999px;"></div>
+              </div>
+              <div class="flex items-center justify-between mt-2 text-sm text-tertiary">
+                <span>17/20 lessons completed</span>
+                <span>12h learning time</span>
+              </div>
+            </div>
+
+            <!-- Course 2 -->
+            <div class="p-4 rounded-lg" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary);">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-semibold m-0">Web Development Basics</h3>
+                <span class="text-brand font-bold">92%</span>
+              </div>
+              <div style="background: var(--color-bg-tertiary); height: 8px; border-radius: 999px; overflow: hidden;">
+                <div style="background: var(--color-brand-purple); height: 100%; width: 92%; border-radius: 999px;"></div>
+              </div>
+              <div class="flex items-center justify-between mt-2 text-sm text-tertiary">
+                <span>23/25 lessons completed</span>
+                <span>18h learning time</span>
+              </div>
+            </div>
+
+            <!-- Course 3 -->
+            <div class="p-4 rounded-lg" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary);">
+              <div class="flex items-center justify-between mb-2">
+                <h3 class="text-lg font-semibold m-0">Database Fundamentals</h3>
+                <span class="text-brand font-bold">78%</span>
+              </div>
+              <div style="background: var(--color-bg-tertiary); height: 8px; border-radius: 999px; overflow: hidden;">
+                <div style="background: var(--color-brand-purple); height: 100%; width: 78%; border-radius: 999px;"></div>
+              </div>
+              <div class="flex items-center justify-between mt-2 text-sm text-tertiary">
+                <span>14/18 lessons completed</span>
+                <span>9h learning time</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Insights -->
+      <section class="glass-strong rounded-xl p-8 text-center">
+        <div class="text-5xl mb-4">🎯</div>
+        <h2 class="mb-3">Keep Up the Great Work!</h2>
+        <p class="text-secondary mb-4">You're making excellent progress. Complete 3 more lessons to reach your weekly goal!</p>
+        <a href="student-dashboard.html" class="btn-primary">Back to Dashboard</a>
+      </section>
+    </div>
   </main>
+
+  <!-- Floating Chatbot Button -->
+  <button id="student-chatbot-btn" class="btn-primary" style="position: fixed; bottom: 2rem; right: 2rem; border-radius: 50%; width: 60px; height: 60px; font-size: 1.5rem; box-shadow: var(--shadow-xl), var(--glow-brand); z-index: 999;" aria-label="Open Support Chat">💬</button>
+
+  <!-- Chatbot Container -->
+  <div id="chatbot-container" class="card" style="position: fixed; bottom: 6rem; right: 2rem; width: 350px; max-width: calc(100vw - 4rem); height: 500px; max-height: 60vh; z-index: 1000; box-shadow: var(--shadow-xl); display: none; flex-direction: column;">
+    <div class="card-header flex items-center justify-between">
+      <h3 class="m-0">Orah Assistant</h3>
+      <button id="chatbot-close-btn" class="btn-ghost btn-sm" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
+    </div>
+    <div id="chatbot-messages" class="card-body" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+      <div style="background: var(--color-bg-secondary); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-primary);">
+        <strong class="text-brand">Orah Assistant:</strong>
+        <p class="m-0 mt-1 text-sm">Hi! How can I help you today? You can ask me about your courses, progress, or technical issues.</p>
+      </div>
+    </div>
+    <div class="card-footer" style="display: flex; gap: 0.5rem;">
+      <input 
+        type="text" 
+        id="chatbot-input" 
+        placeholder="Type your message..."
+        autocomplete="off"
+        style="flex: 1;"
+      />
+      <button id="chatbot-send-btn" class="btn-primary btn-sm">Send</button>
+    </div>
+  </div>
+
+  <style>
+    /* Chatbot Toggle Animations */
+    #chatbot-container.open {
+      display: flex !important;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* User and Bot Message Styles */
+    .user-message, .bot-message {
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-primary);
+    }
+
+    .user-message {
+      background: var(--color-brand-purple);
+      color: white;
+      align-self: flex-end;
+      max-width: 80%;
+    }
+
+    .bot-message {
+      background: var(--color-bg-secondary);
+      align-self: flex-start;
+      max-width: 90%;
+    }
+
+    .typing-indicator {
+      opacity: 0.7;
+    }
+
+    .typing-dots span {
+      animation: blink 1.4s infinite;
+    }
+
+    .typing-dots span:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dots span:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    @keyframes blink {
+      0%, 60%, 100% { opacity: 1; }
+      30% { opacity: 0.3; }
+    }
+  </style>
+
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
   <script src="scripts/student-analytics.js"></script>
+  <script src="scripts/student-chatbot.js"></script>
+
+  <script>
+    // Logout handler
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        console.log('🚪 Logging out...');
+        localStorage.clear();
+        window.location.href = 'login.html';
+      });
+    }
+  </script>
 </body>
 </html>

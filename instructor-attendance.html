@@ -5,83 +5,99 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Attendance Tracking — Orah School</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="styles/instructor-dashboard.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
-  <!-- Modern Header with Logo and Navigation -->
-  <header id="instructor-header" class="dashboard-header">
-    <div class="header-container">
-      <div class="logo-brand">
-        <button id="back-to-hub-btn" class="btn-back">← Back to Hub</button>
-        <span class="logo-text">Attendance Tracker</span>
+  <!-- Glassmorphic Header -->
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <div class="flex items-center gap-4">
+          <a href="instructor-hub.html" class="btn-ghost btn-sm">← Back to Hub</a>
+          <span class="text-xl font-bold">Attendance Tracker</span>
+        </div>
+        
+        <nav class="flex items-center gap-4">
+          <a class="btn-ghost btn-sm" href="instructor-hub.html">Dashboard</a>
+          <a class="btn-ghost btn-sm" href="instructor-lessons.html">Lessons</a>
+        </nav>
+        
+        <div class="flex items-center gap-3">
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <button id="logout-btn" class="btn-secondary btn-sm">Logout</button>
+        </div>
       </div>
-      <nav class="header-nav">
-        <a class="nav-link" href="instructor-hub.html">Hub</a>
-        <a class="nav-link" href="instructor-lessons.html">Lessons</a>
-        <button id="logout-btn" class="btn-logout">Logout</button>
-      </nav>
     </div>
   </header>
 
   <!-- Main Content -->
-  <main id="dashboard-main" class="dashboard-main" style="grid-template-columns: 1fr;">
-    
-    <!-- Attendance Tracking Card -->
-    <section class="dashboard-card">
-      <h2>Mark Attendance</h2>
-      
-      <div class="form-group">
-        <label for="attendance-date">Date</label>
-        <input type="date" id="attendance-date" class="form-control" />
-      </div>
+  <main class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-8);">
 
-      <div class="form-group">
-        <label for="lesson-select">Select Lesson/Class</label>
-        <select id="lesson-select" class="form-control">
-          <option value="">Loading lessons...</option>
-        </select>
+    <!-- Attendance & Progress Tracker -->
+    <section class="card mb-8">
+      <div class="card-header">
+        <h2>Attendance & Progress Tracker</h2>
       </div>
+      <div class="card-body">
+        <div style="margin-bottom: 1rem;">
+          <label for="lesson-select" style="display:block; margin-bottom:0.5rem;">Select Lesson/Class</label>
+          <select id="lesson-select" style="max-width: 420px; width: 100%;">
+            <option value="">Loading lessons...</option>
+          </select>
+        </div>
 
-      <div id="student-roster" class="student-roster">
-        <p style="color: #666; text-align: center; padding: 2rem;">Select a lesson to view enrolled students</p>
+        <div id="attendance-stats-view" style="margin-top: 1rem;">
+          <!-- 3-column grid will be rendered here by JS -->
+        </div>
       </div>
-
-      <button id="save-attendance-btn" class="tech-button" style="margin-top: 1.5rem;">Save Attendance</button>
-      <span id="attendance-msg" style="margin-left: 1rem; font-weight: 600;"></span>
     </section>
 
     <!-- Attendance Report Card -->
-    <section class="dashboard-card">
-      <h2>Attendance Reports</h2>
-      
-      <div class="report-filters" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
-        <div class="form-group" style="flex: 1;">
-          <label for="report-lesson">Lesson</label>
-          <select id="report-lesson" class="form-control">
-            <option value="">All Lessons</option>
-          </select>
-        </div>
-        <div class="form-group" style="flex: 1;">
-          <label for="report-period">Period</label>
-          <select id="report-period" class="form-control">
-            <option value="week">Last Week</option>
-            <option value="month">Last Month</option>
-            <option value="all">All Time</option>
-          </select>
-        </div>
+    <section class="card mb-8">
+      <div class="card-header">
+        <h2>Attendance Reports</h2>
       </div>
+      <div class="card-body">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+          <div class="form-group">
+            <label for="report-lesson">Lesson</label>
+            <select id="report-lesson">
+              <option value="">All Lessons</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="report-period">Period</label>
+            <select id="report-period">
+              <option value="week">Last Week</option>
+              <option value="month">Last Month</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+        </div>
 
-      <button id="generate-report-btn" class="tech-button" style="background: var(--color-secondary); color: var(--color-text-dark);">Generate Report</button>
+        <button id="generate-report-btn" class="btn-secondary mb-6">Generate Report</button>
 
-      <div id="attendance-report" class="report-container" style="margin-top: 2rem;">
-        <p style="color: #666; text-align: center; padding: 2rem;">No report generated yet</p>
+        <div id="attendance-report" class="space-y-3">
+          <p class="text-secondary text-center py-8">No report generated yet</p>
+        </div>
       </div>
     </section>
 
   </main>
 
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
+  
   <!-- External Script -->
   <script src="scripts/instructor-attendance.js"></script>
+  
+  <!-- Logout Handler -->
+  <script>
+    document.getElementById('logout-btn').addEventListener('click', () => {
+      localStorage.clear();
+      window.location.href = 'login.html';
+    });
+  </script>
 </body>
 </html>

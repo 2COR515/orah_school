@@ -3,117 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard - Orah School</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="stylesheet" href="styles/admin-dashboard.css">
+    <title>Admin Dashboard — Orah School</title>
+    <!-- Dark Industrial Design System -->
+    <link rel="stylesheet" href="./styles/dark-industrial.css">
 </head>
 <body>
-    <!-- Header -->
-    <header class="admin-header">
-        <div class="header-content">
-            <div class="logo-section">
-                <img src="assets/orahlogo.png" alt="Orah Logo" class="logo-img">
-                <span class="logo-text">Orah School Admin</span>
+    <!-- Glassmorphic Header -->
+    <header class="glass sticky" style="top: 0; z-index: 1000;">
+        <div class="container">
+            <div class="flex items-center justify-between py-4">
+                <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+                    <img src="assets/orahlogo.png" alt="Orah Schools logo" width="60" height="40">
+                    <span class="text-xl font-bold">Orah Schools</span>
+                    <span class="badge-error">🔐 Admin</span>
+                </a>
+                
+                <nav class="flex items-center gap-4">
+                    <a class="btn-ghost btn-sm" href="admin-dashboard.html">Dashboard</a>
+                    <a class="btn-ghost btn-sm" href="index.html">View Site</a>
+                </nav>
+                
+                <div class="flex items-center gap-3">
+                    <span id="admin-name" class="hidden md:inline text-sm text-secondary">Admin</span>
+                    <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+                    <button id="logout-btn" class="btn-secondary btn-sm">Logout</button>
+                </div>
             </div>
-            <nav class="admin-nav">
-                <button id="back-btn" class="nav-button">← Back</button>
-                <button id="logout-btn" class="nav-button danger">Logout</button>
-            </nav>
         </div>
     </header>
 
-    <!-- Main Content -->
-    <div class="admin-wrapper container">
-        <main class="admin-main">
-            <!-- System Overview -->
-            <section class="card stats-section">
-                <h2>System Overview</h2>
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon">👥</div>
-                        <h3 id="total-users">0</h3>
-                        <p>Total Users</p>
+    <!-- Main Content Wrapper -->
+    <main class="container" style="padding-top: var(--space-8); padding-bottom: var(--space-8);">
+        
+        <!-- System Overview -->
+        <section class="card card-brand mb-8">
+            <div class="card-header">
+                <h2>📊 System Overview</h2>
+            </div>
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="stat-card" style="background: var(--color-bg-secondary); padding: var(--space-6); border-radius: var(--radius-lg); border: 1px solid var(--color-border-primary); text-align: center;">
+                        <div class="stat-icon" style="font-size: 2.5rem; margin-bottom: var(--space-3);">👥</div>
+                        <h3 id="total-users" style="font-size: 2rem; font-weight: 700; color: var(--color-brand); margin-bottom: var(--space-2);">0</h3>
+                        <p class="text-secondary" style="font-size: 0.875rem;">Total Users</p>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📚</div>
-                        <h3 id="total-lessons">0</h3>
-                        <p>Total Lessons</p>
+                    <div class="stat-card" style="background: var(--color-bg-secondary); padding: var(--space-6); border-radius: var(--radius-lg); border: 1px solid var(--color-border-primary); text-align: center;">
+                        <div class="stat-icon" style="font-size: 2.5rem; margin-bottom: var(--space-3);">📚</div>
+                        <h3 id="total-lessons" style="font-size: 2rem; font-weight: 700; color: var(--color-brand); margin-bottom: var(--space-2);">0</h3>
+                        <p class="text-secondary" style="font-size: 0.875rem;">Total Lessons</p>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">✅</div>
-                        <h3 id="total-enrollments">0</h3>
-                        <p>Total Enrollments</p>
+                    <div class="stat-card" style="background: var(--color-bg-secondary); padding: var(--space-6); border-radius: var(--radius-lg); border: 1px solid var(--color-border-primary); text-align: center;">
+                        <div class="stat-icon" style="font-size: 2.5rem; margin-bottom: var(--space-3);">✅</div>
+                        <h3 id="total-enrollments" style="font-size: 2rem; font-weight: 700; color: var(--color-brand); margin-bottom: var(--space-2);">0</h3>
+                        <p class="text-secondary" style="font-size: 0.875rem;">Total Enrollments</p>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-icon">📊</div>
-                        <h3 id="total-attendance">0</h3>
-                        <p>Attendance Records</p>
+                    <div class="stat-card" style="background: var(--color-bg-secondary); padding: var(--space-6); border-radius: var(--radius-lg); border: 1px solid var(--color-border-primary); text-align: center;">
+                        <div class="stat-icon" style="font-size: 2.5rem; margin-bottom: var(--space-3);">📊</div>
+                        <h3 id="total-attendance" style="font-size: 2rem; font-weight: 700; color: var(--color-brand); margin-bottom: var(--space-2);">0</h3>
+                        <p class="text-secondary" style="font-size: 0.875rem;">Attendance Records</p>
                     </div>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- User Management -->
-            <section class="card management-section">
-                <div class="section-header">
-                    <h2>User Management</h2>
-                    <button id="refresh-users-btn" class="btn-secondary">🔄 Refresh</button>
-                </div>
-                <div class="table-container">
-                    <table id="users-table">
+        <!-- User Management -->
+        <section class="card mb-8">
+            <div class="card-header flex items-center justify-between">
+                <h2>👥 User Management</h2>
+                <button id="refresh-users-btn" class="btn-secondary btn-sm">🔄 Refresh</button>
+            </div>
+            <div class="card-body">
+                <div style="overflow-x: auto;">
+                    <table id="users-table" style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Role</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                            <tr style="border-bottom: 2px solid var(--color-border-primary);">
+                                <th style="text-align: left; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Name</th>
+                                <th style="text-align: left; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Email</th>
+                                <th style="text-align: left; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Role</th>
+                                <th style="text-align: left; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Created</th>
+                                <th style="text-align: center; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="users-tbody">
                             <tr>
-                                <td colspan="5" class="loading">Loading users...</td>
+                                <td colspan="5" style="text-align: center; padding: var(--space-6); color: var(--color-text-secondary);">Loading users...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </section>
+            </div>
+        </section>
 
-            <!-- Lesson Management -->
-            <section class="card management-section">
-                <div class="section-header">
-                    <h2>Lesson Management</h2>
-                    <button id="refresh-lessons-btn" class="btn-secondary">🔄 Refresh</button>
-                </div>
-                <div class="table-container">
-                    <table id="lessons-table">
+        <!-- Lesson Management -->
+        <section class="card mb-8">
+            <div class="card-header flex items-center justify-between">
+                <h2>📚 Lesson Management</h2>
+                <button id="refresh-lessons-btn" class="btn-secondary btn-sm">🔄 Refresh</button>
+            </div>
+            <div class="card-body">
+                <div style="overflow-x: auto;">
+                    <table id="lessons-table" style="width: 100%; border-collapse: collapse;">
                         <thead>
-                            <tr>
-                                <th>Title</th>
-                                <th>Instructor</th>
-                                <th>Status</th>
-                                <th>Enrollments</th>
-                                <th>Created</th>
-                                <th>Actions</th>
+                            <tr style="border-bottom: 2px solid var(--color-border-primary);">
+                                <th style="text-align: left; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Title</th>
+                                <th style="text-align: left; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Instructor</th>
+                                <th style="text-align: center; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Status</th>
+                                <th style="text-align: center; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Enrollments</th>
+                                <th style="text-align: left; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Created</th>
+                                <th style="text-align: center; padding: var(--space-3); font-weight: 600; color: var(--color-text-secondary);">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="lessons-tbody">
                             <tr>
-                                <td colspan="6" class="loading">Loading lessons...</td>
+                                <td colspan="6" style="text-align: center; padding: var(--space-6); color: var(--color-text-secondary);">Loading lessons...</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-            </section>
-        </main>
-    </div>
+            </div>
+        </section>
+    </main>
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
+    <div id="toast" class="toast" style="position: fixed; bottom: 2rem; right: 2rem; padding: 1rem 1.5rem; background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); box-shadow: var(--shadow-xl); z-index: 9999; display: none; min-width: 250px;"></div>
 
-    <footer class="admin-footer">
-        <p>Orah School Admin Dashboard © 2025</p>
-    </footer>
-
+    <!-- Theme Switcher -->
+    <script src="./scripts/theme-switcher.js"></script>
     <script src="scripts/admin-dashboard.js"></script>
+    <script>
+        // Load admin name from localStorage
+        const firstName = localStorage.getItem('userFirstName') || 'Admin';
+        const lastName = localStorage.getItem('userLastName') || '';
+        const adminNameEl = document.getElementById('admin-name');
+        if (adminNameEl) {
+            adminNameEl.textContent = `${firstName} ${lastName}`;
+        }
+        
+        // Logout handler
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            localStorage.clear();
+            window.location.href = 'login.html';
+        });
+    </script>
 </body>
 </html>

@@ -4,84 +4,191 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title id="page-title">Lesson Player — Orah School</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="styles/lesson-player.css" />
+    <!-- Dark Industrial Design System -->
+    <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
-    <header id="page-header" class="player-header">
-        <div class="header-content container">
-        
-            <button id="back-btn" class="nav-button">← Back</button>
-             <a href="index.html" aria-label="Orah Schools home">
-        <img src="assets/orahlogo.png" alt="Orah Schools logo" class="logo" width="200" height="100">
-      </a>
-            <button id="dashboard-btn" class="nav-button">Dashboard</button>
+    <!-- Header -->
+    <header id="page-header" class="glass sticky" style="top: 0; z-index: 1000;">
+        <div class="container">
+            <div class="flex items-center justify-between py-4">
+                <!-- Back Button & Logo -->
+                <div class="flex items-center gap-4">
+                    <button id="back-btn" class="btn-ghost btn-sm">← Back</button>
+                    <a href="index.html" aria-label="Orah Schools home" class="hidden md:flex items-center gap-2">
+                        <img src="assets/orahlogo.png" alt="Orah Schools logo" width="50" height="33">
+                        <span class="text-lg font-bold">Orah Schools</span>
+                    </a>
+                </div>
+                
+                <!-- Actions -->
+                <div class="flex items-center gap-3">
+                    <button id="dashboard-btn" class="btn-ghost btn-sm">Dashboard</button>
+                    <!-- Theme Toggle -->
+                    <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+                </div>
+            </div>
         </div>
     </header>
 
-    <div class="player-wrapper container">
+    <div class="container py-6">
         <main class="lesson-main">
-            <section class="video-container">
-                <video id="lesson-video" controls autoplay class="responsive-video">
+            <!-- Video Section -->
+            <section class="card mb-6">
+                <div class="card-body p-0">
+                    <video id="lesson-video" controls autoplay style="width: 100%; border-radius: var(--radius-lg); background: #000;">
                     </video>
+                </div>
             </section>
 
-            <section id="lesson-details" class="details-section card">
-                <h1 id="lesson-title" class="lp-lesson-title">Loading Lesson...</h1> 
-                <h2>Lesson Overview</h2>
-                <p id="lesson-description" class="lp-lesson-desc">Fetching details and description.</p>
+            <!-- Lesson Details -->
+            <section id="lesson-details" class="card mb-6">
+                <div class="card-header">
+                    <h1 id="lesson-title" class="lp-lesson-title text-2xl m-0">Loading Lesson...</h1>
+                </div>
+                <div class="card-body">
+                    <h2 class="text-lg mb-2">Lesson Overview</h2>
+                    <p id="lesson-description" class="lp-lesson-desc text-secondary">Fetching details and description.</p>
+                </div>
             </section>
 
-            <div id="utility-tabs" class="utility-tabs">
-                <button class="tab-btn active" data-tab="actions">Progress & Actions</button>
-                <button class="tab-btn" data-tab="notes">Notes</button>
-                <button class="tab-btn" data-tab="resources">Resources</button>
+            <!-- Utility Tabs -->
+            <div id="utility-tabs" class="flex gap-2 mb-4">
+                <button class="tab-btn btn-ghost active" data-tab="actions">Progress & Actions</button>
+                <button class="tab-btn btn-ghost" data-tab="notes">Notes</button>
+                <button class="tab-btn btn-ghost" data-tab="resources">Resources</button>
             </div>
 
-            <div id="tab-content" class="tab-content card">
-                <div id="tab-actions" class="tab-pane active">
-                    <h3>Progress Status</h3>
-                    <div id="progress-status" class="progress-status">
-                        <p>Status: <strong id="progress-text">Not Started</strong></p>
-                        <button id="mark-completed-btn" class="tech-button complete-btn">Mark as Completed</button>
+            <!-- Tab Content -->
+            <div id="tab-content" class="card mb-6">
+                <!-- Progress & Actions Tab -->
+                <div id="tab-actions" class="tab-pane card-body">
+                    <h3 class="mb-4">Progress Status</h3>
+                    <div id="progress-status" class="p-4 rounded mb-4" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary);">
+                        <p class="mb-3">Status: <strong id="progress-text" class="text-brand">Not Started</strong></p>
+                        <button id="mark-completed-btn" class="btn-success">✓ Mark as Completed</button>
                     </div>
-                    <h3 style="margin-top: 20px;">Lesson Navigation</h3>
-                    <div class="navigation-buttons">
-                        <button id="prev-lesson-btn" class="tech-button nav-btn">← Previous</button>
-                        <button id="next-lesson-btn" class="tech-button nav-btn">Next →</button>
+                    
+                    <h3 class="mb-4">Lesson Navigation</h3>
+                    <div class="flex gap-3">
+                        <button id="prev-lesson-btn" class="btn-secondary flex-1">← Previous</button>
+                        <button id="next-lesson-btn" class="btn-primary flex-1">Next →</button>
                     </div>
                 </div>
 
-                <div id="tab-notes" class="tab-pane">
-                    <h3>Your Study Notes</h3>
-                    <textarea id="lesson-notes" placeholder="Write your notes here..." rows="10"></textarea>
-                    <button id="save-notes-btn" class="tech-button save-notes-btn">Save Notes</button>
+                <!-- Notes Tab -->
+                <div id="tab-notes" class="tab-pane card-body" style="display: none;">
+                    <h3 class="mb-4">Your Study Notes</h3>
+                    <textarea id="lesson-notes" placeholder="Write your notes here..." rows="10" class="mb-3"></textarea>
+                    <button id="save-notes-btn" class="btn-primary">Save Notes</button>
                 </div>
 
-                <div id="tab-resources" class="tab-pane">
-                    <h3>Downloadable Resources</h3>
-                    <ul id="resources-list" class="resources-list">
-                        <li>No resources found.</li>
+                <!-- Resources Tab -->
+                <div id="tab-resources" class="tab-pane card-body" style="display: none;">
+                    <h3 class="mb-4">Downloadable Resources</h3>
+                    <ul id="resources-list" style="list-style: none; padding: 0; margin: 0;">
+                        <li class="text-tertiary">No resources found.</li>
                     </ul>
                 </div>
             </div>
             
-            <section id="lesson-quiz" class="quiz-section card" style="display:none;">
-                <h2>Test Your Knowledge</h2>
-                <div id="quiz-questions-container" class="quiz-questions">
-                    <p>The quiz will load here once the video is complete.</p>
+            <!-- Quiz Section -->
+            <section id="lesson-quiz" class="card" style="display:none;">
+                <div class="card-header">
+                    <h2 class="m-0">🎯 Test Your Knowledge</h2>
                 </div>
+                <div class="card-body">
+                    <div id="quiz-questions-container" class="mb-4">
+                        <p class="text-secondary">The quiz will load here once the video is complete.</p>
+                    </div>
 
-                <div id="quiz-results" class="quiz-results" style="margin-top: 1rem; display:none;">
+                    <div id="quiz-results" style="display:none; margin-top: 1rem;">
+                    </div>
+
+                    <button id="submit-quiz-btn" class="btn-primary">Submit Quiz</button>
                 </div>
-
-                <button id="submit-quiz-btn" class="tech-button submit-quiz-btn" style="margin-top: 1.5rem;">Submit Quiz</button>
             </section>
 
         </main>
     </div>
 
+    <!-- Floating Chatbot Button -->
+    <button id="student-chatbot-btn" class="btn-primary" style="position: fixed; bottom: 2rem; right: 2rem; border-radius: 50%; width: 60px; height: 60px; font-size: 1.5rem; box-shadow: var(--shadow-xl), var(--glow-brand); z-index: 999;" aria-label="Open Support Chat">💬</button>
+
+    <!-- Chatbot Container -->
+    <div id="chatbot-container" class="card" style="position: fixed; bottom: 6rem; right: 2rem; width: 350px; max-width: calc(100vw - 4rem); height: 500px; max-height: 60vh; z-index: 1000; box-shadow: var(--shadow-xl); display: none; flex-direction: column;">
+        <div class="card-header flex items-center justify-between">
+            <h3 class="m-0">Orah Assistant</h3>
+            <button id="chatbot-close-btn" class="btn-ghost btn-sm" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
+        </div>
+        <div id="chatbot-messages" class="card-body" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+            <div style="background: var(--color-bg-secondary); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-primary);">
+                <strong class="text-brand">Orah Assistant:</strong>
+                <p class="m-0 mt-1 text-sm">Hi! How can I help you today? You can ask me about your courses, progress, or technical issues.</p>
+            </div>
+        </div>
+        <div class="card-footer" style="display: flex; gap: 0.5rem;">
+            <input 
+                type="text" 
+                id="chatbot-input" 
+                placeholder="Type your message..."
+                autocomplete="off"
+                style="flex: 1;"
+            />
+            <button id="chatbot-send-btn" class="btn-primary btn-sm">Send</button>
+        </div>
+    </div>
+
+    <style>
+        /* Chatbot Toggle Animations */
+        #chatbot-container.open {
+            display: flex !important;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* User and Bot Message Styles */
+        .user-message, .bot-message {
+            padding: 0.75rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--color-border-primary);
+        }
+
+        .user-message {
+            background: var(--color-brand-purple);
+            color: white;
+            align-self: flex-end;
+            max-width: 80%;
+        }
+
+        .bot-message {
+            background: var(--color-bg-secondary);
+            align-self: flex-start;
+            max-width: 90%;
+        }
+
+        /* Tab Button Active State */
+        .tab-btn.active {
+            background: var(--color-brand-purple);
+            color: white;
+        }
+    </style>
+
+    <!-- Theme Switcher -->
+    <script src="./scripts/theme-switcher.js"></script>
     <script src="scripts/lesson-player.js"></script>
+    <script src="scripts/student-chatbot.js"></script>
+    
     <script>
         // Simple client-side routing handlers
         document.getElementById('back-btn').addEventListener('click', () => {

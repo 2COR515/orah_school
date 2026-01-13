@@ -7,6 +7,10 @@ const API_BASE_URL = 'http://localhost:3002/api';
 const CURRENT_USER_ID = localStorage.getItem('userId') || 'S101';
 
 document.addEventListener('DOMContentLoaded', async () => {
+  // Personalize greeting with user's first name
+  await personalizeGreeting();
+  
+  // Load dashboard data
   await loadDashboard();
   
   // Auto-refresh stats every 10 seconds
@@ -29,6 +33,52 @@ window.addEventListener('focus', async () => {
   console.log('🎯 Window focused - refreshing dashboard stats...');
   await loadDashboard();
 });
+
+/**
+ * Personalize greeting with student's first name
+ * Fetches user profile and updates welcome message
+ */
+async function personalizeGreeting() {
+  try {
+    const token = localStorage.getItem('token');
+    
+    if (!token) {
+      console.warn('⚠️ No token available for greeting personalization');
+      return;
+    }
+    
+    // Fetch user profile
+    const response = await fetch(`${API_BASE_URL}/auth/profile`, {
+      headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    if (!response.ok) {
+      console.warn('⚠️ Could not fetch user profile for greeting:', response.status);
+      return;
+    }
+    
+    const data = await response.json();
+    const user = data.user || data;
+    
+    // Get full name from various possible fields
+    const fullName = user.name || user.fullName || 
+                     (user.firstName ? `${user.firstName} ${user.lastName || ''}`.trim() : null) ||
+                     'Student';
+    
+    // Extract first name (first word of full name)
+    const firstName = fullName.split(' ')[0];
+    
+    // Update the welcome message
+    const welcomeElement = document.getElementById('welcome-message');
+    if (welcomeElement) {
+      welcomeElement.textContent = `Welcome, ${firstName}`;
+      console.log(`👋 Personalized greeting: Welcome, ${firstName}`);
+    }
+  } catch (error) {
+    console.error('❌ Error personalizing greeting:', error);
+    // Continue without personalization - use default fallback
+  }
+}
 
 /**
  * Load all dashboard data: lessons and enrollments
@@ -166,7 +216,8 @@ function renderMyLessons(lessons, enrollmentsByLessonId) {
     card.innerHTML = `
       <div class="orah-card-body" style="flex-grow: 1;">
         <div class="orah-card-name" style="font-size: 1.25rem; font-weight: 600; color: #3B0270; margin-bottom: 0.5rem;">${escapeHtml(lesson.title)}</div>
-        <div class="orah-card-desc" style="color: #666; margin-bottom: 0.75rem;">${escapeHtml(lesson.description || 'No description')}</div>
+        <p class="course-description text-clamp-3" style="color: #666; margin-bottom: 0.5rem; margin-top: 0;">${escapeHtml(lesson.description || 'No description')}</p>
+        <button class="read-more-trigger" style="margin-bottom: 0.75rem;">Read More</button>
         <div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
           Progress: ${progress}%
         </div>
@@ -232,7 +283,8 @@ function renderAvailableLessons(lessons) {
     card.innerHTML = `
       <div class="orah-card-body" style="flex-grow: 1;">
         <div class="orah-card-name" style="font-size: 1.25rem; font-weight: 600; color: #3B0270; margin-bottom: 0.5rem;">${escapeHtml(lesson.title)}</div>
-        <div class="orah-card-desc" style="color: #666; margin-bottom: 0.75rem;">${escapeHtml(lesson.description || 'No description')}</div>
+        <p class="course-description text-clamp-3" style="color: #666; margin-bottom: 0.5rem; margin-top: 0;">${escapeHtml(lesson.description || 'No description')}</p>
+        <button class="read-more-trigger" style="margin-bottom: 0.75rem;">Read More</button>
         <div style="margin-top: 0.5rem; color: #666; font-size: 0.9rem;">
           Topic: ${escapeHtml(lesson.topic || 'General')}
         </div>
@@ -815,3 +867,35 @@ if (document.readyState === 'loading') {
   // DOM already loaded
   initReminderPreferences();
 }
+
+/**
+ * Global event handler for all "Read More / Read Less" buttons
+ * Uses event delegation to handle dynamically loaded content
+ */
+function handleReadMoreTrigger(e) {
+  if (!e.target.classList.contains('read-more-trigger')) return;
+  
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const btn = e.target;
+  const desc = btn.previousElementSibling;
+  
+  if (!desc || !desc.classList.contains('course-description')) return;
+  
+  const isExpanded = desc.classList.contains('text-clamp-expanded');
+  
+  if (isExpanded) {
+    desc.classList.remove('text-clamp-expanded');
+    btn.textContent = 'Read More';
+    console.log('✅ Description collapsed');
+  } else {
+    desc.classList.add('text-clamp-expanded');
+    btn.textContent = 'Read Less';
+    console.log('✅ Description expanded');
+  }
+}
+
+// Attach global listener for all Read More buttons
+document.body.addEventListener('click', handleReadMoreTrigger);
+console.log('🎯 Global "Read More / Read Less" listener attached');

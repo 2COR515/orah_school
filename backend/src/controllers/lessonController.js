@@ -1,5 +1,5 @@
 // lessonController.js - Controller functions for Lesson operations
-const { addLesson, getLesson, updateLesson: dbUpdateLesson, deleteLesson: dbDeleteLesson, listLessons, deleteEnrollmentsByLesson } = require('../../db');
+const { addLesson, getLesson, updateLesson: dbUpdateLesson, deleteLesson: dbDeleteLesson, listLessons, deleteEnrollmentsByLesson, getEnrollmentByLessonAndUser, listEnrollmentsByLesson, getAllUsers } = require('../../db');
 
 /**
  * Create a new lesson
@@ -198,6 +198,22 @@ const getLessonById = async (req, res) => {
         error: 'Lesson not found'
       });
     }
+
+    // If a student is requesting the lesson, enforce deadline lock: if deadline passed and student has not been granted redo, return 403 with lock code
+    try {
+      if (req.user && req.user.role === 'student') {
+        const enrollment = await getEnrollmentByLessonAndUser(lesson.id, req.user.id);
+        if (enrollment && lesson.deadline) {
+          const now = new Date();
+          const deadline = new Date(lesson.deadline);
+          if (now > deadline && !enrollment.redoGranted) {
+            return res.status(403).json({ ok: false, code: 'LESSON_LOCKED', error: 'Lesson is locked due to missed deadline' });
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error checking lesson access lock:', err);
+    }
     
     // Send success response
     return res.status(200).json({
@@ -308,15 +324,15 @@ const deleteLesson = async (req, res) => {
       });
     }
 
-    // 3. Authorization Check: Verify the authenticated user is the lesson owner
-    if (req.user.id !== lesson.instructorId) {
+    // 3. Authorization Check: Verify the authenticated user is the lesson owner OR is an admin
+    if (req.user.role !== 'admin' && req.user.id !== lesson.instructorId) {
       return res.status(403).json({
         ok: false,
         error: 'Forbidden: You can only delete your own lessons'
       });
     }
 
-    console.log(`🗑️ Deleting lesson ${id} and all related enrollments...`);
+    console.log(`🗑️ Deleting lesson ${id} and all related enrollments...${req.user.role === 'admin' ? ' (Admin action)' : ''}`);
 
     // 4. Delete all enrollments for this lesson (maintain database integrity)
     const deletedEnrollmentsCount = await deleteEnrollmentsByLesson(id);
@@ -431,11 +447,77 @@ const listAllLessonsAdmin = async (req, res) => {
   }
 };
 
+/**
+ * Get lesson stats: completed, missed (past deadline & incomplete), active
+ * Each entry should include student's fullName
+ */
+const getLessonStats = async (req, res) => {
+  try {
+    const { id: lessonId } = req.params;
+
+    if (!lessonId) {
+      return res.status(400).json({ ok: false, error: 'lessonId is required' });
+    }
+
+    // Fetch lesson and enrollments
+    const lesson = await getLesson(lessonId);
+    if (!lesson) return res.status(404).json({ ok: false, error: 'Lesson not found' });
+
+    const enrollments = await listEnrollmentsByLesson(lessonId);
+
+    // Load users map for name lookup
+    const users = await getAllUsers();
+
+    function findUserName(userId) {
+      const u = (users || []).find(x => x.userId === userId);
+      if (!u) return userId;
+      const full = (u.firstName || '') + ' ' + (u.lastName || '');
+      return full.trim() || u.name || u.userId;
+    }
+
+    const now = new Date();
+    const deadline = lesson.deadline ? new Date(lesson.deadline) : null;
+
+    const completed = [];
+    const missed = [];
+    const active = [];
+
+    for (const e of enrollments) {
+      const mapped = {
+        enrollmentId: e.id,
+        userId: e.userId,
+        studentName: findUserName(e.userId),
+        progress: e.progress || 0,
+        status: e.status || 'active',
+        enrolledAt: e.enrolledAt
+      };
+
+      const isComplete = mapped.progress >= 100 || mapped.status === 'completed';
+      const isPastDeadline = deadline ? now > deadline : false;
+
+      if (isComplete) {
+        completed.push(mapped);
+      } else if (isPastDeadline) {
+        // If past deadline and not complete -> missed
+        missed.push(mapped);
+      } else {
+        active.push(mapped);
+      }
+    }
+
+    return res.status(200).json({ ok: true, stats: { completed, missed, active } });
+  } catch (err) {
+    console.error('Error getting lesson stats:', err);
+    return res.status(500).json({ ok: false, error: 'Internal server error' });
+  }
+};
+
 module.exports = {
   createLesson,
   listPublishedLessons,
   listAllLessonsAdmin,
   getLessonById,
+  getLessonStats,
   updateLesson,
   deleteLesson,
   addLessonResource

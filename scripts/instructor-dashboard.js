@@ -3,6 +3,77 @@
 
 const API_BASE_URL = 'http://localhost:3002/api';
 
+// ========================================
+// CENTRAL USER DATA SERVICE
+// ========================================
+
+/**
+ * Fetch all users and create a lookup map (userId -> user object)
+ * This is a reusable utility for displaying user names across the application
+ * @returns {Promise<Map>} Map with userId as key and user object as value
+ */
+async function fetchUserMap() {
+  const userMap = new Map();
+  
+  try {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      console.warn('⚠️ No authentication token found');
+      return userMap;
+    }
+
+    const response = await fetch(`${API_BASE_URL}/users`, {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    });
+
+    if (!response.ok) {
+      console.warn(`⚠️ Failed to fetch users: ${response.status} ${response.statusText}`);
+      return userMap;
+    }
+
+    const data = await response.json();
+    const users = data.users || [];
+
+    // Create lookup map: userId -> user object
+    users.forEach(user => {
+      userMap.set(user.userId, {
+        id: user.userId,
+        name: user.name || user.username || `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.userId,
+        email: user.email || `${user.userId}@example.com`,
+        role: user.role || 'unknown',
+        firstName: user.firstName || '',
+        lastName: user.lastName || ''
+      });
+    });
+
+    console.log(`✓ Loaded ${userMap.size} users into lookup map`);
+    return userMap;
+
+  } catch (error) {
+    console.error('❌ Error fetching user map:', error);
+    return userMap; // Return empty map on error
+  }
+}
+
+/**
+ * Get user display name from the user map
+ * @param {Map} userMap - The user lookup map
+ * @param {string} userId - The user ID to lookup
+ * @param {string} fallback - Fallback text if user not found
+ * @returns {string} User's display name or fallback
+ */
+function getUserDisplayName(userMap, userId, fallback = 'Unknown User') {
+  const user = userMap.get(userId);
+  return user ? user.name : fallback;
+}
+
+// ========================================
+// DASHBOARD INITIALIZATION
+// ========================================
+
 document.addEventListener('DOMContentLoaded', async () => {
   // Initialize dashboard
   await loadInstructorDashboard();
@@ -104,50 +175,57 @@ function renderStudentEnrollments(enrollments) {
   let trackingSection = document.getElementById('enrollment-tracking-section');
   
   if (!trackingSection) {
-    const main = document.querySelector('.dashboard-main');
+    const main = document.querySelector('.dashboard-main') || document.querySelector('.container main') || document.querySelector('main');
+    if (!main) {
+      console.warn('No main container found for enrollment tracking section');
+      return;
+    }
     trackingSection = document.createElement('section');
     trackingSection.id = 'enrollment-tracking-section';
-    trackingSection.className = 'dashboard-card';
-    trackingSection.style.cssText = 'grid-column: 1 / -1; margin-top: 2rem;';
-    if (main) main.appendChild(trackingSection);
+    trackingSection.className = 'card mb-8';
+    main.appendChild(trackingSection);
   }
   
   trackingSection.innerHTML = `
-    <h2>Student Enrollment Tracking</h2>
-    <p style="color: #666; margin-bottom: 1rem;">Monitor student progress across all lessons</p>
+    <div class="card-header">
+      <h2>Student Enrollment Tracking</h2>
+    </div>
+    <div class="card-body">
+      <p class="text-secondary mb-4">Monitor student progress across all lessons</p>
+      ${enrollments.length === 0 ? '<p class="text-secondary text-center py-8">No student enrollments yet.</p>' : '<div id="enrollment-table-container"></div>'}
+    </div>
   `;
   
   if (enrollments.length === 0) {
-    trackingSection.innerHTML += '<p style="color: #999;">No student enrollments yet.</p>';
     return;
   }
   
   // Create table
+  const container = document.getElementById('enrollment-table-container');
   const table = document.createElement('table');
   table.style.cssText = `
     width: 100%;
     border-collapse: collapse;
-    background: white;
-    border-radius: 8px;
+    background: var(--color-bg-secondary);
+    border-radius: var(--radius-md);
     overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
   `;
   
   // Table header
   table.innerHTML = `
-    <thead style="background: linear-gradient(135deg, #6F00FF 0%, #3B0270 100%); color: white;">
+    <thead style="background: var(--color-brand-purple); color: var(--color-text-primary);">
       <tr>
-        <th style="padding: 1rem; text-align: left;">Student ID</th>
-        <th style="padding: 1rem; text-align: left;">Lesson ID</th>
-        <th style="padding: 1rem; text-align: center;">Progress</th>
-        <th style="padding: 1rem; text-align: center;">Status</th>
-        <th style="padding: 1rem; text-align: left;">Enrolled Date</th>
+        <th style="padding: 1rem; text-align: left; font-weight: 600;">Student ID</th>
+        <th style="padding: 1rem; text-align: left; font-weight: 600;">Lesson ID</th>
+        <th style="padding: 1rem; text-align: center; font-weight: 600;">Progress</th>
+        <th style="padding: 1rem; text-align: center; font-weight: 600;">Status</th>
+        <th style="padding: 1rem; text-align: left; font-weight: 600;">Enrolled Date</th>
       </tr>
     </thead>
     <tbody id="enrollment-table-body"></tbody>
   `;
   
-  trackingSection.appendChild(table);
+  container.appendChild(table);
   
   // Populate table body
   const tbody = document.getElementById('enrollment-table-body');
@@ -155,32 +233,32 @@ function renderStudentEnrollments(enrollments) {
   enrollments.forEach((enrollment, index) => {
     const row = document.createElement('tr');
     row.style.cssText = `
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--color-border-primary);
       transition: background 0.2s;
     `;
-    row.onmouseover = () => row.style.background = '#f9f6ff';
-    row.onmouseout = () => row.style.background = index % 2 === 0 ? 'white' : '#fafafa';
+    row.onmouseover = () => row.style.background = 'var(--color-bg-tertiary)';
+    row.onmouseout = () => row.style.background = index % 2 === 0 ? 'var(--color-bg-secondary)' : 'var(--color-bg-primary)';
     
     const enrolledDate = new Date(enrollment.enrolledAt).toLocaleDateString();
-    const progressColor = enrollment.progress === 100 ? '#28a745' : 
-                         enrollment.progress >= 50 ? '#ffc107' : '#6c757d';
+    const progressColor = enrollment.progress === 100 ? 'var(--color-success)' : 
+                         enrollment.progress >= 50 ? 'var(--color-warning)' : 'var(--color-text-secondary)';
     const statusBadge = enrollment.status === 'completed' ? 
-      '<span style="background: #28a745; color: white; padding: 0.25em 0.75em; border-radius: 12px; font-size: 0.85rem;">Completed</span>' :
-      '<span style="background: #6F00FF; color: white; padding: 0.25em 0.75em; border-radius: 12px; font-size: 0.85rem;">Active</span>';
+      '<span class="badge-success">Completed</span>' :
+      '<span class="badge-brand">Active</span>';
     
     row.innerHTML = `
-      <td style="padding: 1rem;">${escapeHtml(enrollment.userId)}</td>
-      <td style="padding: 1rem;">${escapeHtml(enrollment.lessonId)}</td>
+      <td style="padding: 1rem; color: var(--color-text-primary);">${escapeHtml(enrollment.userId)}</td>
+      <td style="padding: 1rem; color: var(--color-text-primary);">${escapeHtml(enrollment.lessonId)}</td>
       <td style="padding: 1rem; text-align: center;">
         <div style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
-          <div style="width: 80px; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden;">
+          <div style="width: 80px; height: 8px; background: var(--color-bg-tertiary); border-radius: var(--radius-full); overflow: hidden;">
             <div style="width: ${enrollment.progress}%; height: 100%; background: ${progressColor}; transition: width 0.3s;"></div>
           </div>
           <span style="font-weight: 600; color: ${progressColor};">${enrollment.progress}%</span>
         </div>
       </td>
       <td style="padding: 1rem; text-align: center;">${statusBadge}</td>
-      <td style="padding: 1rem;">${enrolledDate}</td>
+      <td style="padding: 1rem; color: var(--color-text-primary);">${enrolledDate}</td>
     `;
     
     tbody.appendChild(row);
@@ -192,23 +270,23 @@ function renderStudentEnrollments(enrollments) {
   const totalEnrollments = enrollments.length;
   
   const statsDiv = document.createElement('div');
-  statsDiv.style.cssText = 'display: flex; gap: 2rem; margin-top: 1.5rem; flex-wrap: wrap;';
+  statsDiv.className = 'grid grid-cols-1 md:grid-cols-3 gap-4 mt-6';
   statsDiv.innerHTML = `
-    <div style="flex: 1; min-width: 150px; padding: 1rem; background: linear-gradient(135deg, #6F00FF 0%, #3B0270 100%); color: white; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2rem; font-weight: 700;">${totalEnrollments}</div>
-      <div style="font-size: 0.9rem; opacity: 0.9;">Total Enrollments</div>
+    <div class="text-center p-4 rounded-lg card-brand">
+      <div class="text-3xl font-bold text-brand mb-1">${totalEnrollments}</div>
+      <div class="text-sm text-secondary">Total Enrollments</div>
     </div>
-    <div style="flex: 1; min-width: 150px; padding: 1rem; background: linear-gradient(135deg, #28a745 0%, #1e7e34 100%); color: white; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2rem; font-weight: 700;">${completedCount}</div>
-      <div style="font-size: 0.9rem; opacity: 0.9;">Completed</div>
+    <div class="text-center p-4 rounded-lg" style="background: var(--color-success); color: white;">
+      <div class="text-3xl font-bold mb-1">${completedCount}</div>
+      <div class="text-sm" style="opacity: 0.9;">Completed</div>
     </div>
-    <div style="flex: 1; min-width: 150px; padding: 1rem; background: linear-gradient(135deg, #E9B3FB 0%, #D896F5 100%); color: #3B0270; border-radius: 8px; text-align: center;">
-      <div style="font-size: 2rem; font-weight: 700;">${activeCount}</div>
-      <div style="font-size: 0.9rem; opacity: 0.9;">In Progress</div>
+    <div class="text-center p-4 rounded-lg" style="background: var(--color-warning); color: var(--color-bg-primary);">
+      <div class="text-3xl font-bold mb-1">${activeCount}</div>
+      <div class="text-sm" style="opacity: 0.9;">In Progress</div>
     </div>
   `;
   
-  trackingSection.appendChild(statsDiv);
+  container.appendChild(statsDiv);
 }
 
 /**
@@ -345,13 +423,37 @@ function setupCreateLessonForm() {
       const file = videoInput?.files && videoInput.files[0] ? videoInput.files[0] : null;
       if (file) {
         if (progressBar) progressBar.style.width = '10%';
+        console.log('🎥 Uploading video:', file.name);
         videoUrl = await uploadVideoFile(file, token, progressBar);
+        console.log('✅ Video uploaded:', videoUrl);
+        if (progressBar) progressBar.style.width = '25%';
       }
 
-      // 2) Collect quiz data
+      // 2) Upload resource file (if provided)
+      const resourceInput = document.getElementById('resource-upload');
+      
+      let resourceZipUrl = null;
+      
+      if (resourceInput?.files && resourceInput.files[0]) {
+        const resourceFile = resourceInput.files[0];
+        console.log('📦 Uploading resource file:', resourceFile.name);
+        if (progressBar) progressBar.style.width = '30%';
+        try {
+          resourceZipUrl = await uploadFile(resourceFile, token, 'resource');
+          console.log('✅ Resource uploaded:', resourceZipUrl);
+        } catch (err) {
+          console.warn('⚠️ Resource upload failed:', err.message);
+          // Continue without resource
+        }
+      }
+
+      // 3) Collect quiz data
+      if (progressBar) progressBar.style.width = '60%';
       const quiz = collectQuizData();
 
-      // 3) Create lesson
+      // 4) Create lesson
+      if (progressBar) progressBar.style.width = '80%';
+      console.log('📝 Creating lesson with data:', { title, description, videoUrl, resourceZipUrl, quizQuestions: quiz.length });
       const res = await fetch(`${API_BASE_URL}/lessons`, {
         method: 'POST',
         headers: {
@@ -364,6 +466,7 @@ function setupCreateLessonForm() {
           instructorId,
           status: 'published',
           videoUrl,
+          resourceZipUrl,    // Include resource ZIP URL
           quiz
         })
       });
@@ -397,6 +500,32 @@ function setupCreateLessonForm() {
   });
 }
 
+/**
+ * Upload a file (video, thumbnail, or resource)
+ * @param {File} file - File to upload
+ * @param {string} token - Authentication token
+ * @param {string} type - File type ('video', 'thumbnail', 'resource')
+ * @returns {Promise<string>} URL of uploaded file
+ */
+async function uploadFile(file, token, type = 'video') {
+  const formData = new FormData();
+  formData.append('uploaded_file', file);
+
+  const res = await fetch(`${API_BASE_URL}/upload`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    body: formData
+  });
+  
+  const data = await res.json();
+  
+  if (!res.ok || !data.ok || !data.file || !data.file.url) {
+    throw new Error(data.error || `${type} upload failed.`);
+  }
+  
+  return data.file.url;
+}
+
 async function uploadVideoFile(file, token, progressBar) {
   // Simulated progress while uploading (fetch doesn't provide upload progress)
   let intervalId = null;
@@ -412,20 +541,9 @@ async function uploadVideoFile(file, token, progressBar) {
   }
 
   try {
-    const formData = new FormData();
-    formData.append('uploaded_file', file);
-
-    const res = await fetch(`${API_BASE_URL}/upload`, {
-      method: 'POST',
-      headers: { 'Authorization': `Bearer ${token}` },
-      body: formData
-    });
-    const data = await res.json();
-    if (!res.ok || !data.ok || !data.file || !data.file.url) {
-      throw new Error(data.error || 'Video upload failed.');
-    }
+    const url = await uploadFile(file, token, 'video');
     if (progressBar) progressBar.style.width = '100%';
-    return data.file.url;
+    return url;
   } finally {
     if (intervalId) clearInterval(intervalId);
   }
@@ -440,11 +558,35 @@ function addQuestionBlock(container) {
   wrapper.style.borderRadius = '8px';
   wrapper.style.padding = '1rem';
 
+  const legendContainer = document.createElement('div');
+  legendContainer.style.display = 'flex';
+  legendContainer.style.justifyContent = 'space-between';
+  legendContainer.style.alignItems = 'center';
+  legendContainer.style.marginBottom = '0.5rem';
+  
   const legend = document.createElement('legend');
   legend.textContent = `Question ${index}`;
   legend.style.padding = '0 0.5rem';
   legend.style.color = '#3B0270';
-  wrapper.appendChild(legend);
+  legend.style.fontWeight = '600';
+  
+  const removeBtn = document.createElement('button');
+  removeBtn.type = 'button';
+  removeBtn.className = 'btn-ghost btn-sm';
+  removeBtn.textContent = '✕ Remove';
+  removeBtn.style.color = '#a70000';
+  removeBtn.style.fontSize = '0.875rem';
+  removeBtn.onclick = () => {
+    if (confirm('Remove this question?')) {
+      wrapper.remove();
+      // Renumber remaining questions
+      updateQuestionNumbers(container);
+    }
+  };
+  
+  legendContainer.appendChild(legend);
+  legendContainer.appendChild(removeBtn);
+  wrapper.appendChild(legendContainer);
 
   // Question text
   const qLabel = document.createElement('label');
@@ -508,6 +650,16 @@ function addQuestionBlock(container) {
   container.appendChild(wrapper);
 }
 
+function updateQuestionNumbers(container) {
+  const questions = container.querySelectorAll('.quiz-question');
+  questions.forEach((question, index) => {
+    const legend = question.querySelector('legend');
+    if (legend) {
+      legend.textContent = `Question ${index + 1}`;
+    }
+  });
+}
+
 function collectQuizData() {
   const blocks = document.querySelectorAll('.quiz-question');
   const quiz = [];
@@ -558,7 +710,8 @@ function renderInstructorLessons(lessons, container) {
     
     card.innerHTML = `
       <h3 style="margin: 0; color: #3B0270; font-size: 1.25rem;">${escapeHtml(lesson.title)}</h3>
-      <p style="margin: 0; color: #666; font-size: 0.9rem; flex-grow: 1;">${escapeHtml(lesson.description || 'No description')}</p>
+      <p class="course-description text-clamp-3" style="margin: 0; color: #666; font-size: 0.9rem; flex-grow: 1;">${escapeHtml(lesson.description || 'No description')}</p>
+      <button class="read-more-trigger" style="margin-top: 0.5rem; margin-bottom: 0.75rem;">Read More</button>
       <div style="display: flex; flex-direction: column; gap: 0.5rem; font-size: 0.85rem; color: #888;">
         <span>Topic: ${escapeHtml(lesson.topic || 'General')}</span>
         <span>Status: <strong>${lesson.status === 'published' ? '✅ Published' : '📝 Draft'}</strong></span>
@@ -675,3 +828,35 @@ function escapeHtml(text) {
   div.textContent = text;
   return div.innerHTML;
 }
+
+/**
+ * Global event handler for all "Read More / Read Less" buttons
+ * Uses event delegation to handle dynamically loaded content
+ */
+function handleReadMoreTrigger(e) {
+  if (!e.target.classList.contains('read-more-trigger')) return;
+  
+  e.preventDefault();
+  e.stopPropagation();
+  
+  const btn = e.target;
+  const desc = btn.previousElementSibling;
+  
+  if (!desc || !desc.classList.contains('course-description')) return;
+  
+  const isExpanded = desc.classList.contains('text-clamp-expanded');
+  
+  if (isExpanded) {
+    desc.classList.remove('text-clamp-expanded');
+    btn.textContent = 'Read More';
+    console.log('✅ Description collapsed');
+  } else {
+    desc.classList.add('text-clamp-expanded');
+    btn.textContent = 'Read Less';
+    console.log('✅ Description expanded');
+  }
+}
+
+// Attach global listener for all Read More buttons
+document.body.addEventListener('click', handleReadMoreTrigger);
+console.log('🎯 Global "Read More / Read Less" listener attached');

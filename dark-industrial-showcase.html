@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dark Industrial Design System - Component Showcase | Orah School</title>
+  <link rel="stylesheet" href="styles/dark-industrial.css">
+</head>
+<body>
+  
+  <!-- Header with Glass Effect -->
+  <header class="glass sticky" style="top: 0; z-index: 1000; padding: var(--space-4) 0;">
+    <div class="container flex items-center justify-between">
+      <div class="flex items-center gap-4">
+        <h2 class="m-0">🎓 Orah School</h2>
+        <span class="text-tertiary text-sm">Design System</span>
+      </div>
+      <nav class="flex gap-4">
+        <a href="#" class="btn-ghost btn-sm">Components</a>
+        <a href="#" class="btn-ghost btn-sm">Documentation</a>
+        <a href="#" class="btn-primary btn-sm">Get Started</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container" style="padding-top: var(--space-12); padding-bottom: var(--space-12);">
+    
+    <!-- Hero Section -->
+    <section class="mb-12 text-center">
+      <h1 class="mb-4">Dark Industrial Design System</h1>
+      <p class="text-lead text-secondary" style="max-width: 600px; margin: 0 auto;">
+        A premium dark aesthetic inspired by Vercel, built for Orah School Learning Management System
+      </p>
+    </section>
+
+    <!-- Color Palette -->
+    <section class="mb-12">
+      <h2 class="mb-6">Color Palette</h2>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="card card-compact">
+          <div style="height: 80px; background-color: var(--color-bg-primary); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); margin-bottom: var(--space-3);"></div>
+          <p class="text-sm font-medium mb-1">Background Primary</p>
+          <code class="text-xs">#0A0A0A</code>
+        </div>
+        <div class="card card-compact">
+          <div style="height: 80px; background-color: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); border-radius: var(--radius-md); margin-bottom: var(--space-3);"></div>
+          <p class="text-sm font-medium mb-1">Background Secondary</p>
+          <code class="text-xs">#111111</code>
+        </div>
+        <div class="card card-compact">
+          <div style="height: 80px; background-color: var(--color-brand-purple); border: 1px solid var(--color-brand-purple); border-radius: var(--radius-md); margin-bottom: var(--space-3);"></div>
+          <p class="text-sm font-medium mb-1">Brand Purple</p>
+          <code class="text-xs">#6F00FF</code>
+        </div>
+        <div class="card card-compact">
+          <div style="height: 80px; background: linear-gradient(135deg, var(--color-brand-purple), var(--color-brand-purple-light)); border-radius: var(--radius-md); margin-bottom: var(--space-3); box-shadow: var(--shadow-brand);"></div>
+          <p class="text-sm font-medium mb-1">Brand Gradient + Glow</p>
+          <code class="text-xs">Purple Glow</code>
+        </div>
+      </div>
+    </section>
+
+    <!-- Typography -->
+    <section class="mb-12">
+      <h2 class="mb-6">Typography</h2>
+      <div class="card">
+        <h1 class="mb-2">Heading 1 - Black 900</h1>
+        <h2 class="mb-2">Heading 2 - Bold 700</h2>
+        <h3 class="mb-2">Heading 3 - Bold 700</h3>
+        <h4 class="mb-2">Heading 4 - Semibold 600</h4>
+        <h5 class="mb-2">Heading 5 - Semibold 600</h5>
+        <h6 class="mb-4">Heading 6 - Semibold 600</h6>
+        <p class="text-lead mb-3">Lead Text - Large paragraph for emphasis</p>
+        <p class="mb-3">Regular paragraph text with normal line height and muted grey color (#A1A1A1)</p>
+        <p class="text-sm mb-2">Small text for captions and helper text</p>
+        <p class="text-xs">Extra small text for micro-copy</p>
+      </div>
+    </section>
+
+    <!-- Buttons -->
+    <section class="mb-12">
+      <h2 class="mb-6">Buttons</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Primary Buttons -->
+        <div class="card">
+          <h4 class="mb-4">Primary / Brand Buttons</h4>
+          <div class="flex flex-wrap gap-3">
+            <button class="btn-primary">Primary Button</button>
+            <button class="btn-brand">Brand Button</button>
+            <button class="btn-primary btn-sm">Small</button>
+            <button class="btn-primary btn-lg">Large</button>
+            <button class="btn-primary" disabled>Disabled</button>
+          </div>
+        </div>
+
+        <!-- Secondary Buttons -->
+        <div class="card">
+          <h4 class="mb-4">Secondary & Ghost Buttons</h4>
+          <div class="flex flex-wrap gap-3">
+            <button class="btn-secondary">Secondary</button>
+            <button class="btn-ghost">Ghost Button</button>
+            <button class="btn-danger">Danger</button>
+            <button class="btn-success">Success</button>
+          </div>
+        </div>
+
+        <!-- Button with Icon -->
+        <div class="card">
+          <h4 class="mb-4">Buttons with Icons</h4>
+          <div class="flex flex-wrap gap-3">
+            <button class="btn-primary">
+              <span>→</span>
+              <span>Next</span>
+            </button>
+            <button class="btn-secondary">
+              <span>✓</span>
+              <span>Save</span>
+            </button>
+            <button class="btn-icon btn-ghost">⋮</button>
+          </div>
+        </div>
+
+        <!-- Loading Button -->
+        <div class="card">
+          <h4 class="mb-4">Loading State</h4>
+          <div class="flex flex-wrap gap-3">
+            <button class="btn-primary btn-loading">Loading...</button>
+            <button class="btn-secondary btn-loading">Processing</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Cards -->
+    <section class="mb-12">
+      <h2 class="mb-6">Cards</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <div class="card">
+          <h4>Default Card</h4>
+          <p>Card with 1px border, no shadow. Hover to see border color change.</p>
+        </div>
+
+        <div class="card card-elevated">
+          <h4>Elevated Card</h4>
+          <p>Slightly different background for visual hierarchy.</p>
+        </div>
+
+        <div class="card card-brand">
+          <h4>Brand Card</h4>
+          <p>Card with brand purple border and subtle glow effect.</p>
+        </div>
+
+        <div class="card card-interactive hover-lift">
+          <h4>Interactive Card</h4>
+          <p>Clickable card with hover lift effect. Try hovering!</p>
+        </div>
+
+        <div class="card card-compact">
+          <h4>Compact Card</h4>
+          <p>Less padding for dense layouts.</p>
+        </div>
+
+        <div class="card card-lg">
+          <h4>Large Card</h4>
+          <p>More padding for spacious layouts and important content.</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Card with Header and Footer -->
+    <section class="mb-12">
+      <h2 class="mb-6">Card Sections</h2>
+      <div class="card" style="max-width: 600px;">
+        <div class="card-header">
+          <h3 class="m-0">Card with Header</h3>
+          <p class="text-sm text-tertiary m-0">Subtitle or description</p>
+        </div>
+        <div class="card-body">
+          <p>This is the main content area of the card. The header and footer are separated by subtle 1px borders that match the design system.</p>
+          <p class="mb-0">Perfect for forms, content blocks, and structured information.</p>
+        </div>
+        <div class="card-footer">
+          <button class="btn-ghost btn-sm">Cancel</button>
+          <button class="btn-primary btn-sm ml-auto">Save Changes</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Forms -->
+    <section class="mb-12">
+      <h2 class="mb-6">Form Components</h2>
+      <div class="card" style="max-width: 600px;">
+        <div class="card-header">
+          <h3 class="m-0">Sample Form</h3>
+        </div>
+        <form class="card-body">
+          
+          <div class="form-group">
+            <label for="name" class="required">Full Name</label>
+            <input type="text" id="name" name="name" placeholder="Enter your full name" required>
+            <span class="form-help">This will be displayed on your profile</span>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com">
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" placeholder="••••••••" class="success">
+            <span class="form-success">✓ Strong password</span>
+          </div>
+
+          <div class="form-group">
+            <label for="bio">Bio</label>
+            <textarea id="bio" name="bio" placeholder="Tell us about yourself..."></textarea>
+          </div>
+
+          <div class="form-group">
+            <label for="role">Select Role</label>
+            <select id="role" name="role">
+              <option value="">Choose a role...</option>
+              <option value="student">Student</option>
+              <option value="instructor">Instructor</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>
+              <input type="checkbox" name="terms">
+              I agree to the terms and conditions
+            </label>
+          </div>
+
+          <div class="flex gap-3">
+            <button type="button" class="btn-ghost">Cancel</button>
+            <button type="submit" class="btn-primary">Create Account</button>
+          </div>
+
+        </form>
+      </div>
+    </section>
+
+    <!-- Form States -->
+    <section class="mb-12">
+      <h2 class="mb-6">Form States</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <div class="card">
+          <h5 class="mb-3">Default State</h5>
+          <input type="text" placeholder="Normal input" class="mb-2">
+          <span class="form-help">Helper text for guidance</span>
+        </div>
+
+        <div class="card">
+          <h5 class="mb-3">Error State</h5>
+          <input type="text" placeholder="Invalid input" class="error mb-2" value="wrong@">
+          <span class="form-error">✗ Please enter a valid email</span>
+        </div>
+
+        <div class="card">
+          <h5 class="mb-3">Success State</h5>
+          <input type="text" placeholder="Valid input" class="success mb-2" value="correct@example.com">
+          <span class="form-success">✓ Email is valid</span>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Glassmorphism -->
+    <section class="mb-12">
+      <h2 class="mb-6">Glassmorphism Effects</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <div class="glass rounded-lg p-6">
+          <h5 class="mb-2">Default Glass</h5>
+          <p class="text-sm mb-0">70% opacity, 12px blur</p>
+        </div>
+
+        <div class="glass-strong rounded-lg p-6">
+          <h5 class="mb-2">Strong Glass</h5>
+          <p class="text-sm mb-0">90% opacity, 20px blur</p>
+        </div>
+
+        <div class="glass-subtle rounded-lg p-6">
+          <h5 class="mb-2">Subtle Glass</h5>
+          <p class="text-sm mb-0">50% opacity, 8px blur</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Utility Classes -->
+    <section class="mb-12">
+      <h2 class="mb-6">Utility Classes</h2>
+      <div class="card">
+        <h4 class="mb-4">Layout & Spacing</h4>
+        
+        <div class="mb-6">
+          <h5 class="text-sm text-tertiary mb-3">Flexbox</h5>
+          <div class="flex gap-2 items-center justify-between p-4 border rounded">
+            <span class="text-sm">Item 1</span>
+            <span class="text-sm">Item 2</span>
+            <span class="text-sm">Item 3</span>
+          </div>
+          <code class="text-xs mt-2 block">.flex .gap-2 .items-center .justify-between</code>
+        </div>
+
+        <div class="mb-6">
+          <h5 class="text-sm text-tertiary mb-3">Grid</h5>
+          <div class="grid grid-cols-3 gap-3">
+            <div class="p-4 border rounded text-center text-sm">1</div>
+            <div class="p-4 border rounded text-center text-sm">2</div>
+            <div class="p-4 border rounded text-center text-sm">3</div>
+          </div>
+          <code class="text-xs mt-2 block">.grid .grid-cols-3 .gap-3</code>
+        </div>
+
+        <div>
+          <h5 class="text-sm text-tertiary mb-3">Spacing</h5>
+          <div class="flex gap-4">
+            <div class="p-2 border rounded">
+              <code class="text-xs">.p-2</code>
+            </div>
+            <div class="p-4 border rounded">
+              <code class="text-xs">.p-4</code>
+            </div>
+            <div class="p-6 border rounded">
+              <code class="text-xs">.p-6</code>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Animations -->
+    <section class="mb-12">
+      <h2 class="mb-6">Animations & Effects</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        
+        <div class="card hover-lift text-center">
+          <p class="text-sm mb-2">Hover Lift</p>
+          <code class="text-xs">.hover-lift</code>
+        </div>
+
+        <div class="card hover-glow text-center">
+          <p class="text-sm mb-2">Hover Glow</p>
+          <code class="text-xs">.hover-glow</code>
+        </div>
+
+        <div class="card text-center">
+          <div class="animate-pulse">
+            <p class="text-sm mb-2">Pulse</p>
+          </div>
+          <code class="text-xs">.animate-pulse</code>
+        </div>
+
+        <div class="card text-center">
+          <div class="animate-spin" style="width: 20px; height: 20px; border: 2px solid var(--color-brand-purple); border-top-color: transparent; border-radius: 50%; margin: 0 auto 8px;"></div>
+          <p class="text-sm mb-2">Spin</p>
+          <code class="text-xs">.animate-spin</code>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Semantic Colors -->
+    <section class="mb-12">
+      <h2 class="mb-6">Semantic Colors</h2>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        
+        <div class="card" style="border-color: var(--color-success);">
+          <h5 class="text-success mb-2">Success</h5>
+          <p class="text-sm mb-0">Positive actions and confirmations</p>
+        </div>
+
+        <div class="card" style="border-color: var(--color-error);">
+          <h5 class="text-error mb-2">Error</h5>
+          <p class="text-sm mb-0">Errors and destructive actions</p>
+        </div>
+
+        <div class="card" style="border-color: var(--color-warning);">
+          <h5 class="text-warning mb-2">Warning</h5>
+          <p class="text-sm mb-0">Caution and important notices</p>
+        </div>
+
+        <div class="card" style="border-color: var(--color-info);">
+          <h5 class="text-info mb-2">Info</h5>
+          <p class="text-sm mb-0">Informational messages</p>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Real-World Example -->
+    <section class="mb-12">
+      <h2 class="mb-6">Real-World Example: Login Form</h2>
+      <div class="glass-strong rounded-xl p-8 mx-auto" style="max-width: 450px;">
+        <div class="text-center mb-8">
+          <h2 class="mb-2">Welcome Back</h2>
+          <p class="text-secondary">Sign in to continue to Orah School</p>
+        </div>
+        
+        <form>
+          <div class="form-group">
+            <label for="demo-email">Email</label>
+            <input type="email" id="demo-email" name="email" placeholder="you@example.com">
+          </div>
+
+          <div class="form-group">
+            <label for="demo-password">Password</label>
+            <input type="password" id="demo-password" name="password" placeholder="••••••••">
+          </div>
+
+          <div class="flex items-center justify-between mb-6">
+            <label class="flex items-center gap-2">
+              <input type="checkbox" name="remember">
+              <span class="text-sm">Remember me</span>
+            </label>
+            <a href="#" class="text-sm text-brand">Forgot password?</a>
+          </div>
+
+          <button type="submit" class="btn-primary btn-full mb-4">Sign In</button>
+          
+          <p class="text-center text-sm text-tertiary">
+            Don't have an account? <a href="#" class="text-brand">Sign up</a>
+          </p>
+        </form>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer class="border-t pt-8 pb-12">
+    <div class="container text-center">
+      <p class="text-sm text-tertiary mb-2">
+        Orah School Dark Industrial Design System
+      </p>
+      <p class="text-xs text-tertiary">
+        Built with <span class="text-brand">♥</span> for modern learning experiences
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>

@@ -4,40 +4,210 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Lesson — Orah School</title>
-  <link rel="stylesheet" href="styles/lesson.css" />
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
 </head>
 <body>
-  <!-- Header: lesson title and nav -->
-  <header class="lesson-header">
-    <nav>
-      <a href="student-dashboard.html">Dashboard</a>
-      <a href="#">All Lessons</a>
-    </nav>
-    <h1 class="lesson-title">Lesson Title Here</h1>
+  <!-- Header -->
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <!-- Logo & Navigation -->
+        <div class="flex items-center gap-4">
+          <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+            <img src="assets/orahlogo.png" alt="Orah Schools logo" width="50" height="33">
+            <span class="text-lg font-bold">Orah Schools</span>
+          </a>
+          <nav class="hidden md:flex items-center gap-2">
+            <a href="student-dashboard.html" class="btn-ghost btn-sm">Dashboard</a>
+            <a href="#" class="btn-ghost btn-sm">All Lessons</a>
+          </nav>
+        </div>
+        
+        <!-- Actions -->
+        <div class="flex items-center gap-3">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+          <button id="logout-btn" class="btn-secondary btn-sm">Logout</button>
+        </div>
+      </div>
+    </div>
   </header>
 
-  <!-- Main lesson content area -->
-  <main class="lesson-main">
-    <section class="lesson-content">
-      <!-- Video or text content -->
-      <div class="video-placeholder">
-        <!-- Replace with actual video embed or content -->
-        <p>[Video or lesson content goes here]</p>
+  <!-- Main Lesson Content -->
+  <main class="py-8">
+    <div class="container">
+      <!-- Lesson Title -->
+      <div class="mb-6">
+        <h1 class="lesson-title mb-2">Introduction to Programming</h1>
+        <p class="text-secondary">Learn the fundamentals of coding and software development</p>
       </div>
-      <!-- Controls -->
-      <div class="lesson-controls">
-        <button class="mark-complete-btn">Mark as Completed</button>
-        <button class="next-btn">Next</button>
+
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Lesson Content (Main Column) -->
+        <section class="lg:col-span-2">
+          <div class="card mb-6">
+            <div class="card-body">
+              <!-- Video Placeholder -->
+              <div style="background: var(--color-bg-secondary); border-radius: var(--radius-lg); aspect-ratio: 16/9; display: flex; align-items: center; justify-content: center; border: 1px solid var(--color-border-primary);">
+                <div class="text-center">
+                  <div class="text-6xl mb-3">🎥</div>
+                  <p class="text-secondary mb-2">Lesson Video</p>
+                  <p class="text-sm text-tertiary">Video content will be displayed here</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lesson Controls -->
+          <div class="flex items-center gap-3 mb-6">
+            <button class="mark-complete-btn btn-success flex-1">✓ Mark as Completed</button>
+            <button class="next-btn btn-primary flex-1">Next Lesson →</button>
+          </div>
+
+          <!-- Lesson Description -->
+          <div class="card">
+            <div class="card-header">
+              <h2 class="m-0">About This Lesson</h2>
+            </div>
+            <div class="card-body">
+              <p class="text-secondary mb-4">In this lesson, you'll learn the core concepts of programming including variables, data types, and control flow. We'll cover practical examples that you can apply immediately.</p>
+              
+              <div class="flex flex-wrap gap-2">
+                <span class="px-3 py-1 rounded-full text-sm" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary);">⏱️ 45 minutes</span>
+                <span class="px-3 py-1 rounded-full text-sm" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary);">📚 Beginner</span>
+                <span class="px-3 py-1 rounded-full text-sm" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary);">💻 Hands-on</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Resources Sidebar -->
+        <aside class="lesson-resources">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="m-0">📎 Resources</h2>
+            </div>
+            <div class="card-body">
+              <ul style="list-style: none; padding: 0; margin: 0;">
+                <li class="mb-3">
+                  <a href="#" class="flex items-center gap-2 p-3 rounded hover-lift" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); text-decoration: none;">
+                    <span>📄</span>
+                    <span>Slides PDF</span>
+                  </a>
+                </li>
+                <li class="mb-3">
+                  <a href="#" class="flex items-center gap-2 p-3 rounded hover-lift" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); text-decoration: none;">
+                    <span>💾</span>
+                    <span>Sample Code</span>
+                  </a>
+                </li>
+                <li>
+                  <a href="#" class="flex items-center gap-2 p-3 rounded hover-lift" style="background: var(--color-bg-secondary); border: 1px solid var(--color-border-primary); text-decoration: none;">
+                    <span>📝</span>
+                    <span>Practice Exercises</span>
+                  </a>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Progress Card -->
+          <div class="card mt-6">
+            <div class="card-body">
+              <h3 class="text-sm text-tertiary mb-2">Your Progress</h3>
+              <div class="text-3xl font-bold mb-2">45%</div>
+              <div style="background: var(--color-bg-tertiary); height: 8px; border-radius: 999px; overflow: hidden;">
+                <div style="background: var(--color-brand-purple); height: 100%; width: 45%; border-radius: 999px;"></div>
+              </div>
+              <p class="text-sm text-tertiary mt-2 mb-0">9 of 20 lessons completed</p>
+            </div>
+          </div>
+        </aside>
       </div>
-    </section>
-    <aside class="lesson-resources">
-      <!-- Resources sidebar -->
-      <h2>Resources</h2>
-      <ul>
-        <li><a href="#">Slides PDF</a></li>
-        <li><a href="#">Sample Code</a></li>
-      </ul>
-    </aside>
+    </div>
   </main>
+
+  <!-- Floating Chatbot Button -->
+  <button id="student-chatbot-btn" class="btn-primary" style="position: fixed; bottom: 2rem; right: 2rem; border-radius: 50%; width: 60px; height: 60px; font-size: 1.5rem; box-shadow: var(--shadow-xl), var(--glow-brand); z-index: 999;" aria-label="Open Support Chat">💬</button>
+
+  <!-- Chatbot Container -->
+  <div id="chatbot-container" class="card" style="position: fixed; bottom: 6rem; right: 2rem; width: 350px; max-width: calc(100vw - 4rem); height: 500px; max-height: 60vh; z-index: 1000; box-shadow: var(--shadow-xl); display: none; flex-direction: column;">
+    <div class="card-header flex items-center justify-between">
+      <h3 class="m-0">Orah Assistant</h3>
+      <button id="chatbot-close-btn" class="btn-ghost btn-sm" style="font-size: 1.5rem; line-height: 1; padding: 0.25rem 0.5rem;">&times;</button>
+    </div>
+    <div id="chatbot-messages" class="card-body" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 0.75rem;">
+      <div style="background: var(--color-bg-secondary); padding: 0.75rem; border-radius: var(--radius-md); border: 1px solid var(--color-border-primary);">
+        <strong class="text-brand">Orah Assistant:</strong>
+        <p class="m-0 mt-1 text-sm">Hi! How can I help you today? You can ask me about your courses, progress, or technical issues.</p>
+      </div>
+    </div>
+    <div class="card-footer" style="display: flex; gap: 0.5rem;">
+      <input 
+        type="text" 
+        id="chatbot-input" 
+        placeholder="Type your message..."
+        autocomplete="off"
+        style="flex: 1;"
+      />
+      <button id="chatbot-send-btn" class="btn-primary btn-sm">Send</button>
+    </div>
+  </div>
+
+  <style>
+    /* Chatbot Toggle Animations */
+    #chatbot-container.open {
+      display: flex !important;
+      animation: slideIn 0.3s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* User and Bot Message Styles */
+    .user-message, .bot-message {
+      padding: 0.75rem;
+      border-radius: var(--radius-md);
+      border: 1px solid var(--color-border-primary);
+    }
+
+    .user-message {
+      background: var(--color-brand-purple);
+      color: white;
+      align-self: flex-end;
+      max-width: 80%;
+    }
+
+    .bot-message {
+      background: var(--color-bg-secondary);
+      align-self: flex-start;
+      max-width: 90%;
+    }
+  </style>
+
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
+  <script src="scripts/student-chatbot.js"></script>
+
+  <script>
+    // Logout handler
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        console.log('🚪 Logging out...');
+        localStorage.clear();
+        window.location.href = 'login.html';
+      });
+    }
+  </script>
 </body>
 </html>

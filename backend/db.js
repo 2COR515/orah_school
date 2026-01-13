@@ -67,8 +67,12 @@ async function addLesson(lessonData) {
     status: lessonData.status || 'draft',
     files: lessonData.files || [],
     videoUrl: lessonData.videoUrl || '',
+    thumbnailUrl: lessonData.thumbnailUrl || null,  // NEW: Thumbnail image path
+    resourceZipUrl: lessonData.resourceZipUrl || null,  // NEW: Resource zip file path
     quiz: lessonData.quiz || [],
     durationMinutes: lessonData.durationMinutes || null,
+    // Lifecycle: default deadline is 7 days from creation
+    deadline: lessonData.deadline || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
     createdAt: now,
     updatedAt: now
   };
@@ -186,7 +190,9 @@ async function addEnrollment(enrollmentData) {
     lastAccessDate: new Date().toISOString(), // Track last interaction
     status: 'active', // active | missed | completed
     progress: 0,
-    timeSpentSeconds: 0 // Track time spent on lesson
+    timeSpentSeconds: 0, // Track time spent on lesson
+    redoRequested: false,
+    redoGranted: false
   };
   
   enrollments.push(enrollment);
@@ -352,10 +358,33 @@ async function saveUser(user) {
     throw new Error('User with this email already exists.');
   }
 
+  // Generate convention-based user ID
+  const timestamp = Date.now();
+  const role = user.role || 'student';
+  let userId;
+  
+  if (role === 'student') {
+    // Students: S-[last 4 digits of timestamp]
+    const lastFour = timestamp.toString().slice(-4);
+    userId = `S-${lastFour}`;
+  } else if (role === 'instructor') {
+    // Instructors: I-[last 4 digits of timestamp]
+    const lastFour = timestamp.toString().slice(-4);
+    userId = `I-${lastFour}`;
+  } else if (role === 'admin') {
+    // Admins: A-[last 4 digits of timestamp]
+    const lastFour = timestamp.toString().slice(-4);
+    userId = `A-${lastFour}`;
+  } else {
+    // Default fallback for any other roles
+    userId = timestamp.toString() + Math.random().toString(36).substring(2, 9);
+  }
+
   const newUser = {
-    userId: Date.now().toString() + Math.random().toString(36).substring(2, 9), // Simple unique ID
-    role: user.role || 'student', // Default to student
+    userId,
+    role,
     reminderFrequency: user.reminderFrequency || 'weekly', // Default reminder frequency
+    name: `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.email, // Full name
     ...user
   };
   
@@ -526,11 +555,27 @@ async function getAttendanceStats(lessonId, date = null) {
 
 /**
  * Get all users (admin function)
- * @returns {Array} Array of all users
+ * Ensures all users have a name field populated
+ * @returns {Array} Array of all users with names
  */
 async function getAllUsers() {
   const users = await storage.getItem('users') || [];
-  return users;
+  
+  // Ensure all users have a name field
+  return users.map(user => {
+    if (!user.name) {
+      // Generate name from firstName/lastName if available
+      const firstName = user.firstName || '';
+      const lastName = user.lastName || '';
+      const generatedName = `${firstName} ${lastName}`.trim() || user.email || user.userId;
+      
+      return {
+        ...user,
+        name: generatedName
+      };
+    }
+    return user;
+  });
 }
 
 /**
