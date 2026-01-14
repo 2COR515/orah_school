@@ -15,6 +15,22 @@ const {
   getLesson
 } = require('../../db');
 
+// Import notification services
+const { 
+  sendEnrollmentConfirmation, 
+  sendInstructorEnrollmentAlert,
+  sendEnrollmentSMS,
+  isValidEmail 
+} = require('../services/emailService');
+
+/**
+ * Helper: Get user by ID from all users
+ */
+async function getUserById(userId) {
+  const users = await getAllUsers();
+  return users.find(u => u.userId === userId);
+}
+
 /**
  * Enroll a user in a lesson
  * @param {Object} req - Express request object
@@ -58,6 +74,12 @@ const enrollUser = async (req, res) => {
         error: 'User is already enrolled in this lesson'
       });
     }
+
+    // ========== SEND ENROLLMENT NOTIFICATIONS ==========
+    // Run notifications in background (don't block response)
+    sendEnrollmentNotifications(enrollment, lessonId, userId).catch(err => {
+      console.error('Error sending enrollment notifications:', err);
+    });
     
     // Send success response with 201 status
     return res.status(201).json({
@@ -74,6 +96,83 @@ const enrollUser = async (req, res) => {
     });
   }
 };
+
+/**
+ * Send enrollment notifications to both student and instructor
+ * Runs asynchronously in background
+ */
+async function sendEnrollmentNotifications(enrollment, lessonId, userId) {
+  try {
+    console.log('\n📨 Sending enrollment notifications...');
+    
+    // 1. Get lesson details
+    const lesson = await getLesson(lessonId);
+    if (!lesson) {
+      console.log('⚠️  Lesson not found, skipping notifications');
+      return;
+    }
+    
+    // 2. Get student details
+    const student = await getUserById(userId);
+    if (!student) {
+      console.log('⚠️  Student not found, skipping notifications');
+      return;
+    }
+    
+    // 3. Get instructor details
+    const instructor = await getUserById(lesson.instructorId);
+    if (!instructor) {
+      console.log('⚠️  Instructor not found, skipping instructor notification');
+    }
+    
+    const studentName = `${student.firstName || ''} ${student.lastName || ''}`.trim() || student.email;
+    const instructorName = instructor ? `${instructor.firstName || ''} ${instructor.lastName || ''}`.trim() || instructor.email : 'Instructor';
+    
+    // 4. Send student enrollment confirmation (Email + SMS)
+    if (isValidEmail(student.email)) {
+      await sendEnrollmentConfirmation(student.email, {
+        studentName,
+        lessonTitle: lesson.title,
+        instructorName,
+        instructorEmail: instructor?.email || 'Not available',
+        instructorPhone: instructor?.phone || 'Not available',
+        deadline: lesson.deadline,
+        enrolledAt: enrollment.enrolledAt
+      });
+    } else {
+      console.log(`⚠️  Student email invalid, skipping email: ${student.email}`);
+    }
+    
+    // Send SMS to student (Mock)
+    if (student.phone) {
+      sendEnrollmentSMS(student.phone, {
+        lessonTitle: lesson.title,
+        instructorName,
+        instructorPhone: instructor?.phone,
+        deadline: lesson.deadline
+      });
+    }
+    
+    // 5. Send instructor enrollment alert
+    if (instructor && isValidEmail(instructor.email)) {
+      await sendInstructorEnrollmentAlert(instructor.email, {
+        instructorName,
+        studentName,
+        studentEmail: student.email,
+        lessonTitle: lesson.title,
+        enrolledAt: enrollment.enrolledAt,
+        deadline: lesson.deadline
+      });
+    } else if (instructor) {
+      console.log(`⚠️  Instructor email invalid, skipping: ${instructor.email}`);
+    }
+    
+    console.log('✅ Enrollment notifications sent successfully!\n');
+    
+  } catch (error) {
+    console.error('❌ Error in sendEnrollmentNotifications:', error.message);
+  }
+}
 
 /**
  * List all enrollments for a specific user

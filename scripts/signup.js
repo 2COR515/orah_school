@@ -1,5 +1,5 @@
 // scripts/signup.js
-// Student signup with backend registration and login redirect
+// Student signup with backend registration and verification redirect
 
 const API_BASE_URL = 'http://localhost:3002/api';
 
@@ -10,33 +10,24 @@ document.addEventListener('DOMContentLoaded', function(){
   
   if(!form) return;
 
-  // Add "Already have an account?" link if it doesn't exist
-  const loginLinkContainer = document.createElement('div');
-  loginLinkContainer.style.cssText = 'text-align: center; margin-top: 1rem;';
-  loginLinkContainer.innerHTML = `
-    <p style="color: #666;">
-      Already have an account? 
-      <a href="login.html" style="color: #6F00FF; text-decoration: none; font-weight: 600;">Login here</a>
-    </p>
-  `;
-  form.parentNode.appendChild(loginLinkContainer);
-
   form.addEventListener('submit', async function(e){
     e.preventDefault();
     errorBox.textContent = '';
-    errorBox.style.color = 'red';
+    errorBox.style.display = 'none';
 
-    const name = form.name.value.trim();
-    const email = form.email.value.trim();
-    const password = form.password.value;
-    const confirm = form.confirm.value;
+    const name = document.getElementById('name-input').value.trim();
+    const email = document.getElementById('email-input').value.trim();
+    const phone = document.getElementById('phone-input').value.trim();
+    const password = document.getElementById('password-input').value;
+    const confirm = document.getElementById('confirm-input').value;
 
     // Validation
-    if(!name){ errorBox.textContent = 'Name is required'; return; }
-    if(!email){ errorBox.textContent = 'Email is required'; return; }
-    if(!password){ errorBox.textContent = 'Password is required'; return; }
-    if(password.length < 6){ errorBox.textContent = 'Password must be at least 6 characters'; return; }
-    if(password !== confirm){ errorBox.textContent = 'Passwords do not match'; return; }
+    if(!name){ showError('Name is required'); return; }
+    if(!email){ showError('Email is required'); return; }
+    if(!phone || phone.length < 10){ showError('A valid phone number is required (at least 10 digits)'); return; }
+    if(!password){ showError('Password is required'); return; }
+    if(password.length < 6){ showError('Password must be at least 6 characters'); return; }
+    if(password !== confirm){ showError('Passwords do not match'); return; }
 
     // Disable submit button
     if (submitButton) {
@@ -57,6 +48,7 @@ document.addEventListener('DOMContentLoaded', function(){
           firstName,
           lastName,
           email,
+          phone,
           password,
           role: 'student'
         })
@@ -65,27 +57,43 @@ document.addEventListener('DOMContentLoaded', function(){
       const data = await response.json();
 
       if (response.ok && data.ok) {
-        errorBox.style.color = 'green';
-        errorBox.textContent = 'Account created successfully! Redirecting...';
+        // Save email to localStorage for verification page
+        localStorage.setItem('pendingVerificationEmail', email);
+        localStorage.setItem('pendingVerificationPhone', phone);
         
-        // Redirect to login after 1 second
+        showSuccess('Account created! Redirecting to verification...');
+        
+        // Redirect to verification page
         setTimeout(() => {
-          window.location.href = 'login.html';
+          window.location.href = data.redirect || 'verify-account.html';
         }, 1000);
       } else {
-        errorBox.textContent = data.error || 'Registration failed. Please try again.';
-        if (submitButton) {
-          submitButton.disabled = false;
-          submitButton.textContent = 'Sign Up';
-        }
+        showError(data.error || 'Registration failed. Please try again.');
+        resetButton();
       }
     } catch (error) {
       console.error('Signup error:', error);
-      errorBox.textContent = 'Network error. Please check your connection and try again.';
-      if (submitButton) {
-        submitButton.disabled = false;
-        submitButton.textContent = 'Sign Up';
-      }
+      showError('Network error. Please check your connection and try again.');
+      resetButton();
     }
   });
+
+  function showError(message) {
+    errorBox.style.display = 'block';
+    errorBox.style.color = '#ef4444';
+    errorBox.textContent = message;
+  }
+
+  function showSuccess(message) {
+    errorBox.style.display = 'block';
+    errorBox.style.color = '#22c55e';
+    errorBox.textContent = message;
+  }
+
+  function resetButton() {
+    if (submitButton) {
+      submitButton.disabled = false;
+      submitButton.textContent = 'Create account';
+    }
+  }
 });

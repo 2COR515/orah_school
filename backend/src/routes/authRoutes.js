@@ -9,6 +9,15 @@ router.post('/signup', authController.signup);
 // POST /api/auth/login - Authenticate user and get JWT token
 router.post('/login', authController.login);
 
+// POST /api/auth/verify - Verify email or phone code
+router.post('/verify', authController.verifyCode);
+
+// POST /api/auth/resend-code - Resend verification code
+router.post('/resend-code', authController.resendCode);
+
+// GET /api/auth/verification-status - Get user's verification status
+router.get('/verification-status', authController.getVerificationStatus);
+
 // GET /api/auth/profile - Get current user's profile (requires authentication)
 router.get('/profile', authenticateToken, authController.getProfile);
 

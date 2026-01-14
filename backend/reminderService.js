@@ -3,6 +3,19 @@ const cron = require('node-cron');
 const nodemailer = require('nodemailer');
 const { listAllEnrollments, getAllUsers, getLesson } = require('./db');
 
+// ==================== EMAIL VALIDATION ====================
+
+/**
+ * Validate email format for fault tolerance
+ * @param {string} email - Email to validate
+ * @returns {boolean} True if valid email format
+ */
+function isValidEmail(email) {
+  if (!email || typeof email !== 'string') return false;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email.trim());
+}
+
 // ==================== NODEMAILER CONFIGURATION ====================
 
 /**
@@ -234,6 +247,13 @@ async function processReminders() {
       try {
         // Skip non-students
         if (user.role !== 'student') {
+          continue;
+        }
+
+        // Validate email format - skip invalid emails silently for fault tolerance
+        if (!isValidEmail(user.email)) {
+          console.log(`⚠️  Skipping user ${user.userId} - invalid email format: ${user.email}`);
+          remindersSkipped++;
           continue;
         }
         

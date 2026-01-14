@@ -1,5 +1,5 @@
 // scripts/instructor-signup.js
-// Instructor signup logic for Orah School
+// Instructor signup logic for Orah School with verification redirect
 
 const API_BASE_URL = 'http://localhost:3002/api';
 
@@ -14,33 +14,38 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     if (errorBox) {
       errorBox.textContent = '';
-      errorBox.style.color = '#c00';
+      errorBox.style.display = 'none';
     }
 
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
+    const phone = document.getElementById('phone').value.trim();
     const password = document.getElementById('password').value;
     const confirm = document.getElementById('confirm-password').value;
 
     // Validation
     if (!name) {
-      errorBox.textContent = 'Name is required';
+      showError('Name is required');
       return;
     }
     if (!email) {
-      errorBox.textContent = 'Email is required';
+      showError('Email is required');
+      return;
+    }
+    if (!phone || phone.length < 10) {
+      showError('A valid phone number is required (at least 10 digits)');
       return;
     }
     if (!password) {
-      errorBox.textContent = 'Password is required';
+      showError('Password is required');
       return;
     }
     if (password.length < 6) {
-      errorBox.textContent = 'Password must be at least 6 characters';
+      showError('Password must be at least 6 characters');
       return;
     }
     if (password !== confirm) {
-      errorBox.textContent = 'Passwords do not match';
+      showError('Passwords do not match');
       return;
     }
 
@@ -62,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
           firstName,
           lastName,
           email,
+          phone,
           password,
           role: 'instructor'
         })
@@ -70,21 +76,47 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
 
       if (response.ok && data.ok) {
-        alert('Account Created');
-        window.location.href = 'login.html';
+        // Save email to localStorage for verification page
+        localStorage.setItem('pendingVerificationEmail', email);
+        localStorage.setItem('pendingVerificationPhone', phone);
+        
+        showSuccess('Account created! Redirecting to verification...');
+        
+        // Redirect to verification page
+        setTimeout(() => {
+          window.location.href = data.redirect || 'verify-account.html';
+        }, 1000);
       } else {
-        errorBox.textContent = data.error || 'Registration failed. Please try again.';
-        if (submitBtn) {
-          submitBtn.disabled = false;
-          submitBtn.textContent = 'Sign Up';
-        }
+        showError(data.error || 'Registration failed. Please try again.');
+        resetButton();
       }
     } catch (error) {
-      errorBox.textContent = 'Network error. Please try again.';
-      if (submitBtn) {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Sign Up';
-      }
+      console.error('Signup error:', error);
+      showError('Network error. Please try again.');
+      resetButton();
     }
   });
+
+  function showError(message) {
+    if (errorBox) {
+      errorBox.style.display = 'block';
+      errorBox.style.color = '#ef4444';
+      errorBox.textContent = message;
+    }
+  }
+
+  function showSuccess(message) {
+    if (errorBox) {
+      errorBox.style.display = 'block';
+      errorBox.style.color = '#22c55e';
+      errorBox.textContent = message;
+    }
+  }
+
+  function resetButton() {
+    if (submitBtn) {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Sign Up as Instructor';
+    }
+  }
 });

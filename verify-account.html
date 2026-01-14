@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Verify Your Account — Orah Schools</title>
+  <!-- Dark Industrial Design System -->
+  <link rel="stylesheet" href="./styles/dark-industrial.css" />
+  <style>
+    .verification-section {
+      background: var(--color-bg-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--radius-lg);
+      padding: var(--space-6);
+      margin-bottom: var(--space-4);
+    }
+    .verification-section.verified {
+      border-color: var(--color-brand);
+      background: rgba(34, 197, 94, 0.1);
+    }
+    .verification-section h3 {
+      display: flex;
+      align-items: center;
+      gap: var(--space-2);
+      margin-bottom: var(--space-3);
+    }
+    .verification-icon {
+      font-size: 1.5rem;
+    }
+    .code-input {
+      font-size: 1.5rem;
+      letter-spacing: 0.5rem;
+      text-align: center;
+      font-weight: bold;
+      padding: var(--space-3) var(--space-4);
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-1);
+      padding: var(--space-1) var(--space-3);
+      border-radius: var(--radius-full);
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+    .status-badge.pending {
+      background: rgba(234, 179, 8, 0.2);
+      color: #eab308;
+    }
+    .status-badge.verified {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: var(--space-4);
+      margin: var(--space-6) 0;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--color-border-primary);
+    }
+    .divider span {
+      color: var(--color-text-tertiary);
+      font-size: 0.875rem;
+    }
+  </style>
+</head>
+<body>
+  <!-- HEADER -->
+  <header class="glass sticky" style="top: 0; z-index: 1000;">
+    <div class="container">
+      <div class="flex items-center justify-between py-4">
+        <a href="index.html" aria-label="Orah Schools home" class="flex items-center gap-2">
+          <img src="assets/orahlogo.png" alt="Orah Schools logo" width="60" height="40">
+          <span class="text-xl font-bold">Orah Schools</span>
+        </a>
+        
+        <div class="flex items-center gap-3">
+          <!-- Theme Toggle -->
+          <button id="theme-toggle" class="btn-ghost btn-sm" style="font-size: 1.2rem; padding: 0.4rem 0.6rem;" aria-label="Toggle theme">☀️</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN: Verification Form -->
+  <main class="flex items-center justify-center" style="min-height: calc(100vh - 80px); padding: var(--space-8) var(--space-4);">
+    <div class="glass-strong rounded-xl p-8 w-full" style="max-width: 550px;">
+      <div class="text-center mb-6">
+        <div class="text-brand mb-3" style="font-size: 64px;">🔐</div>
+        <h1 class="mb-2">Verify Your Account</h1>
+        <p class="text-secondary">Enter the verification code sent to your email or phone</p>
+        <p class="text-tertiary text-sm mt-2">You only need to verify <strong>one</strong> to continue</p>
+      </div>
+
+      <!-- Email Verification Section -->
+      <div id="email-section" class="verification-section">
+        <h3>
+          <span class="verification-icon">📧</span>
+          Email Verification
+          <span id="email-status" class="status-badge pending">Pending</span>
+        </h3>
+        <p class="text-secondary text-sm mb-4">Code sent to: <strong id="email-display">loading...</strong></p>
+        
+        <div class="form-group">
+          <input 
+            type="text" 
+            id="email-code" 
+            class="code-input" 
+            maxlength="6" 
+            placeholder="000000" 
+            pattern="[0-9]*"
+            inputmode="numeric"
+          />
+        </div>
+        
+        <div class="flex gap-2">
+          <button id="verify-email-btn" class="btn-primary flex-1">Verify Email</button>
+          <button id="resend-email-btn" class="btn-ghost">Resend</button>
+        </div>
+        
+        <div id="email-error" class="form-error mt-3" style="display: none;"></div>
+        <div id="email-success" class="text-brand mt-3" style="display: none;"></div>
+      </div>
+
+      <div class="divider">
+        <span>OR</span>
+      </div>
+
+      <!-- Phone Verification Section -->
+      <div id="phone-section" class="verification-section">
+        <h3>
+          <span class="verification-icon">📲</span>
+          Phone Verification (SMS)
+          <span id="phone-status" class="status-badge pending">Pending</span>
+        </h3>
+        <p class="text-secondary text-sm mb-4">Code sent to: <strong id="phone-display">loading...</strong></p>
+        
+        <div class="form-group">
+          <input 
+            type="text" 
+            id="phone-code" 
+            class="code-input" 
+            maxlength="6" 
+            placeholder="000000" 
+            pattern="[0-9]*"
+            inputmode="numeric"
+          />
+        </div>
+        
+        <div class="flex gap-2">
+          <button id="verify-phone-btn" class="btn-primary flex-1">Verify Phone</button>
+          <button id="resend-phone-btn" class="btn-ghost">Resend</button>
+        </div>
+        
+        <div id="phone-error" class="form-error mt-3" style="display: none;"></div>
+        <div id="phone-success" class="text-brand mt-3" style="display: none;"></div>
+      </div>
+
+      <!-- Info Section -->
+      <div class="text-center mt-6 pt-6" style="border-top: 1px solid var(--color-border-primary);">
+        <p class="text-sm text-tertiary mb-3">
+          💡 <strong>Tip:</strong> Check your spam folder for the email code, 
+          or check the server console for the SMS code (demo mode).
+        </p>
+        <p class="text-sm text-tertiary">
+          Wrong account? <a href="signup.html" class="text-brand">Sign up again</a>
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Theme Switcher -->
+  <script src="./scripts/theme-switcher.js"></script>
+  <script src="./scripts/verify-account.js"></script>
+</body>
+</html>
